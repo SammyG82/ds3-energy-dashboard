@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# eia_extraction generated outputs (re-run scripts to regenerate)
+eia_extraction/*.png
+eia_extraction/*.svg

@@ -4,7 +4,7 @@ import numpy as np
 # === CONFIGURATION ===
 INPUT_FILE = "Reliability_2024.xlsx"  # Rename your file to this, or change path
 OUTPUT_UTILITY = "reliability_by_utility.csv"
-OUTPUT_STATE = "reliability_by_state.csv"
+OUTPUT_STATE = "reliability_by_state_2024.csv"
 
 def main():
     print(f"Reading {INPUT_FILE}...")

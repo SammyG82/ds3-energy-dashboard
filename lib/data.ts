@@ -85,7 +85,7 @@ export async function fetchTargets(): Promise<Array<{
 }>> {
   const raw = await d3.csv(`${BASE}/data/merged_targets_clean.csv`);
   return raw
-    .filter((d) => d.capacity_target_gw && +d.capacity_target_gw > 0)
+    .filter((d) => d.capacity_target_gw && +d.capacity_target_gw > 0 && d.country_code !== "EU")
     .map((d) => ({
       country_code: d.country_code ?? "",
       country_name: d.country_name ?? "",
