@@ -63,10 +63,18 @@ ds3-energy-dashboard/
 
 ## Local Development
 
+**Frontend:**
 ```bash
 npm install
 npm run dev             # dev server at localhost:3000
 npm run build           # static export to out/
+```
+
+**Python (for analysis notebooks only):**
+```bash
+conda env create -f environment.yml   # create the ds3-energy environment
+conda activate ds3-energy
+jupyter notebook                      # open notebooks in analysis/ or eda/
 ```
 
 ## Caveats
