@@ -1,0 +1,12 @@
+[
+  { "country": "United States", "region": "USA",         "gdp": 31820, "oilImports": 6.2, "costPerBarrel": 72.50 },
+  { "country": "China",         "region": "China",       "gdp": 20650, "oilImports": 10.6,"costPerBarrel": 61.20 },
+  { "country": "Germany",       "region": "Germany",     "gdp": 5330,  "oilImports": 2.0, "costPerBarrel": 79.00 },
+  { "country": "India",         "region": "India",       "gdp": 4510,  "oilImports": 4.5, "costPerBarrel": 64.31 },
+  { "country": "Japan",         "region": "Japan",       "gdp": 4460,  "oilImports": 3.2, "costPerBarrel": 82.50 },
+  { "country": "Italy",         "region": "Italy",       "gdp": 2700,  "oilImports": 1.5, "costPerBarrel": 78.00 },
+  { "country": "Spain",         "region": "Spain",       "gdp": 2040,  "oilImports": 0.9, "costPerBarrel": 78.00 },
+  { "country": "South Korea",   "region": "Korea",       "gdp": 1940,  "oilImports": 3.0, "costPerBarrel": 80.50 },
+  { "country": "Netherlands",   "region": "Netherlands", "gdp": 1410,  "oilImports": 0.8, "costPerBarrel": 79.00 },
+  { "country": "Thailand",      "region": "Thailand",    "gdp": 561.51,"oilImports": 0.9, "costPerBarrel": 76.50 }
+]
