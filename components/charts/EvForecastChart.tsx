@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-interface EvRow {
-  region_country: string;
-  year: number;
-  ev_sales: number;
-  type: string;
-}
+import type { EvRow } from "@/lib/data";
 
 interface Props {
   data: EvRow[];
@@ -27,23 +21,44 @@ const PREVIEW_REGIONS = ["China", "USA", "Europe", "India", "World"];
 export default function EvForecastChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const allRegions = Array.from(new Set(data.map((d) => d.region_country))).sort();
-  const defaultRegions = preview
-    ? allRegions.filter((r) => PREVIEW_REGIONS.includes(r)).slice(0, 5)
-    : allRegions.slice(0, 6);
+  const allRegions = useMemo(
+    () => Array.from(new Set(data.map((d) => d.region_country))).sort(),
+    [data]
+  );
 
-  const [selected, setSelected] = useState<string[]>(defaultRegions);
+  const colorScale = useMemo(
+    () => d3.scaleOrdinal<string>().domain(allRegions).range(REGION_COLORS),
+    [allRegions]
+  );
 
-  const colorScale = d3.scaleOrdinal<string>().domain(allRegions).range(REGION_COLORS);
+  const defaultRegions = useMemo(
+    () => preview
+      ? allRegions.filter((r) => PREVIEW_REGIONS.includes(r)).slice(0, 5)
+      : allRegions.slice(0, 6),
+    [allRegions, preview]
+  );
+
+  const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current) return;
+    setSelected(defaultRegions);
+  }, [defaultRegions]);
+
+  useEffect(() => {
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 56 };
     const totalH = preview ? 220 : 340;
     const width = totalW - margin.left - margin.right;
@@ -66,7 +81,6 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .nice()
       .range([height, 0]);
 
-    // Grid
     g.selectAll(".grid-h")
       .data(y.ticks(5))
       .enter()
@@ -75,7 +89,6 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
       .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
 
-    // 2024 forecast boundary
     g.append("line")
       .attr("x1", x(FORECAST_BOUNDARY)).attr("x2", x(FORECAST_BOUNDARY))
       .attr("y1", 0).attr("y2", height)
@@ -92,32 +105,22 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .y((d) => y(d.ev_sales))
       .curve(d3.curveMonotoneX);
 
-    // Draw each region as two segments: actual (solid) + forecast (dashed)
     regionData.forEach(({ region, values }) => {
       const color = colorScale(region);
       const actual = values.filter((d) => d.year <= FORECAST_BOUNDARY);
       const forecast = values.filter((d) => d.year >= FORECAST_BOUNDARY);
 
       if (actual.length > 1) {
-        g.append("path")
-          .datum(actual)
-          .attr("fill", "none")
-          .attr("stroke", color)
-          .attr("stroke-width", 2)
-          .attr("d", line);
+        g.append("path").datum(actual)
+          .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2).attr("d", line);
       }
       if (forecast.length > 1) {
-        g.append("path")
-          .datum(forecast)
-          .attr("fill", "none")
-          .attr("stroke", color)
-          .attr("stroke-width", 2)
-          .attr("stroke-dasharray", "6 3")
-          .attr("d", line);
+        g.append("path").datum(forecast)
+          .attr("fill", "none").attr("stroke", color)
+          .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
       }
     });
 
-    // Axes
     g.append("g")
       .attr("class", "chart-axis")
       .attr("transform", `translate(0,${height})`)
@@ -127,12 +130,13 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .attr("class", "chart-axis")
       .call(
         d3.axisLeft(y).tickFormat((v) => {
-          const n = v as number;
-          return n >= 1_000_000 ? (n / 1_000_000).toFixed(0) + "M" : (n / 1_000).toFixed(0) + "k";
+          const n = +v;
+          return n >= 1_000_000 ? (n / 1_000_000).toFixed(0) + "M"
+            : n >= 1_000 ? (n / 1_000).toFixed(0) + "k"
+            : n.toFixed(0);
         }).ticks(5)
       );
 
-    // Legend (top-right)
     if (!preview) {
       const legend = g.append("g").attr("transform", `translate(${width - 140}, 4)`);
       selected.slice(0, 8).forEach((r, i) => {
@@ -145,22 +149,15 @@ export default function EvForecastChart({ data, preview = false }: Props) {
           .text(r);
       });
     }
-  }, [data, selected, preview, colorScale]);
-
-  useEffect(() => {
-    const obs = new ResizeObserver(() => {
-      if (svgRef.current) svgRef.current.dispatchEvent(new Event("resize"));
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
-  }, []);
+  }, [data, selected, preview, colorScale, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
       {!preview && (
         <div className="flex items-center gap-3 flex-wrap">
-          <label className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</label>
+          <label htmlFor="region-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</label>
           <select
+            id="region-select"
             multiple
             value={selected}
             onChange={(e) =>
@@ -176,15 +173,11 @@ export default function EvForecastChart({ data, preview = false }: Props) {
         </div>
       )}
 
-      {/* Legend for preview */}
       {preview && (
         <div className="flex flex-wrap gap-3">
           {selected.map((r) => (
             <span key={r} className="flex items-center gap-1.5 text-xs text-slate-600">
-              <span
-                className="inline-block w-6 h-0.5"
-                style={{ backgroundColor: colorScale(r) }}
-              />
+              <span className="inline-block w-6 h-0.5" style={{ backgroundColor: colorScale(r) }} />
               {r}
             </span>
           ))}
@@ -192,7 +185,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       )}
 
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line S-curve chart of EV sales by region" />
       </div>
 
       <p className="text-xs text-slate-400 font-mono">

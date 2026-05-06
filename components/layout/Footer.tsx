@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
   return (
     <footer className="border-t border-slate-200 mt-16">
@@ -10,16 +12,17 @@ export default function Footer() {
             href="https://github.com/SammyG82/ds3-energy-dashboard"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="GitHub repository (opens in new tab)"
             className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors"
           >
             GitHub
           </a>
-          <a
+          <Link
             href="/datasets/"
             className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors"
           >
             Datasets
-          </a>
+          </Link>
         </nav>
       </div>
     </footer>

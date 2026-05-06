@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 
 export interface BurdenRow {
@@ -24,16 +24,26 @@ function burdenColor(b: number) {
 export default function EnergyBurdenChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const sorted = [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct).slice(0, 40);
+  const sorted = useMemo(
+    () => [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct).slice(0, 40),
+    [data]
+  );
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !sorted.length) return;
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !sorted.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 8, right: 80, bottom: 8, left: 40 };
     const barH = 22;
     const gap = 4;
@@ -73,18 +83,22 @@ export default function EnergyBurdenChart({ data }: Props) {
       .data(sorted)
       .enter()
       .append("text")
-      .attr("x", (d) => x(d.energy_burden_pct) + 5)
+      .attr("x", 0)
       .attr("y", (d) => (y(d.state) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
-      .text((d) => `${d.energy_burden_pct.toFixed(2)}%`);
+      .attr("opacity", 0)
+      .text((d) => `${d.energy_burden_pct.toFixed(2)}%`)
+      .transition().duration(700).delay((_, i) => i * 12)
+      .attr("x", (d) => x(d.energy_burden_pct) + 5)
+      .attr("opacity", 1);
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickSize(0))
       .call((ax) => ax.select(".domain").remove())
       .selectAll("text").attr("dx", -4).attr("font-size", "11px").attr("fill", "#475569");
-  }, [sorted]);
+  }, [sorted, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -102,10 +116,10 @@ export default function EnergyBurdenChart({ data }: Props) {
       </div>
 
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Horizontal bar chart of energy burden by US state" />
       </div>
 
-      <p className="text-xs text-slate-400 font-mono">Energy burden = annual electricity bill as % of household income (2024)</p>
+      <p className="text-xs text-slate-400 font-mono">Energy burden = annual electricity bill as % of household income (2024){data.length > sorted.length ? ` · Showing top ${sorted.length} of ${data.length} states` : ""}</p>
     </div>
   );
 }

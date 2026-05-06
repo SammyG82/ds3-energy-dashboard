@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-interface EvRow {
-  region_country: string;
-  year: number;
-  ev_sales: number;
-  type: string;
-}
+import type { EvRow } from "@/lib/data";
 
 interface Props {
   data: EvRow[];
@@ -19,27 +13,36 @@ const FORECAST_BOUNDARY = 2024;
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const countries = Array.from(new Set(data.map((d) => d.region_country)))
-    .filter((c) => c !== "World")
-    .sort();
+  const countries = useMemo(
+    () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => c !== "World").sort(),
+    [data]
+  );
 
-  const [country, setCountry] = useState(countries[0] ?? "China");
+  const [country, setCountry] = useState(() => countries[0] ?? "");
 
-  const countryData = data
-    .filter((d) => d.region_country === country)
-    .sort((a, b) => a.year - b.year);
+  const countryData = useMemo(
+    () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
+    [data, country]
+  );
 
-  const history = countryData.filter((d) => d.year <= FORECAST_BOUNDARY);
-  const forecast = countryData.filter((d) => d.year >= FORECAST_BOUNDARY);
+  const history = useMemo(() => countryData.filter((d) => d.year <= FORECAST_BOUNDARY), [countryData]);
+  const forecast = useMemo(() => countryData.filter((d) => d.year >= FORECAST_BOUNDARY), [countryData]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !countryData.length) return;
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !countryData.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 16, right: 24, bottom: 32, left: 60 };
     const totalH = 300;
     const width = totalW - margin.left - margin.right;
@@ -113,20 +116,14 @@ export default function EvTrendChart({ data }: Props) {
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => {
-        const n = v as number;
+        const n = +v;
         return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(0)}k` : `${n}`;
       }).ticks(5));
-  }, [countryData, history, forecast]);
+  }, [countryData, history, forecast, containerWidth]);
 
-  useEffect(() => {
-    const obs = new ResizeObserver(() => {
-      if (svgRef.current) svgRef.current.dispatchEvent(new Event("resize"));
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
-  }, []);
-
-  const peak = countryData.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, countryData[0]);
+  const peak = countryData.length > 0
+    ? countryData.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, countryData[0])
+    : null;
   const latest = history[history.length - 1];
   const first = history.find((d) => d.ev_sales > 0);
   const cagr = first && latest && latest.year > first.year
@@ -138,8 +135,9 @@ export default function EvTrendChart({ data }: Props) {
     <div className="flex flex-col gap-4">
       {/* Country selector */}
       <div className="flex items-center gap-3 flex-wrap">
-        <label className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
+        <label htmlFor="trend-country-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
         <select
+          id="trend-country-select"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
           className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -153,7 +151,7 @@ export default function EvTrendChart({ data }: Props) {
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2023 Sales</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{latest?.year ?? "—"} Sales</p>
           <p className="text-lg font-bold text-teal-600">
             {latest ? (latest.ev_sales >= 1_000_000 ? `${(latest.ev_sales / 1_000_000).toFixed(1)}M` : `${(latest.ev_sales / 1_000).toFixed(0)}k`) : "—"}
           </p>
@@ -176,7 +174,7 @@ export default function EvTrendChart({ data }: Props) {
 
       {/* Chart */}
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Line chart of EV sales over time with S-curve forecast" />
       </div>
 
       <p className="text-xs text-slate-400 font-mono">

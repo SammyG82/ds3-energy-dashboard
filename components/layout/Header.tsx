@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "";
-
 const nav = [
   { label: "Dashboard",       href: "/" },
   { label: "EV Share",        href: "/ev-share/" },
@@ -18,7 +16,7 @@ const nav = [
 ];
 
 export default function Header() {
-  const pathname = usePathname().replace(BASE, "") || "/";
+  const pathname = usePathname() ?? "/";
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -35,6 +33,7 @@ export default function Header() {
               <Link
                 key={href}
                 href={href}
+                aria-current={active ? "page" : undefined}
                 className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                   active
                     ? "border-amber-400/50 bg-amber-50 text-amber-700"

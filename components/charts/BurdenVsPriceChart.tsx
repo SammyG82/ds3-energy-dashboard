@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 
 export interface BurdenPriceRow {
@@ -19,14 +19,21 @@ interface Props {
 export default function BurdenVsPriceChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !data.length) return;
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 20, right: 30, bottom: 48, left: 56 };
     const totalH = 380;
     const width = totalW - margin.left - margin.right;
@@ -70,7 +77,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
       .attr("cx", (d) => x(d.avg_price_cents_kwh))
       .attr("cy", (d) => y(d.energy_burden_pct))
       .attr("r", (d) => rScale(d.avg_customers ?? 0))
-      .attr("fill", (d) => d.median_income_2024 ? colorScale(d.median_income_2024) : "#94a3b8")
+      .attr("fill", (d) => d.median_income_2024 != null ? colorScale(d.median_income_2024) : "#94a3b8")
       .attr("opacity", 0.8)
       .attr("stroke", "white").attr("stroke-width", 1);
 
@@ -102,7 +109,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
       .attr("x", -(margin.top + height / 2)).attr("y", 14)
       .attr("text-anchor", "middle").attr("font-size", "11px").attr("fill", "#64748b")
       .text("Energy Burden (%)");
-  }, [data]);
+  }, [data, containerWidth]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -112,7 +119,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
         <span>Size: customer count</span>
       </div>
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Scatter plot of energy burden vs electricity price by US state" />
       </div>
     </div>
   );

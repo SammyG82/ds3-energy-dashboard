@@ -1,9 +1,9 @@
-interface Badge {
+export interface Badge {
   label: string;
   color?: "teal" | "amber" | "blue";
 }
 
-interface PageHeaderProps {
+export interface PageHeaderProps {
   eyebrow: string;
   title: string;
   titleAccent?: string;

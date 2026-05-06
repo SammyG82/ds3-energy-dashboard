@@ -1,14 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-interface EvRow {
-  region_country: string;
-  year: number;
-  ev_sales: number;
-  type: string;
-}
+import type { EvRow } from "@/lib/data";
 
 interface Props {
   data: EvRow[];
@@ -27,23 +21,38 @@ const DEFAULT_COLOR = "#2563eb";
 export default function EvShareChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const years = Array.from(new Set(data.map((d) => d.year))).sort((a, b) => a - b);
-  const [year, setYear] = useState(years[years.length - 1] ?? 2023);
-  const [topN] = useState(preview ? 10 : 20);
+  const topN = preview ? 10 : 20;
 
-  const filtered = data
-    .filter((d) => d.year === year)
-    .sort((a, b) => b.ev_sales - a.ev_sales)
-    .slice(0, topN);
+  const years = useMemo(
+    () => Array.from(new Set(data.map((d) => d.year))).sort((a, b) => a - b),
+    [data]
+  );
+  const [year, setYear] = useState(() => years[years.length - 1] ?? 0);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !filtered.length) return;
+    if (years.length) setYear(years[years.length - 1]);
+  }, [years]);
+
+  const filtered = useMemo(
+    () => data.filter((d) => d.year === year).sort((a, b) => b.ev_sales - a.ev_sales).slice(0, topN),
+    [data, year, topN]
+  );
+
+  useEffect(() => {
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !filtered.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 8, right: 20, bottom: 8, left: preview ? 80 : 120 };
     const barH = preview ? 22 : 28;
     const gap = 4;
@@ -113,15 +122,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .attr("dx", -6)
       .attr("font-size", preview ? "11px" : "12px")
       .attr("fill", "#475569");
-  }, [filtered, preview]);
-
-  useEffect(() => {
-    const obs = new ResizeObserver(() => {
-      if (svgRef.current) svgRef.current.dispatchEvent(new Event("resize"));
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
-  }, []);
+  }, [filtered, preview, containerWidth]);
 
   const leader = filtered[0];
   const total = filtered.reduce((s, d) => s + d.ev_sales, 0);
@@ -131,8 +132,9 @@ export default function EvShareChart({ data, preview = false }: Props) {
       {/* Controls */}
       {!preview && (
         <div className="flex items-center gap-3 flex-wrap">
-          <label className="text-xs font-mono uppercase tracking-widest text-slate-400">Year</label>
+          <label htmlFor="share-year-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Year</label>
           <select
+            id="share-year-select"
             value={year}
             onChange={(e) => setYear(Number(e.target.value))}
             className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-300"
@@ -188,7 +190,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
       {/* Chart */}
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Horizontal bar chart of top EV sales countries" />
       </div>
     </div>
   );

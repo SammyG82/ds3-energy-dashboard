@@ -3,13 +3,11 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { fetchEvSales, fetchEvData, fetchOilForecast } from "@/lib/data";
-import type { OilRow } from "@/components/charts/OilForecastChart";
+import type { OilRow, EvRow } from "@/lib/data";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
 const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false });
-
-interface EvRow { region_country: string; year: number; ev_sales: number; type: string; }
 
 const stats = [
   { value: "~18%", label: "Global EV new-car share", accent: "text-blue-600" },
@@ -41,15 +39,21 @@ export default function LandingPage() {
   const [evSales, setEvSales] = useState<EvRow[]>([]);
   const [evData, setEvData] = useState<EvRow[]>([]);
   const [oilData, setOilData] = useState<OilRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchEvSales().then(setEvSales);
-    fetchEvData().then(setEvData);
-    fetchOilForecast().then(setOilData);
+    fetchEvSales().then(setEvSales).catch(() => setError("Failed to load EV sales data."));
+    fetchEvData().then(setEvData).catch(() => setError("Failed to load EV forecast data."));
+    fetchOilForecast().then(setOilData).catch(() => setError("Failed to load oil forecast data."));
   }, []);
 
   return (
     <>
+      {error && (
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-4">
+          <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
+        </div>
+      )}
       {/* Hero */}
       <section className="bg-white border-b border-slate-200">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-16 text-center">

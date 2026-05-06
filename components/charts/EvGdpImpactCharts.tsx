@@ -1,21 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import * as d3 from "d3";
+import type { EvRow, GdpMeta } from "@/lib/data";
 
-export interface EvRow {
-  region_country: string;
-  year: number;
-  ev_sales: number;
-}
-
-export interface GdpMeta {
-  country: string;
-  region: string;
-  gdp: number;
-  oilImports: number;
-  costPerBarrel: number;
-}
+export type { GdpMeta };
 
 interface Props {
   evData: EvRow[];
@@ -39,17 +28,29 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   const oilSvg = useRef<SVGSVGElement>(null);
   const gdpSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const countries = gdpMeta.map((m) => m.country);
-  const years = Array.from(new Set(evData.map((d) => d.year)))
-    .filter((y) => y >= 2024 && y <= 2030)
-    .sort();
+  const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
+  const years = useMemo(
+    () => Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= 2024 && y <= 2030).sort(),
+    [evData]
+  );
 
-  const [country, setCountry] = useState(countries[0]);
-  const [year, setYear] = useState(years[0] ?? 2024);
+  const [country, setCountry] = useState(() => countries[0] ?? "");
+  const [year, setYear] = useState(() => years[0] ?? 2024);
+
+  useEffect(() => {
+    if (countries.length) setCountry(countries[0]);
+  }, [countries]);
   const [adoption, setAdoption] = useState(1.0);
 
-  const meta = gdpMeta.find((m) => m.country === country)!;
+  useEffect(() => {
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const meta = gdpMeta.find((m) => m.country === country);
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
     ? compute(meta.region, year, adoption, meta, evData)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
@@ -62,11 +63,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       yFmt: (v: number) => string,
       maxY?: number
     ) => {
-      if (!svgEl || !containerRef.current) return;
+      if (!svgEl || containerWidth === 0) return;
       const svg = d3.select(svgEl);
       svg.selectAll("*").remove();
 
-      const totalW = containerRef.current.offsetWidth / 2 - 16;
+      const totalW = containerWidth / 2 - 16;
       const margin = { top: 12, right: 12, bottom: 28, left: 52 };
       const totalH = 220;
       const width = Math.max(totalW - margin.left - margin.right, 80);
@@ -78,6 +79,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       const allYears = Array.from(new Set(evData.map((d) => d.year)))
         .filter((y) => y <= year)
         .sort();
+      if (!allYears.length) return;
       const chartData = allYears.map((yr) => ({ yr, val: getY(yr) }));
 
       const x = d3.scaleLinear().domain(d3.extent(allYears) as [number, number]).range([0, width]);
@@ -109,7 +111,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       g.append("g").attr("class", "chart-axis")
         .call(d3.axisLeft(yScale).ticks(4).tickFormat(yFmt as (v: d3.NumberValue) => string));
     },
-    [evData, year]
+    [evData, year, containerWidth]
   );
 
   useEffect(() => {
@@ -128,14 +130,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     );
   }, [meta, year, adoption, evData, drawAreaChart]);
 
-  // GDP bar chart across all countries
   useEffect(() => {
-    if (!gdpSvg.current || !containerRef.current) return;
+    if (!gdpSvg.current || containerWidth === 0) return;
 
     const svg = d3.select(gdpSvg.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 16, right: 16, bottom: 56, left: 56 };
     const totalH = 260;
     const width = totalW - margin.left - margin.right;
@@ -174,19 +175,23 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     g.selectAll(".val-label").data(chartData).enter()
       .append("text")
       .attr("x", (d) => (x(d.country) ?? 0) + x.bandwidth() / 2)
-      .attr("y", (d) => y(d.pct) - 5)
+      .attr("y", height)
       .attr("text-anchor", "middle")
       .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
-      .text((d) => d.pct.toFixed(3) + "%");
+      .attr("opacity", 0)
+      .text((d) => d.pct.toFixed(3) + "%")
+      .transition().duration(500)
+      .attr("y", (d) => y(d.pct) - 5)
+      .attr("opacity", 1);
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x))
       .selectAll("text").attr("transform", "rotate(-30)").style("text-anchor", "end").attr("font-size", "11px");
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((d) => `${(d as number).toFixed(3)}%`).ticks(4));
-  }, [gdpMeta, year, adoption, country, evData]);
+      .call(d3.axisLeft(y).tickFormat((d) => `${(+d).toFixed(3)}%`).ticks(4));
+  }, [gdpMeta, year, adoption, country, evData, containerWidth]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -199,6 +204,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
           </div>
           <input
             type="range" min="0.5" max="3" step="0.1" value={adoption}
+            aria-label="EV Adoption Rate multiplier"
             onChange={(e) => setAdoption(parseFloat(e.target.value))}
             className="w-full accent-teal-600"
           />
@@ -211,7 +217,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
             <span className="text-sm font-bold text-teal-600">{year}</span>
           </div>
           <input
-            type="range" min={years[0]} max={years[years.length - 1]} step="1" value={year}
+            type="range"
+            min={years.length ? years[0] : 2024}
+            max={years.length ? years[years.length - 1] : 2030}
+            step="1" value={year}
+            aria-label="Analysis Year"
             onChange={(e) => setYear(parseInt(e.target.value))}
             className="w-full accent-teal-600"
           />
@@ -219,8 +229,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
         </div>
 
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
+          <label htmlFor="gdp-country-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
           <select
+            id="gdp-country-select"
             value={country}
             onChange={(e) => setCountry(e.target.value)}
             className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -261,12 +272,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Trajectory</p>
           <p className="text-sm font-bold text-slate-800 mb-3">EV Sales Volume</p>
-          <svg ref={evSvg} className="w-full" />
+          <svg ref={evSvg} className="w-full" role="img" aria-label="Area chart of EV sales trajectory over time" />
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Displacement</p>
           <p className="text-sm font-bold text-slate-800 mb-3">Oil Displaced (M Bbl/Yr)</p>
-          <svg ref={oilSvg} className="w-full" />
+          <svg ref={oilSvg} className="w-full" role="img" aria-label="Area chart of oil displaced by EVs over time" />
         </div>
       </div>
 
@@ -274,7 +285,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Comparative</p>
         <p className="text-sm font-bold text-slate-800 mb-3">% of GDP Saved on Oil Imports by Country</p>
-        <svg ref={gdpSvg} className="w-full" />
+        <svg ref={gdpSvg} className="w-full" role="img" aria-label="Bar chart of GDP savings from oil displacement by country" />
       </div>
 
       <p className="text-xs text-slate-400 font-mono bg-blue-50 border border-blue-100 rounded-lg p-3">

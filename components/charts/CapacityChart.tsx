@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 
 export interface TargetRow {
@@ -17,19 +17,26 @@ interface Props {
 export default function CapacityChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
 
-  const top15 = [...data]
-    .filter((d) => d.capacity_target_gw > 0)
-    .sort((a, b) => b.capacity_target_gw - a.capacity_target_gw)
-    .slice(0, 15);
+  const top15 = useMemo(
+    () => [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw).slice(0, 15),
+    [data]
+  );
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !top15.length) return;
+    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    if (containerRef.current) obs.observe(containerRef.current);
+    return () => obs.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !containerRef.current || !top15.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerRef.current.offsetWidth;
+    const totalW = containerWidth;
     const margin = { top: 16, right: 16, bottom: 64, left: 56 };
     const totalH = 300;
     const width = totalW - margin.left - margin.right;
@@ -68,17 +75,21 @@ export default function CapacityChart({ data }: Props) {
       .attr("y", (d) => y(d.capacity_target_gw))
       .attr("height", (d) => height - y(d.capacity_target_gw));
 
-    // Value labels
+    // Value labels — animate in sync with bars
     g.selectAll(".val-label")
       .data(top15)
       .enter()
       .append("text")
       .attr("x", (d) => (x(d.country_code) ?? 0) + x.bandwidth() / 2)
-      .attr("y", (d) => y(d.capacity_target_gw) - 5)
+      .attr("y", height)
       .attr("text-anchor", "middle")
       .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#475569")
-      .text((d) => `${d.capacity_target_gw}GW`);
+      .attr("opacity", 0)
+      .text((d) => `${d.capacity_target_gw}GW`)
+      .transition().duration(700).delay((_, i) => i * 45)
+      .attr("y", (d) => y(d.capacity_target_gw) - 5)
+      .attr("opacity", 1);
 
     // Axes
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
@@ -90,11 +101,11 @@ export default function CapacityChart({ data }: Props) {
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((d) => `${d}GW`).ticks(5));
-  }, [top15]);
+  }, [top15, containerWidth]);
 
   return (
     <div ref={containerRef} className="w-full">
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Bar chart of top 15 countries by 2030 renewable capacity target" />
     </div>
   );
 }

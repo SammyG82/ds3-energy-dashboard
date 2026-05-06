@@ -4,16 +4,16 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchEvSales } from "@/lib/data";
+import type { EvRow } from "@/lib/data";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvTrendChart = dynamic(() => import("@/components/charts/EvTrendChart"), { ssr: false });
 
-interface EvRow { region_country: string; year: number; ev_sales: number; type: string; }
-
 export default function EvSharePage() {
   const [data, setData] = useState<EvRow[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { fetchEvSales().then(setData); }, []);
+  useEffect(() => { fetchEvSales().then(setData).catch(() => setError("Failed to load data.")); }, []);
 
   return (
     <>
@@ -28,6 +28,11 @@ export default function EvSharePage() {
           { label: "50+ Countries", color: "amber" },
         ]}
       />
+      {error && (
+        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6">
+          <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
+        </div>
+      )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
 
         {/* Rankings bar chart */}
@@ -39,11 +44,9 @@ export default function EvSharePage() {
           </div>
           {data.length > 0 ? (
             <EvShareChart data={data} />
-          ) : (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">
-              Loading data…
-            </div>
-          )}
+          ) : !error ? (
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          ) : null}
         </div>
 
         {/* Single-country trend */}
@@ -55,11 +58,9 @@ export default function EvSharePage() {
           </div>
           {data.length > 0 ? (
             <EvTrendChart data={data} />
-          ) : (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">
-              Loading data…
-            </div>
-          )}
+          ) : !error ? (
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          ) : null}
         </div>
 
       </div>
