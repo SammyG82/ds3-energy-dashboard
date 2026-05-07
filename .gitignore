@@ -44,6 +44,7 @@ next-env.d.ts
 eia_extraction/*.png
 eia_extraction/*.svg
 
-# Analysis generated images (re-run notebooks to regenerate)
+# Analysis generated outputs (re-run notebooks to regenerate)
 analysis/oil_info/*.png
 analysis/oil_info/*.svg
+analysis/oil_info/*.xlsx

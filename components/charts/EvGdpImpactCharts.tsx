@@ -42,6 +42,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   useEffect(() => {
     if (countries.length) setCountry(countries[0]);
   }, [countries]);
+
+  useEffect(() => {
+    if (years.length) setYear(years[0]);
+  }, [years]);
+
   const [adoption, setAdoption] = useState(1.0);
 
   useEffect(() => {

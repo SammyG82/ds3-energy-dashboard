@@ -121,7 +121,7 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
 export async function fetchOilExports(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/exports.csv`);
   return raw.map((d) => ({
-    Country: d.Country ?? "",
+    Country: d.Country === "Usa" ? "USA" : (d.Country ?? ""),
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Value"] ?? 0),

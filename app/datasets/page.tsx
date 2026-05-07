@@ -56,6 +56,15 @@ const datasets = [
     license: "CC BY 4.0",
   },
   {
+    name: "Oil Exports Forecast",
+    file: "exports.csv",
+    description: "Historical oil export volumes by country (1971–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
+    rows: "610 rows",
+    columns: "Country, Year, Type, Value, Lower_CI, Upper_CI, ARIMA_Order, MAPE",
+    source: "International Energy Agency (IEA)",
+    license: "IEA Terms of Use",
+  },
+  {
     name: "EV GDP Impact Metadata",
     file: "gdp_country_meta.json",
     description: "Country-level GDP, oil import volumes, and cost-per-barrel figures used for the EV GDP impact calculations.",
