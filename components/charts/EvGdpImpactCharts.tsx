@@ -14,8 +14,8 @@ interface Props {
 const GALLONS_PER_EV = 1300;
 const BARRELS_PER_GALLON = 1 / 42;
 
-function compute(region: string, year: number, adoption: number, meta: GdpMeta, evData: EvRow[]) {
-  const row = evData.find((d) => d.region_country === region && d.year === year);
+function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta, evData: EvRow[]) {
+  const row = evData.find((d) => d.region_country === evRegion && d.year === year);
   const sales = (row?.ev_sales ?? 0) * adoption;
   const oilDisplaced = (sales * GALLONS_PER_EV * BARRELS_PER_GALLON) / 1_000_000;
   const costSavings = (oilDisplaced * 1_000_000 * meta.costPerBarrel) / 1_000_000_000;

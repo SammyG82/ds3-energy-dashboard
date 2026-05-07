@@ -49,7 +49,7 @@ export async function fetchEvData(): Promise<EvRow[]> {
 export async function fetchOilForecast(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/oil_forecast.csv`);
   return raw.map((d) => ({
-    Country: d.Country ?? "",
+    Country: d.Country === "Usa" ? "USA" : (d.Country ?? ""),
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Oil Imports (KBD)"] ?? 0),

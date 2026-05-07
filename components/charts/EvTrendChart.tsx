@@ -22,6 +22,10 @@ export default function EvTrendChart({ data }: Props) {
 
   const [country, setCountry] = useState(() => countries[0] ?? "");
 
+  useEffect(() => {
+    if (countries.length && !countries.includes(country)) setCountry(countries[0]);
+  }, [countries]);
+
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
     [data, country]

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
+import ChipFilter from "@/components/ui/ChipFilter";
 
 interface Props {
   data: OilRow[];
@@ -154,24 +155,14 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {allCountries.map((c) => (
-              <button
-                type="button"
-                key={c}
-                onClick={() => toggle(c)}
-                className={`text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
-                  selected.has(c)
-                    ? "text-white border-transparent"
-                    : "bg-white border-slate-200 text-slate-600 hover:border-slate-400"
-                }`}
-                aria-pressed={selected.has(c)}
-                style={selected.has(c) ? { backgroundColor: COUNTRY_COLORS[c] ?? "#2563eb" } : undefined}
-              >
-                {c}
-              </button>
-            ))}
-          </div>
+          <ChipFilter
+            options={allCountries}
+            selected={selected}
+            onToggle={toggle}
+            onSelectAll={() => setSelected(new Set(allCountries))}
+            onClearAll={() => setSelected(new Set(allCountries.slice(0, 1)))}
+            colorMap={COUNTRY_COLORS}
+          />
         </>
       )}
 

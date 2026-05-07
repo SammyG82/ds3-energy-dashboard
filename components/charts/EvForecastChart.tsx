@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
+import ChipFilter from "@/components/ui/ChipFilter";
 
 interface Props {
   data: EvRow[];
@@ -31,6 +32,11 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   const colorScale = useMemo(
     () => d3.scaleOrdinal<string>().domain(allRegions).range(REGION_COLORS),
     [allRegions]
+  );
+
+  const colorMap = useMemo(
+    () => Object.fromEntries(allRegions.map((r) => [r, colorScale(r)])),
+    [allRegions, colorScale]
   );
 
   const defaultRegions = useMemo(
@@ -154,22 +160,22 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   return (
     <div className="flex flex-col gap-4">
       {!preview && (
-        <div className="flex items-center gap-3 flex-wrap">
-          <label htmlFor="region-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</label>
-          <select
-            id="region-select"
-            multiple
-            value={selected}
-            onChange={(e) =>
-              setSelected(Array.from(e.target.selectedOptions).map((o) => o.value))
+        <div className="flex flex-col gap-2">
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</p>
+          <ChipFilter
+            options={allRegions}
+            selected={new Set(selected)}
+            onToggle={(r) =>
+              setSelected((prev) =>
+                prev.includes(r)
+                  ? prev.length > 1 ? prev.filter((x) => x !== r) : prev
+                  : [...prev, r]
+              )
             }
-            className="text-sm border border-slate-200 rounded-lg px-2 py-1 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-            size={5}
-          >
-            {allRegions.map((r) => (
-              <option key={r} value={r}>{r}</option>
-            ))}
-          </select>
+            onSelectAll={() => setSelected([...allRegions])}
+            onClearAll={() => setSelected(allRegions.slice(0, 1))}
+            colorMap={colorMap}
+          />
         </div>
       )}
 
