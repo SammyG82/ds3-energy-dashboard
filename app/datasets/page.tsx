@@ -169,6 +169,27 @@ export default function DatasetsPage() {
             Renewable targets data is sourced from <strong>Ember</strong> under CC BY 4.0.
           </p>
         </section>
+
+        {/* Contributing */}
+        <section className="bg-white border border-slate-200 rounded-xl p-6">
+          <h3 className="font-bold text-slate-900 mb-2">Contributing</h3>
+          <p className="text-sm text-slate-500 leading-relaxed">
+            Open project. Chart implementations live in{" "}
+            <code className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">components/charts/</code>,
+            datasets in{" "}
+            <code className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">public/data/</code>.
+            Pull requests welcome on{" "}
+            <a
+              href="https://github.com/SammyG82/ds3-energy-dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-teal-600 underline"
+            >
+              GitHub
+            </a>
+            .
+          </p>
+        </section>
       </div>
     </>
   );
