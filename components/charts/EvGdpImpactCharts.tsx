@@ -131,7 +131,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   }, [meta, year, adoption, evData, drawAreaChart]);
 
   useEffect(() => {
-    if (!gdpSvg.current || containerWidth === 0) return;
+    if (!gdpSvg.current || containerWidth === 0 || !gdpMeta.length) return;
 
     const svg = d3.select(gdpSvg.current);
     svg.selectAll("*").remove();

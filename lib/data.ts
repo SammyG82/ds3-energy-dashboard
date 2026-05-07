@@ -58,11 +58,26 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
   }));
 }
 
-export async function fetchEnergyAccess(): Promise<Array<{
-  state: string; year: number; saidi: number; saifi: number;
-  energy_burden_pct: number; avg_price_cents_kwh: number;
-  est_annual_bill: number | null; median_income_2024: number | null; avg_customers: number | null;
-}>> {
+export interface EnergyAccessRow {
+  state: string;
+  year: number;
+  saidi: number;
+  saifi: number;
+  energy_burden_pct: number;
+  avg_price_cents_kwh: number;
+  est_annual_bill: number | null;
+  median_income_2024: number | null;
+  avg_customers: number | null;
+}
+
+export interface TargetRow {
+  country_code: string;
+  country_name: string;
+  capacity_target_gw: number;
+  share_target_pct: number | null;
+}
+
+export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
   const raw = await d3.csv(`${BASE}/data/energy_access_with_burden.csv`);
   return raw
     .filter((d) => +d.year === 2024 && d.state?.length === 2)
@@ -79,10 +94,7 @@ export async function fetchEnergyAccess(): Promise<Array<{
     }));
 }
 
-export async function fetchTargets(): Promise<Array<{
-  country_code: string; country_name: string;
-  capacity_target_gw: number; share_target_pct: number | null;
-}>> {
+export async function fetchTargets(): Promise<TargetRow[]> {
   const raw = await d3.csv(`${BASE}/data/merged_targets_clean.csv`);
   return raw
     .filter((d) => d.capacity_target_gw && +d.capacity_target_gw > 0 && d.country_code !== "EU")

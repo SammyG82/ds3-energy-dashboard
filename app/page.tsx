@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast } from "@/lib/data";
 import type { OilRow, EvRow } from "@/lib/data";
 
@@ -39,21 +40,18 @@ export default function LandingPage() {
   const [evSales, setEvSales] = useState<EvRow[]>([]);
   const [evData, setEvData] = useState<EvRow[]>([]);
   const [oilData, setOilData] = useState<OilRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const [errors, setErrors] = useState<{ evSales: string | null; evData: string | null; oilData: string | null }>({
+    evSales: null, evData: null, oilData: null,
+  });
 
   useEffect(() => {
-    fetchEvSales().then(setEvSales).catch(() => setError("Failed to load EV sales data."));
-    fetchEvData().then(setEvData).catch(() => setError("Failed to load EV forecast data."));
-    fetchOilForecast().then(setOilData).catch(() => setError("Failed to load oil forecast data."));
+    fetchEvSales().then(setEvSales).catch(() => setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })));
+    fetchEvData().then(setEvData).catch(() => setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })));
+    fetchOilForecast().then(setOilData).catch(() => setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })));
   }, []);
 
   return (
     <>
-      {error && (
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-4">
-          <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
-        </div>
-      )}
       {/* Hero */}
       <section className="bg-white border-b border-slate-200">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-16 text-center">
@@ -90,11 +88,17 @@ export default function LandingPage() {
               <h2 className="text-xl font-bold text-slate-900">EV Share by Country</h2>
               <p className="text-sm text-slate-500">Top 10 EV sales countries — select a year</p>
             </div>
-            <a href="/ev-share/" className="text-sm font-semibold text-blue-600 hover:underline">
+            <Link href="/ev-share/" className="text-sm font-semibold text-blue-600 hover:underline">
               Full Explorer →
-            </a>
+            </Link>
           </div>
-          {evSales.length > 0 && <EvShareChart data={evSales} preview />}
+          {errors.evSales ? (
+            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.evSales}</p>
+          ) : evSales.length > 0 ? (
+            <EvShareChart data={evSales} preview />
+          ) : (
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -104,11 +108,17 @@ export default function LandingPage() {
               <h2 className="text-xl font-bold text-slate-900">EV Sales Trajectory</h2>
               <p className="text-sm text-slate-500">Logistic S-curve projections through 2035</p>
             </div>
-            <a href="/ev-forecast/" className="text-sm font-semibold text-blue-600 hover:underline">
+            <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-600 hover:underline">
               Full Forecast →
-            </a>
+            </Link>
           </div>
-          {evData.length > 0 && <EvForecastChart data={evData} preview />}
+          {errors.evData ? (
+            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.evData}</p>
+          ) : evData.length > 0 ? (
+            <EvForecastChart data={evData} preview />
+          ) : (
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -118,11 +128,17 @@ export default function LandingPage() {
               <h2 className="text-xl font-bold text-slate-900">Oil Import Forecasts</h2>
               <p className="text-sm text-slate-500">Top importers with 95% CI bands through 2030</p>
             </div>
-            <a href="/oil-explorer/" className="text-sm font-semibold text-blue-600 hover:underline">
+            <Link href="/oil-explorer/" className="text-sm font-semibold text-blue-600 hover:underline">
               Full Explorer →
-            </a>
+            </Link>
           </div>
-          {oilData.length > 0 && <OilForecastChart data={oilData} preview />}
+          {errors.oilData ? (
+            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.oilData}</p>
+          ) : oilData.length > 0 ? (
+            <OilForecastChart data={oilData} preview />
+          ) : (
+            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          )}
         </div>
       </section>
 

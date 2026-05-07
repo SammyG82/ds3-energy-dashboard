@@ -2,17 +2,10 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-export interface BurdenRow {
-  state: string;
-  energy_burden_pct: number;
-  est_annual_bill: number | null;
-  median_income_2024: number | null;
-  avg_price_cents_kwh: number | null;
-}
+import type { EnergyAccessRow } from "@/lib/data";
 
 interface Props {
-  data: BurdenRow[];
+  data: EnergyAccessRow[];
 }
 
 function burdenColor(b: number) {

@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchEnergyAccess } from "@/lib/data";
+import type { EnergyAccessRow } from "@/lib/data";
 
 const BurdenVsPriceChart = dynamic(() => import("@/components/charts/BurdenVsPriceChart"), { ssr: false });
 
 export default function AffordabilityPage() {
-  const [data, setData] = useState<Awaited<ReturnType<typeof fetchEnergyAccess>>>([]);
+  const [data, setData] = useState<EnergyAccessRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch(() => setError("Failed to load data.")); }, []);

@@ -5,11 +5,12 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
 import { fetchTargets } from "@/lib/data";
+import type { TargetRow } from "@/lib/data";
 
 const CapacityChart = dynamic(() => import("@/components/charts/CapacityChart"), { ssr: false });
 
 export default function GlobalTargetsPage() {
-  const [data, setData] = useState<Awaited<ReturnType<typeof fetchTargets>>>([]);
+  const [data, setData] = useState<TargetRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { fetchTargets().then(setData).catch(() => setError("Failed to load data.")); }, []);

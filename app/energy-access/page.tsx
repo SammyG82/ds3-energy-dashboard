@@ -5,12 +5,13 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
 import { fetchEnergyAccess } from "@/lib/data";
+import type { EnergyAccessRow } from "@/lib/data";
 
 const ReliabilityChart = dynamic(() => import("@/components/charts/ReliabilityChart"), { ssr: false });
 const EnergyBurdenChart = dynamic(() => import("@/components/charts/EnergyBurdenChart"), { ssr: false });
 
 export default function EnergyAccessPage() {
-  const [data, setData] = useState<Awaited<ReturnType<typeof fetchEnergyAccess>>>([]);
+  const [data, setData] = useState<EnergyAccessRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch(() => setError("Failed to load data.")); }, []);

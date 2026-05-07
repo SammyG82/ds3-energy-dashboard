@@ -53,7 +53,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   }, []);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();

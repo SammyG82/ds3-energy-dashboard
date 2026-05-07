@@ -2,18 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
-
-export interface BurdenPriceRow {
-  state: string;
-  energy_burden_pct: number;
-  avg_price_cents_kwh: number;
-  median_income_2024: number | null;
-  est_annual_bill: number | null;
-  avg_customers: number | null;
-}
+import type { EnergyAccessRow } from "@/lib/data";
 
 interface Props {
-  data: BurdenPriceRow[];
+  data: EnergyAccessRow[];
 }
 
 export default function BurdenVsPriceChart({ data }: Props) {

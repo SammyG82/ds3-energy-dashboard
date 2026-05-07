@@ -2,13 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-export interface TargetRow {
-  country_code: string;
-  country_name: string;
-  capacity_target_gw: number;
-  share_target_pct: number | null;
-}
+import type { TargetRow } from "@/lib/data";
 
 interface Props {
   data: TargetRow[];

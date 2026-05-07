@@ -2,16 +2,10 @@
 
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
-
-export interface ReliabilityRow {
-  state: string;
-  saidi: number;
-  saifi: number;
-  energy_burden_pct?: number;
-}
+import type { EnergyAccessRow } from "@/lib/data";
 
 interface Props {
-  data: ReliabilityRow[];
+  data: EnergyAccessRow[];
 }
 
 function rating(saidi: number) {
