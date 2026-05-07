@@ -19,7 +19,7 @@ export default function GlobalTargetsPage() {
     () => [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw).slice(0, 15),
     [data]
   );
-  const totalGW = top15.reduce((s, d) => s + d.capacity_target_gw, 0);
+  const totalGW = useMemo(() => top15.reduce((s, d) => s + d.capacity_target_gw, 0), [top15]);
   const top = top15[0];
 
   return (
@@ -39,7 +39,7 @@ export default function GlobalTargetsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Shown" value={top15.length ? top15.length.toString() : "—"} accent="blue" />
           <StatCard label="Total Target" value={top15.length ? totalGW.toFixed(0) + " GW" : "—"} accent="teal" />
-          <StatCard label="Highest Target" value={top ? top.country_code : "—"} accent="amber" />
+          <StatCard label="Highest Target" value={top ? top.country_name : "—"} accent="amber" />
           <StatCard label="Target Year" value="2030" accent="blue" />
         </div>
 

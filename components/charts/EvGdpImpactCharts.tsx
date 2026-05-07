@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta } from "@/lib/data";
 
-export type { GdpMeta };
 
 interface Props {
   evData: EvRow[];
@@ -67,10 +66,23 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     return () => obs.disconnect();
   }, []);
 
-  const meta = gdpMeta.find((m) => m.country === country);
+  const meta = useMemo(
+    () => gdpMeta.find((m) => m.country === country),
+    [gdpMeta, country]
+  );
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
     ? compute(meta.region, year, adoption, meta, evData)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
+
+  // Fixed y-axis domains so the charts don't rescale as the year slider moves
+  const maxEvY = useMemo(
+    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData).sales) ?? undefined) : undefined,
+    [meta, adoption, evData, years]
+  );
+  const maxOilY = useMemo(
+    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData).oilDisplaced) ?? undefined) : undefined,
+    [meta, adoption, evData, years]
+  );
 
   // Compute pinned values live from current meta/adoption for area charts
   const evPinnedVal = evPinnedYear !== null && meta
@@ -89,6 +101,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   const drawAreaChart = useCallback(
     (
       svgEl: SVGSVGElement | null,
+      currentYear: number,
       getY: (yr: number) => number,
       color: string,
       yFmt: (v: number) => string,
@@ -110,7 +123,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
       const allYears = Array.from(new Set(evData.map((d) => d.year)))
-        .filter((y) => y <= year)
+        .filter((y) => y <= currentYear)
         .sort();
       if (!allYears.length) return;
       const chartData = allYears.map((yr) => ({ yr, val: getY(yr) }));
@@ -164,26 +177,30 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
           onClear();
         });
     },
-    [evData, year, containerWidth]
+    [evData, containerWidth]
   );
 
   useEffect(() => {
     if (!meta) return;
     drawAreaChart(
       evSvg.current,
+      year,
       (yr) => compute(meta.region, yr, adoption, meta, evData).sales,
       "#0891b2",
       (v) => v >= 1_000_000 ? (v / 1_000_000).toFixed(1) + "M" : (v / 1_000).toFixed(0) + "k",
       setEvPinnedYear,
-      () => setEvPinnedYear(null)
+      () => setEvPinnedYear(null),
+      maxEvY
     );
     drawAreaChart(
       oilSvg.current,
+      year,
       (yr) => compute(meta.region, yr, adoption, meta, evData).oilDisplaced,
       "#d97706",
-      (v) => v.toFixed(0) + "M",
+      (v) => v >= 1 ? v.toFixed(1) + "M" : v.toFixed(2) + "M",
       setOilPinnedYear,
-      () => setOilPinnedYear(null)
+      () => setOilPinnedYear(null),
+      maxOilY
     );
   }, [meta, year, adoption, evData, drawAreaChart]);
 
@@ -229,7 +246,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
     barsSel
       .on("mouseover", function (_, d) {
-        barsSel.attr("opacity", 0.25).attr("stroke", "none");
+        barsSel.interrupt().attr("opacity", 0.25).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setGdpPinnedCountry(d.country);
       })

@@ -54,6 +54,11 @@ export default function EnergyBurdenChart({ data }: Props) {
   );
 
   useEffect(() => {
+    setPinned(null);
+    setPinnedPos(null);
+  }, [data]);
+
+  useEffect(() => {
     const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
@@ -102,7 +107,7 @@ export default function EnergyBurdenChart({ data }: Props) {
 
     barsSel
       .on("mouseover", function (event, d) {
-        barsSel.attr("opacity", 0.3).attr("stroke", "none");
+        barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setPinned({ state: d.state, burden: d.energy_burden_pct, price: d.avg_price_cents_kwh, annualBill: d.est_annual_bill });
         const [cx, cy] = d3.pointer(event, containerRef.current);
@@ -151,9 +156,9 @@ export default function EnergyBurdenChart({ data }: Props) {
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex gap-4 text-xs font-mono flex-wrap">
           {[
-            { label: "< 2.0% — Low", color: "#16a34a" },
-            { label: "2.0–2.5% — Moderate", color: "#d97706" },
-            { label: "> 2.5% — High", color: "#dc2626" },
+            { label: "< 2.0% — Low burden", color: "#16a34a" },
+            { label: "2.0–2.5% — Moderate burden", color: "#d97706" },
+            { label: "> 2.5% — High burden", color: "#dc2626" },
           ].map(({ label, color }) => (
             <span key={label} className="flex items-center gap-1.5 text-slate-600">
               <span className="inline-block w-3 h-3 rounded-sm" style={{ backgroundColor: color }} />

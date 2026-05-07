@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -16,8 +16,14 @@ export default function EnergyAccessPage() {
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch(() => setError("Failed to load data.")); }, []);
 
-  const avgSaidi = data.length ? data.reduce((s, d) => s + d.saidi, 0) / data.length : 0;
-  const avgBurden = data.length ? data.reduce((s, d) => s + d.energy_burden_pct, 0) / data.length : 0;
+  const avgSaidi = useMemo(
+    () => data.length ? data.reduce((s, d) => s + d.saidi, 0) / data.length : 0,
+    [data]
+  );
+  const avgBurden = useMemo(
+    () => data.length ? data.reduce((s, d) => s + d.energy_burden_pct, 0) / data.length : 0,
+    [data]
+  );
 
   return (
     <>
@@ -35,7 +41,7 @@ export default function EnergyAccessPage() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="States" value={data.length ? data.length.toString() : "—"} accent="blue" />
-          <StatCard label="Avg SAIDI" value={data.length ? avgSaidi.toFixed(0) + " min" : "—"} accent="amber" />
+          <StatCard label="Avg Outage Time" value={data.length ? avgSaidi.toFixed(0) + " min" : "—"} accent="amber" />
           <StatCard label="Avg Burden" value={data.length ? avgBurden.toFixed(2) + "%" : "—"} accent="teal" />
           <StatCard label="Year" value="2024" accent="blue" />
         </div>

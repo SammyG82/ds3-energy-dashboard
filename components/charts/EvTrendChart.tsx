@@ -38,7 +38,7 @@ export default function EvTrendChart({ data }: Props) {
 
   useEffect(() => {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
-  }, [countries]);
+  }, [countries, country]);
 
   useEffect(() => {
     setPinned(null);
@@ -167,13 +167,14 @@ export default function EvTrendChart({ data }: Props) {
       .on("mouseleave", function () {
         crosshair.style("visibility", "hidden");
       });
-  }, [countryData, history, forecast, forecastBoundary, containerWidth]);
+  }, [countryData, forecastBoundary, containerWidth]);
 
-  const peak = countryData.length > 0
-    ? countryData.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, countryData[0])
+  const historicalRows = countryData.filter((d) => d.type === "Historical");
+  const peak = historicalRows.length > 0
+    ? historicalRows.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, historicalRows[0])
     : null;
-  const latest = history[history.length - 1];
-  const first = history.find((d) => d.ev_sales > 0);
+  const latest = historicalRows[historicalRows.length - 1] ?? null;
+  const first = historicalRows.find((d) => d.ev_sales > 0) ?? null;
   const cagr = first && latest && latest.year > first.year
     ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
     : null;

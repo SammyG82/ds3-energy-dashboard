@@ -31,7 +31,7 @@ const datasets = [
   {
     name: "Net Trade Forecast",
     file: "net_trade_forecast.csv",
-    description: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2031.",
+    description: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2030.",
     rows: "1,220 rows",
     columns: "Country, Year, Type, Net_Trade, Net_CI_Low, Net_CI_High, Exports, Imports, Exports_Order, Imports_Order, Avg_MAPE",
     source: "Derived from JODI Oil World Database — DS3 model",
@@ -49,9 +49,9 @@ const datasets = [
   {
     name: "Global Renewable Targets 2030",
     file: "merged_targets_clean.csv",
-    description: "88-country renewable energy capacity and generation targets for 2030, disaggregated by technology type.",
+    description: "88-country renewable energy capacity and generation share targets for 2030.",
     rows: "88 rows",
-    columns: "country_code, country_name, capacity_target_gw, share_target_pct, Solar, Wind, Hydro…",
+    columns: "country_code, country_name, capacity_target_gw, share_target_pct",
     source: "Ember — Global Electricity Review",
     license: "CC BY 4.0",
   },

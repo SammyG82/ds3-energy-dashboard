@@ -53,8 +53,8 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Oil Imports (KBD)"] ?? 0),
-    ciLow: d["CI Low (KBD)"] ? +d["CI Low (KBD)"] : null,
-    ciHigh: d["CI High (KBD)"] ? +d["CI High (KBD)"] : null,
+    ciLow: d["CI Low (KBD)"] != null && d["CI Low (KBD)"] !== "" ? +d["CI Low (KBD)"] : null,
+    ciHigh: d["CI High (KBD)"] != null && d["CI High (KBD)"] !== "" ? +d["CI High (KBD)"] : null,
   }));
 }
 
@@ -121,8 +121,8 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
       Year: +(d.Year ?? 0),
       Type: d.Type ?? "",
       value: +(d["Net_Trade"] ?? 0),
-      ciLow: d["Net_CI_Low"] ? +d["Net_CI_Low"] : null,
-      ciHigh: d["Net_CI_High"] ? +d["Net_CI_High"] : null,
+      ciLow: d["Net_CI_Low"] != null && d["Net_CI_Low"] !== "" ? +d["Net_CI_Low"] : null,
+      ciHigh: d["Net_CI_High"] != null && d["Net_CI_High"] !== "" ? +d["Net_CI_High"] : null,
     }))
     .filter((row) => !(row.value === 0 && row.Type === "Historical"));
 }
@@ -134,8 +134,8 @@ export async function fetchOilExports(): Promise<OilRow[]> {
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Value"] ?? 0),
-    ciLow: d["Lower_CI"] ? +d["Lower_CI"] : null,
-    ciHigh: d["Upper_CI"] ? +d["Upper_CI"] : null,
+    ciLow: d["Lower_CI"] != null && d["Lower_CI"] !== "" ? +d["Lower_CI"] : null,
+    ciHigh: d["Upper_CI"] != null && d["Upper_CI"] !== "" ? +d["Upper_CI"] : null,
   }));
 }
 

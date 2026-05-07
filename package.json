@@ -6,8 +6,7 @@
     "predev": "node -e \"require('fs').rmSync('.next/cache',{recursive:true,force:true})\"",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "serve": "npx serve out",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf .next"
   },

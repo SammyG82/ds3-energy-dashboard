@@ -38,6 +38,10 @@ export default function BurdenVsPriceChart({ data }: Props) {
   const [pinned, setPinned] = useState<Pinned | null>(null);
 
   useEffect(() => {
+    setPinned(null);
+  }, [data]);
+
+  useEffect(() => {
     const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
@@ -117,6 +121,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
           .attr("opacity", 0.8)
           .attr("r", (d) => rScale(d.avg_customers ?? 0))
           .attr("stroke", "white").attr("stroke-width", 1);
+        setPinned(null);
       });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)

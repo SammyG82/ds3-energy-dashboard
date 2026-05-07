@@ -23,7 +23,7 @@ export default function PageHeader({ eyebrow, title, titleAccent, subtitle, badg
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap items-start justify-between gap-6">
         <div>
           <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-2 flex items-center gap-2">
-            <span className="inline-block w-6 h-px bg-teal-500" />
+            <span className="inline-block w-6 h-px bg-teal-500" aria-hidden="true" />
             {eyebrow}
           </p>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">

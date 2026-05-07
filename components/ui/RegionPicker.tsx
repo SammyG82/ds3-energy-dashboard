@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 const EUROPE = [
   "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
@@ -66,26 +66,40 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
   const [showInfo, setShowInfo] = useState(false);
   const [query, setQuery] = useState("");
 
-  const selectedSet = new Set(selected);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
 
-  const activePreset = !showCustom
-    ? presets.find((p) => {
+  const activePreset = useMemo(
+    () => presets.find((p) => {
         const regions = (p.regions ?? options).filter((r) => options.includes(r));
         return (
+          regions.length > 0 &&
           regions.length === selected.length &&
           regions.every((r) => selectedSet.has(r))
         );
-      })
-    : undefined;
+      }),
+    [presets, options, selected, selectedSet]
+  );
 
-  const base = query.trim()
-    ? options.filter((r) => r.toLowerCase().includes(query.toLowerCase()))
-    : options;
+  const base = useMemo(
+    () => query.trim()
+      ? options.filter((r) => r.toLowerCase().includes(query.toLowerCase()))
+      : options,
+    [options, query]
+  );
 
-  const filtered = [
-    ...base.filter((r) => selectedSet.has(r)),
-    ...base.filter((r) => !selectedSet.has(r)),
-  ];
+  const filtered = useMemo(
+    () => query.trim()
+      ? base
+      : [
+          ...base.filter((r) => selectedSet.has(r)),
+          ...base.filter((r) => !selectedSet.has(r)),
+        ],
+    [base, selectedSet, query]
+  );
+
+  useEffect(() => {
+    setQuery("");
+  }, [options]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -98,7 +112,8 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               title={preset.description}
               onClick={() => {
                 const regions = (preset.regions ?? options).filter((r) => options.includes(r));
-                onSelectGroup(regions.length > 0 ? regions : options.slice(0, 1));
+                if (regions.length === 0) return;
+                onSelectGroup(regions);
                 setShowCustom(false);
               }}
               className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${
@@ -150,18 +165,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
       {showCustom && (
         <div className="flex flex-col gap-2">
-          <div className="relative">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">
-              🔍
-            </span>
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search regions…"
-              className="w-full pl-7 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
-          </div>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search regions…"
+            className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-300"
+          />
 
           <div
             className="border border-slate-200 rounded-lg overflow-y-auto bg-white"

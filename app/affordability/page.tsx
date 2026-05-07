@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchEnergyAccess } from "@/lib/data";
@@ -14,8 +14,9 @@ export default function AffordabilityPage() {
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch(() => setError("Failed to load data.")); }, []);
 
-  const filtered = data.filter(
-    (d) => d.energy_burden_pct > 0 && d.avg_price_cents_kwh > 0
+  const filtered = useMemo(
+    () => data.filter((d) => d.energy_burden_pct > 0 && d.avg_price_cents_kwh > 0),
+    [data]
   );
 
   return (
@@ -34,7 +35,7 @@ export default function AffordabilityPage() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {error ? (
-            <p className="text-sm text-red-500 font-mono">{error}</p>
+            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
           ) : !data.length ? (
             <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading…</div>
           ) : (

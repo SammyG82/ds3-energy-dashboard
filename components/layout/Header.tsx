@@ -16,7 +16,7 @@ const nav = [
 ];
 
 export default function Header() {
-  const pathname = usePathname() ?? "/";
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
@@ -28,7 +28,7 @@ export default function Header() {
 
         <nav className="flex flex-wrap gap-1" aria-label="Primary navigation">
           {nav.map(({ label, href }) => {
-            const active = pathname === href || (href !== "/" && pathname.startsWith(href));
+            const active = pathname === href;
             return (
               <Link
                 key={href}

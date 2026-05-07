@@ -22,8 +22,8 @@ const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
     {
       label: "Asia Pacific",
       description: "Major oil importers in the Asia-Pacific region",
-      detail: "China, India, Japan, South Korea, Australia, and Singapore account for the majority of Asia-Pacific oil import demand. This region is where EV adoption growth is most consequential for global oil markets.",
-      regions: ["China", "India", "Japan", "Korea", "Australia", "Singapore"],
+      detail: "China, India, Japan, South Korea, and Singapore account for the majority of Asia-Pacific oil import demand. This region is where EV adoption growth is most consequential for global oil markets.",
+      regions: ["China", "India", "Japan", "Korea", "Singapore"],
     },
     {
       label: "All Countries",
@@ -99,15 +99,15 @@ const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
 };
 
 const DATASETS: { id: Dataset; label: string; description: string; chartLabel: string }[] = [
-  { id: "imports", label: "Imports", description: "Total oil import volumes (kb/d)", chartLabel: "Oil Imports (KBD)" },
-  { id: "net_trade", label: "Net Trade", description: "Imports minus exports — negative = net exporter (kb/d)", chartLabel: "Net Trade (KBD)" },
-  { id: "exports", label: "Exports", description: "Total oil export volumes (kb/d)", chartLabel: "Oil Exports (KBD)" },
+  { id: "imports", label: "Imports", description: "Total oil import volumes (KBD)", chartLabel: "Oil Imports (KBD)" },
+  { id: "net_trade", label: "Net Trade", description: "Imports minus exports — negative = net exporter (KBD)", chartLabel: "Net Trade (KBD)" },
+  { id: "exports", label: "Exports", description: "Total oil export volumes (KBD)", chartLabel: "Oil Exports (KBD)" },
 ];
 
 export default function OilExplorerPage() {
   const [imports, setImports] = useState<OilRow[]>([]);
   const [netTrade, setNetTrade] = useState<OilRow[]>([]);
-  const [exports, setExports] = useState<OilRow[]>([]);
+  const [exportsData, setExportsData] = useState<OilRow[]>([]);
   const [dataset, setDataset] = useState<Dataset>("imports");
   const [errors, setErrors] = useState<Record<Dataset, string | null>>({
     imports: null, net_trade: null, exports: null,
@@ -116,10 +116,10 @@ export default function OilExplorerPage() {
   useEffect(() => {
     fetchOilForecast().then(setImports).catch(() => setErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })));
     fetchNetTrade().then(setNetTrade).catch(() => setErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })));
-    fetchOilExports().then(setExports).catch(() => setErrors((e) => ({ ...e, exports: "Failed to load exports data." })));
+    fetchOilExports().then(setExportsData).catch(() => setErrors((e) => ({ ...e, exports: "Failed to load exports data." })));
   }, []);
 
-  const active = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exports;
+  const active = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
   const activeMeta = DATASETS.find((d) => d.id === dataset)!;
   const activeError = errors[dataset];
 
@@ -129,7 +129,7 @@ export default function OilExplorerPage() {
         eyebrow="Oil Trade · ARIMA Forecast"
         title="Oil Trade"
         titleAccent="Explorer"
-        subtitle="Historical oil trade volumes (kb/d) with Log-ARIMA model forecasts and 95% confidence intervals through 2030. Toggle countries and datasets to compare."
+        subtitle="Historical oil trade volumes (KBD) with Log-ARIMA model forecasts and 95% confidence intervals through 2030. Toggle countries and datasets to compare."
         badges={[
           { label: "Log-ARIMA", color: "teal" },
           { label: "95% CI Bands", color: "blue" },

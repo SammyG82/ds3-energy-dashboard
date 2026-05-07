@@ -21,7 +21,8 @@ export default function EvGdpImpactPage() {
   }, []);
 
   const ready = evData.length > 0 && gdpMeta.length > 0;
-  const anyError = errors.evData ?? errors.gdpMeta;
+  const anyError = errors.evData || errors.gdpMeta;
+  const loading = !ready && !anyError;
 
   return (
     <>
@@ -45,7 +46,7 @@ export default function EvGdpImpactPage() {
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
         {ready ? (
           <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} />
-        ) : !anyError ? (
+        ) : loading ? (
           <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
         ) : null}
       </div>

@@ -85,6 +85,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
 
   useEffect(() => {
     setPinned(null);
+    setPreviewTooltip(null);
+    setPreviewTooltipPos(null);
   }, [selected]);
 
   const { total2023, leader } = useMemo(() => {
@@ -187,7 +189,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => `${+v}k`).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((v) => {
+        const n = +v;
+        if (n === 0) return "0";
+        return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${n}`;
+      }).ticks(5));
 
     const crosshair = g.append("line")
       .attr("y1", 0).attr("y2", height)
@@ -231,16 +237,18 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     <div className="flex flex-col gap-4">
       {!preview && (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-white border border-slate-200 rounded-lg p-3">
-              <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2023 Total</p>
-              <p className="text-lg font-bold text-blue-600">{total2023.toFixed(0)}k <span className="text-xs font-normal text-slate-400">KBD</span></p>
+          {datasetLabel === "Oil Imports (KBD)" && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2023 Total</p>
+                <p className="text-lg font-bold text-blue-600">{Math.round(total2023).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Importer</p>
+                <p className="text-lg font-bold text-teal-600">{leader?.Country ?? "—"}</p>
+              </div>
             </div>
-            <div className="bg-white border border-slate-200 rounded-lg p-3">
-              <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Importer</p>
-              <p className="text-lg font-bold text-teal-600">{leader?.Country ?? "—"}</p>
-            </div>
-          </div>
+          )}
 
           <RegionPicker
             options={allCountries}

@@ -26,12 +26,12 @@ const REGION_COLORS = [
 const DISPLAY_NAMES: Record<string, string> = {
   "World": "Global Total",
   "Rest of the world": "Other Countries",
+  "Viet Nam": "Vietnam",
 };
 
 const dn = (r: string) => DISPLAY_NAMES[r] ?? r;
 
 const DEFAULT_forecastBoundary = 2025;
-const PREVIEW_REGIONS = ["China", "USA", "Germany", "France", "United Kingdom"];
 const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
 
 function fmtSales(v: number) {
@@ -64,7 +64,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   );
 
   const defaultRegions = useMemo(() => {
-    if (preview) return allRegions.filter((r) => PREVIEW_REGIONS.includes(r));
+    if (preview) return allRegions.filter((r) => TOP_5_MARKETS.includes(r));
     const top5 = TOP_5_MARKETS.filter((r) => allRegions.includes(r));
     return top5.length > 0 ? top5 : allRegions.slice(0, 5);
   }, [allRegions, preview]);
@@ -78,6 +78,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
 
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected]);
+  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
 
   useEffect(() => {
     const obs = new ResizeObserver((entries) =>

@@ -29,6 +29,11 @@ export default function CapacityChart({ data }: Props) {
   );
 
   useEffect(() => {
+    setPinned(null);
+    setPinnedPos(null);
+  }, [data]);
+
+  useEffect(() => {
     const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
@@ -78,7 +83,7 @@ export default function CapacityChart({ data }: Props) {
 
     barsSel
       .on("mouseover", function (event, d) {
-        barsSel.attr("opacity", 0.3).attr("stroke", "none");
+        barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#14532d").attr("stroke-width", 1.5);
         const rank = top15.findIndex((r) => r.country_code === d.country_code) + 1;
         setPinned({ countryName: d.country_name, countryCode: d.country_code, gw: d.capacity_target_gw, sharePct: d.share_target_pct, rank });
@@ -111,7 +116,7 @@ export default function CapacityChart({ data }: Props) {
       .attr("fill", "#475569")
       .attr("opacity", 0)
       .attr("pointer-events", "none")
-      .text((d) => `${d.capacity_target_gw}GW`)
+      .text((d) => `${d.capacity_target_gw} GW`)
       .transition().duration(700).delay((_, i) => i * 45)
       .attr("y", (d) => y(d.capacity_target_gw) - 5)
       .attr("opacity", 1);
@@ -124,7 +129,7 @@ export default function CapacityChart({ data }: Props) {
       .attr("font-size", "11px");
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((d) => `${d}GW`).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((d) => `${d} GW`).ticks(5));
   }, [top15, containerWidth]);
 
   return (
