@@ -3,26 +3,48 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import ChipFilter from "@/components/ui/ChipFilter";
+import RegionPicker from "@/components/ui/RegionPicker";
 
 interface Props {
   data: EvRow[];
   preview?: boolean;
 }
 
+interface PinnedState {
+  year: number;
+  entries: { region: string; value: number; color: string }[];
+}
+
 const REGION_COLORS = [
   "#2563eb", "#0891b2", "#7c3aed", "#e85d04",
   "#059669", "#db2777", "#ca8a04", "#dc2626",
+  "#0284c7", "#9333ea", "#16a34a", "#ea580c",
+  "#0d9488", "#be185d", "#d97706", "#b91c1c",
+  "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
 ];
 
-const FORECAST_BOUNDARY = 2024;
+const DISPLAY_NAMES: Record<string, string> = {
+  "World": "Global Total",
+  "Rest of the world": "Other Countries",
+};
 
-const PREVIEW_REGIONS = ["China", "USA", "Europe", "India", "World"];
+const dn = (r: string) => DISPLAY_NAMES[r] ?? r;
+
+const FORECAST_BOUNDARY = 2024;
+const PREVIEW_REGIONS = ["China", "USA", "Germany", "India", "World"];
+const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
+
+function fmtSales(v: number) {
+  return v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M`
+    : v >= 1_000 ? `${(v / 1_000).toFixed(0)}k`
+    : v.toFixed(0);
+}
 
 export default function EvForecastChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [pinned, setPinned] = useState<PinnedState | null>(null);
 
   const allRegions = useMemo(
     () => Array.from(new Set(data.map((d) => d.region_country))).sort(),
@@ -39,21 +61,21 @@ export default function EvForecastChart({ data, preview = false }: Props) {
     [allRegions, colorScale]
   );
 
-  const defaultRegions = useMemo(
-    () => preview
-      ? allRegions.filter((r) => PREVIEW_REGIONS.includes(r)).slice(0, 5)
-      : allRegions.slice(0, 6),
-    [allRegions, preview]
-  );
+  const defaultRegions = useMemo(() => {
+    if (preview) return allRegions.filter((r) => PREVIEW_REGIONS.includes(r)).slice(0, 5);
+    const top5 = TOP_5_MARKETS.filter((r) => allRegions.includes(r));
+    return top5.length > 0 ? top5 : allRegions.slice(0, 5);
+  }, [allRegions, preview]);
 
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
-  useEffect(() => {
-    setSelected(defaultRegions);
-  }, [defaultRegions]);
+  useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
+  useEffect(() => { setPinned(null); }, [selected]);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    const obs = new ResizeObserver((entries) =>
+      setContainerWidth(Math.floor(entries[0].contentRect.width))
+    );
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
@@ -89,8 +111,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
 
     g.selectAll(".grid-h")
       .data(y.ticks(5))
-      .enter()
-      .append("line")
+      .enter().append("line")
       .attr("x1", 0).attr("x2", width)
       .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
       .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
@@ -115,46 +136,59 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       const color = colorScale(region);
       const actual = values.filter((d) => d.year <= FORECAST_BOUNDARY);
       const forecast = values.filter((d) => d.year >= FORECAST_BOUNDARY);
-
-      if (actual.length > 1) {
+      if (actual.length > 1)
         g.append("path").datum(actual)
           .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2).attr("d", line);
-      }
-      if (forecast.length > 1) {
+      if (forecast.length > 1)
         g.append("path").datum(forecast)
           .attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
-      }
     });
 
-    g.append("g")
-      .attr("class", "chart-axis")
-      .attr("transform", `translate(0,${height})`)
+    g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
 
-    g.append("g")
-      .attr("class", "chart-axis")
-      .call(
-        d3.axisLeft(y).tickFormat((v) => {
-          const n = +v;
-          return n >= 1_000_000 ? (n / 1_000_000).toFixed(0) + "M"
-            : n >= 1_000 ? (n / 1_000).toFixed(0) + "k"
-            : n.toFixed(0);
-        }).ticks(5)
-      );
+    g.append("g").attr("class", "chart-axis")
+      .call(d3.axisLeft(y).tickFormat((v) => {
+        const n = +v;
+        return n >= 1_000_000 ? (n / 1_000_000).toFixed(0) + "M"
+          : n >= 1_000 ? (n / 1_000).toFixed(0) + "k"
+          : n.toFixed(0);
+      }).ticks(5));
 
-    if (!preview) {
-      const legend = g.append("g").attr("transform", `translate(${width - 140}, 4)`);
-      selected.slice(0, 8).forEach((r, i) => {
-        legend.append("line")
-          .attr("x1", 0).attr("x2", 16).attr("y1", i * 18 + 6).attr("y2", i * 18 + 6)
-          .attr("stroke", colorScale(r)).attr("stroke-width", 2);
-        legend.append("text")
-          .attr("x", 20).attr("y", i * 18 + 10)
-          .attr("font-size", "11px").attr("fill", "#475569")
-          .text(r);
+    if (preview) return;
+
+    const crosshair = g.append("line")
+      .attr("y1", 0).attr("y2", height)
+      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .style("visibility", "hidden").style("pointer-events", "none");
+
+    g.append("rect")
+      .attr("width", width).attr("height", height)
+      .attr("fill", "none").attr("pointer-events", "all")
+      .on("mousemove", function (event) {
+        const [mx] = d3.pointer(event);
+        const rawYear = x.invert(mx);
+        const [yMin, yMax] = x.domain();
+        const year = Math.round(Math.max(yMin, Math.min(yMax, rawYear)));
+        const px = x(year);
+
+        crosshair.style("visibility", "visible").attr("x1", px).attr("x2", px);
+
+        const entries = regionData
+          .map(({ region, values }) => ({
+            region,
+            value: values.find((d) => d.year === year)?.ev_sales ?? 0,
+            color: colorScale(region),
+          }))
+          .filter((e) => e.value > 0)
+          .sort((a, b) => b.value - a.value);
+
+        setPinned({ year, entries });
+      })
+      .on("mouseleave", function () {
+        crosshair.style("visibility", "hidden");
       });
-    }
   }, [data, selected, preview, colorScale, containerWidth]);
 
   return (
@@ -162,9 +196,9 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       {!preview && (
         <div className="flex flex-col gap-2">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</p>
-          <ChipFilter
+          <RegionPicker
             options={allRegions}
-            selected={new Set(selected)}
+            selected={selected}
             onToggle={(r) =>
               setSelected((prev) =>
                 prev.includes(r)
@@ -172,27 +206,42 @@ export default function EvForecastChart({ data, preview = false }: Props) {
                   : [...prev, r]
               )
             }
-            onSelectAll={() => setSelected([...allRegions])}
-            onClearAll={() => setSelected(allRegions.slice(0, 1))}
+            onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allRegions.slice(0, 1))}
             colorMap={colorMap}
+            displayNames={DISPLAY_NAMES}
           />
-        </div>
-      )}
-
-      {preview && (
-        <div className="flex flex-wrap gap-3">
-          {selected.map((r) => (
-            <span key={r} className="flex items-center gap-1.5 text-xs text-slate-600">
-              <span className="inline-block w-6 h-0.5" style={{ backgroundColor: colorScale(r) }} />
-              {r}
-            </span>
-          ))}
         </div>
       )}
 
       <div ref={containerRef} className="w-full">
         <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line S-curve chart of EV sales by region" />
       </div>
+
+      {!preview && (
+        <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+          {pinned ? (
+            <>
+              <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
+                <span className="text-xs text-slate-400">EV sales by region</span>
+              </div>
+              <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
+                {pinned.entries.map(({ region, value, color }) => (
+                  <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
+                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                    <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
+                    <span className="text-sm font-mono font-semibold text-slate-900">{fmtSales(value)}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <p className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
+              Hover over the chart to explore values by year
+            </p>
+          )}
+        </div>
+      )}
 
       <p className="text-xs text-slate-400 font-mono">
         Solid = Actual &nbsp;·&nbsp; Dashed = Forecast (2024–2035)
