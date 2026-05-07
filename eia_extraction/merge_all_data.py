@@ -36,8 +36,11 @@ def main():
     # === 2. LOAD SEDS EXPENDITURE ===
     print("\nLoading SEDS expenditure...")
     seds = pd.read_csv(SEDS_FILE)
-    seds.columns = ['state', 'year', 'total_energy_expend_pc', 'elec_expend_pc', 
-                    'elec_expend_billion', 'total_energy_expend_billion']
+    seds = seds.rename(columns={
+        'total_energy_expend_per_capita': 'total_energy_expend_pc',
+        'elec_resid_expend_per_capita': 'elec_expend_pc',
+        'elec_resid_expend_billion': 'elec_expend_billion',
+    })
     
     # Convert year to int
     seds['year'] = pd.to_numeric(seds['year'], errors='coerce')
@@ -68,10 +71,10 @@ def main():
         how='left'
     )
     
-    # Merge reliability (2024 only, will be NaN for other years)
+    # Merge reliability (2024 only — other years correctly get NaN)
     master = master.merge(
-        reliability[['state', 'saidi', 'saifi']],
-        on='state',
+        reliability[['state', 'year', 'saidi', 'saifi']],
+        on=['state', 'year'],
         how='left'
     )
     

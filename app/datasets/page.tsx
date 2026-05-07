@@ -33,7 +33,7 @@ const datasets = [
     file: "net_trade_forecast.csv",
     description: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2031.",
     rows: "1,220 rows",
-    columns: "Country, Year, Type, Net_Trade, Exports, Imports, MAPE, Orders",
+    columns: "Country, Year, Type, Net_Trade, Net_CI_Low, Net_CI_High, Exports, Imports, Exports_Order, Imports_Order, Avg_MAPE",
     source: "Derived from JODI Oil World Database — DS3 model",
     license: "Open",
   },
