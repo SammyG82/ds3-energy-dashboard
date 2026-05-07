@@ -10,7 +10,14 @@ const EUROPE = [
   "Slovenia", "Spain", "Sweden", "Switzerland", "Turkiye", "United Kingdom",
 ];
 
-const PRESETS: { label: string; description: string; detail: string; regions: string[] | null }[] = [
+export interface PresetItem {
+  label: string;
+  description: string;
+  detail: string;
+  regions: string[] | null;
+}
+
+const PRESETS: PresetItem[] = [
   {
     label: "Top 5 Markets",
     description: "The five largest EV markets by total sales volume",
@@ -50,9 +57,10 @@ interface Props {
   onSelectGroup: (regions: string[]) => void;
   colorMap: Record<string, string>;
   displayNames?: Record<string, string>;
+  presets?: PresetItem[];
 }
 
-export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {} }: Props) {
+export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS }: Props) {
   const dn = (r: string) => displayNames[r] ?? r;
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -61,7 +69,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
   const selectedSet = new Set(selected);
 
   const activePreset = !showCustom
-    ? PRESETS.find((p) => {
+    ? presets.find((p) => {
         const regions = (p.regions ?? options).filter((r) => options.includes(r));
         return (
           regions.length === selected.length &&
@@ -82,7 +90,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2 items-center">
-        {PRESETS.map((preset) => {
+        {presets.map((preset) => {
           const isActive = activePreset?.label === preset.label;
           return (
             <button
@@ -131,7 +139,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       {showInfo && (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Why these groups?</p>
-          {PRESETS.map(({ label, detail }) => (
+          {presets.map(({ label, detail }) => (
             <div key={label}>
               <p className="text-sm font-semibold text-slate-700 mb-0.5">{label}</p>
               <p className="text-sm text-slate-500 leading-relaxed">{detail}</p>

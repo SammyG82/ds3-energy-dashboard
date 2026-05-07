@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast } from "@/lib/data";
@@ -105,7 +105,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">Forecast</p>
-              <h2 className="text-xl font-bold text-slate-900">EV Sales Trajectory</h2>
+              <h2 className="text-xl font-bold text-slate-900">EV Sales Trajectory <span className="text-slate-400 font-normal text-base">(Top 5 Markets)</span></h2>
               <p className="text-sm text-slate-500">Logistic S-curve projections through 2035</p>
             </div>
             <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-600 hover:underline">
@@ -125,7 +125,7 @@ export default function LandingPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">ARIMA Model</p>
-              <h2 className="text-xl font-bold text-slate-900">Oil Import Forecasts</h2>
+              <h2 className="text-xl font-bold text-slate-900">Oil Import Forecasts <span className="text-slate-400 font-normal text-base">(Top 5 Importers)</span></h2>
               <p className="text-sm text-slate-500">Top importers with 95% CI bands through 2030</p>
             </div>
             <Link href="/oil-explorer/" className="text-sm font-semibold text-blue-600 hover:underline">
@@ -160,24 +160,35 @@ export default function LandingPage() {
       {/* Methods */}
       <section className="border-t border-slate-200">
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {[
-            {
-              label: "Data Sources",
-              body: "IEA Oil Information Database (import/export volumes, 1971–2023) and IEA Global EV Outlook (sales, market share, 2010–2035).",
-            },
-            {
-              label: "Methodology",
-              body: "Country-level EV share compared to year-over-year oil import changes, controlling for GDP growth and energy-mix shifts.",
-            },
-            {
-              label: "Forecast Models",
-              body: "Oil: Log-ARIMA with AIC-based grid search. EV: Logistic S-curve f(t)=L/(1+e^(-k(t−t₀))) fitted by nonlinear least-squares.",
-            },
-            {
-              label: "Coverage",
-              body: "50+ countries · 1971–2023 oil data · 2010–2035 EV data · Forecasts through 2030 (oil) and 2035 (EV).",
-            },
-          ].map(({ label, body }) => (
+          {(
+            [
+              {
+                label: "Data Sources",
+                body: "IEA Oil Information Database (import/export volumes, 1971–2023) and IEA Global EV Outlook (sales, market share, 2010–2035).",
+              },
+              {
+                label: "Methodology",
+                body: "Country-level EV share compared to year-over-year oil import changes, controlling for GDP growth and energy-mix shifts.",
+              },
+              {
+                label: "Forecast Models",
+                body: (
+                  <>
+                    Oil: Log-ARIMA with AIC-based grid search.<br />
+                    EV: Logistic S-curve{" "}
+                    <span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
+                      f(t) = L / (1 + e<sup>−k(t−t₀)</sup>)
+                    </span>{" "}
+                    fitted by nonlinear least-squares.
+                  </>
+                ),
+              },
+              {
+                label: "Coverage",
+                body: "50+ countries · 1971–2023 oil data · 2010–2035 EV data · Forecasts through 2030 (oil) and 2035 (EV).",
+              },
+            ] as { label: string; body: React.ReactNode }[]
+          ).map(({ label, body }) => (
             <div key={label}>
               <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-2">{label}</p>
               <p className="text-sm text-slate-500 leading-relaxed">{body}</p>

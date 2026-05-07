@@ -23,6 +23,12 @@ function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta
   return { sales, oilDisplaced, costSavings, gdpPercent };
 }
 
+function fmtSales(v: number): string {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  return `${v}`;
+}
+
 export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   const evSvg = useRef<SVGSVGElement>(null);
   const oilSvg = useRef<SVGSVGElement>(null);
@@ -49,6 +55,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
   const [adoption, setAdoption] = useState(1.0);
 
+  // Pinned years for each area chart (recomputed live from current meta/adoption)
+  const [evPinnedYear, setEvPinnedYear] = useState<number | null>(null);
+  const [oilPinnedYear, setOilPinnedYear] = useState<number | null>(null);
+  // Pinned country for GDP bar chart
+  const [gdpPinnedCountry, setGdpPinnedCountry] = useState<string | null>(null);
+
   useEffect(() => {
     const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
     if (containerRef.current) obs.observe(containerRef.current);
@@ -60,12 +72,28 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     ? compute(meta.region, year, adoption, meta, evData)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
 
+  // Compute pinned values live from current meta/adoption for area charts
+  const evPinnedVal = evPinnedYear !== null && meta
+    ? compute(meta.region, evPinnedYear, adoption, meta, evData).sales
+    : null;
+  const oilPinnedVal = oilPinnedYear !== null && meta
+    ? compute(meta.region, oilPinnedYear, adoption, meta, evData).oilDisplaced
+    : null;
+
+  // Compute pinned values for GDP bar chart
+  const gdpPinnedMeta = gdpPinnedCountry ? gdpMeta.find((m) => m.country === gdpPinnedCountry) : null;
+  const gdpPinnedData = gdpPinnedMeta
+    ? compute(gdpPinnedMeta.region, year, adoption, gdpPinnedMeta, evData)
+    : null;
+
   const drawAreaChart = useCallback(
     (
       svgEl: SVGSVGElement | null,
       getY: (yr: number) => number,
       color: string,
       yFmt: (v: number) => string,
+      onHover: (yr: number) => void,
+      onClear: () => void,
       maxY?: number
     ) => {
       if (!svgEl || containerWidth === 0) return;
@@ -115,6 +143,26 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
       g.append("g").attr("class", "chart-axis")
         .call(d3.axisLeft(yScale).ticks(4).tickFormat(yFmt as (v: d3.NumberValue) => string));
+
+      const crosshair = g.append("line")
+        .attr("y1", 0).attr("y2", height)
+        .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+        .style("visibility", "hidden").style("pointer-events", "none");
+
+      g.append("rect")
+        .attr("width", width).attr("height", height)
+        .attr("fill", "transparent").style("pointer-events", "all")
+        .on("mousemove", function (event) {
+          const [mx] = d3.pointer(event);
+          const [xMin, xMax] = x.domain();
+          const yr = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
+          crosshair.style("visibility", "visible").attr("x1", x(yr)).attr("x2", x(yr));
+          onHover(yr);
+        })
+        .on("mouseleave", function () {
+          crosshair.style("visibility", "hidden");
+          onClear();
+        });
     },
     [evData, year, containerWidth]
   );
@@ -125,13 +173,17 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       evSvg.current,
       (yr) => compute(meta.region, yr, adoption, meta, evData).sales,
       "#0891b2",
-      (v) => v >= 1_000_000 ? (v / 1_000_000).toFixed(1) + "M" : (v / 1_000).toFixed(0) + "k"
+      (v) => v >= 1_000_000 ? (v / 1_000_000).toFixed(1) + "M" : (v / 1_000).toFixed(0) + "k",
+      setEvPinnedYear,
+      () => setEvPinnedYear(null)
     );
     drawAreaChart(
       oilSvg.current,
       (yr) => compute(meta.region, yr, adoption, meta, evData).oilDisplaced,
       "#d97706",
-      (v) => v.toFixed(0) + "M"
+      (v) => v.toFixed(0) + "M",
+      setOilPinnedYear,
+      () => setOilPinnedYear(null)
     );
   }, [meta, year, adoption, evData, drawAreaChart]);
 
@@ -163,16 +215,32 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
       .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
 
-    g.selectAll(".bar")
+    const barsSel = g.selectAll<SVGRectElement, { country: string; pct: number }>(".bar")
       .data(chartData)
       .enter()
       .append("rect")
+      .attr("class", "bar")
       .attr("x", (d) => x(d.country) ?? 0)
       .attr("width", x.bandwidth())
       .attr("rx", 3)
       .attr("fill", (d) => d.country === country ? "#d97706" : "#0891b2")
       .attr("opacity", (d) => d.country === country ? 1 : 0.7)
-      .attr("y", height).attr("height", 0)
+      .attr("y", height).attr("height", 0);
+
+    barsSel
+      .on("mouseover", function (_, d) {
+        barsSel.attr("opacity", 0.25).attr("stroke", "none");
+        d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
+        setGdpPinnedCountry(d.country);
+      })
+      .on("mouseleave", function () {
+        barsSel
+          .attr("opacity", (d) => d.country === country ? 1 : 0.7)
+          .attr("stroke", "none");
+        setGdpPinnedCountry(null);
+      });
+
+    barsSel
       .transition().duration(500)
       .attr("y", (d) => y(d.pct))
       .attr("height", (d) => height - y(d.pct));
@@ -185,6 +253,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
       .attr("opacity", 0)
+      .attr("pointer-events", "none")
       .text((d) => d.pct.toFixed(3) + "%")
       .transition().duration(500)
       .attr("y", (d) => y(d.pct) - 5)
@@ -213,7 +282,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
             onChange={(e) => setAdoption(parseFloat(e.target.value))}
             className="w-full accent-teal-600"
           />
-          <p className="text-xs text-slate-400 font-mono mt-1">0.5x = slower · 2x = double rate</p>
+          <p className="text-xs text-slate-400 font-mono mt-1">0.5x = slower growth · 2x = double the projected rate</p>
         </div>
 
         <div>
@@ -250,15 +319,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">EV Sales</p>
-          <p className="text-xl font-bold text-teal-600">
-            {sales >= 1_000_000 ? (sales / 1_000_000).toFixed(2) + "M" : (sales / 1_000).toFixed(0) + "k"}
-          </p>
+          <p className="text-xl font-bold text-teal-600">{fmtSales(sales)}</p>
           <p className="text-xs text-slate-400 mt-0.5">{country} {year}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Oil Saved</p>
           <p className="text-xl font-bold text-amber-600">{oilDisplaced.toFixed(0)}M</p>
-          <p className="text-xs text-slate-400 mt-0.5">bbl / year</p>
+          <p className="text-xs text-slate-400 mt-0.5">barrels per year</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">GDP Savings</p>
@@ -274,15 +341,38 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
       {/* Two area charts side by side */}
       <div ref={containerRef} className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Trajectory</p>
-          <p className="text-sm font-bold text-slate-800 mb-3">EV Sales Volume</p>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Trajectory</p>
+          <p className="text-sm font-bold text-slate-800">EV Sales Volume</p>
           <svg ref={evSvg} className="w-full" role="img" aria-label="Area chart of EV sales trajectory over time" />
+          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-[40px] flex items-center">
+            {evPinnedYear !== null && evPinnedVal !== null ? (
+              <span className="text-xs text-slate-700">
+                <span className="font-mono font-bold">{evPinnedYear}</span>
+                {" — "}
+                <span className="font-semibold">{fmtSales(evPinnedVal)}</span>
+                {" electric vehicles sold"}
+              </span>
+            ) : (
+              <span className="text-xs text-slate-400 font-mono">Hover the chart to see values by year</span>
+            )}
+          </div>
         </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Displacement</p>
-          <p className="text-sm font-bold text-slate-800 mb-3">Oil Displaced (M Bbl/Yr)</p>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Displacement</p>
+          <p className="text-sm font-bold text-slate-800">Oil Displaced</p>
           <svg ref={oilSvg} className="w-full" role="img" aria-label="Area chart of oil displaced by EVs over time" />
+          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-[40px] flex items-center">
+            {oilPinnedYear !== null && oilPinnedVal !== null ? (
+              <span className="text-xs text-slate-700">
+                <span className="font-mono font-bold">{oilPinnedYear}</span>
+                {" — "}
+                <span className="font-semibold">{oilPinnedVal.toFixed(1)}M barrels of oil saved per year</span>
+              </span>
+            ) : (
+              <span className="text-xs text-slate-400 font-mono">Hover the chart to see values by year</span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -291,6 +381,19 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
         <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Comparative</p>
         <p className="text-sm font-bold text-slate-800 mb-3">% of GDP Saved on Oil Imports by Country</p>
         <svg ref={gdpSvg} className="w-full" role="img" aria-label="Bar chart of GDP savings from oil displacement by country" />
+        <div className="border border-slate-100 rounded-lg bg-slate-50 px-4 py-3 mt-3 relative">
+          {!gdpPinnedData && (
+            <div className="absolute inset-0 flex items-center px-4">
+              <span className="text-xs text-slate-400 font-mono">Hover a country bar to see its oil savings breakdown</span>
+            </div>
+          )}
+          <div className={`flex flex-wrap gap-x-8 gap-y-1 ${!gdpPinnedData ? "invisible" : ""}`}>
+            <span className="font-bold text-slate-800 w-full">{gdpPinnedCountry ?? "Country Name"}</span>
+            <span className="text-xs text-slate-600">Oil saved: <span className="font-semibold">{gdpPinnedData?.oilDisplaced.toFixed(1) ?? "0.0"}M barrels per year</span></span>
+            <span className="text-xs text-slate-600">Cost saved: <span className="font-semibold">${gdpPinnedData?.costSavings.toFixed(1) ?? "0.0"}B per year on oil imports</span></span>
+            <span className="text-xs text-slate-600">=&nbsp;<span className="font-semibold">{gdpPinnedData?.gdpPercent.toFixed(3) ?? "0.000"}%</span> of the country&apos;s entire economy (GDP)</span>
+          </div>
+        </div>
       </div>
 
       <p className="text-xs text-slate-400 font-mono bg-blue-50 border border-blue-100 rounded-lg p-3">

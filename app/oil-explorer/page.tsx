@@ -5,10 +5,98 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchOilForecast, fetchNetTrade, fetchOilExports } from "@/lib/data";
 import type { OilRow } from "@/lib/data";
+import type { PresetItem } from "@/components/ui/RegionPicker";
 
 const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false });
 
 type Dataset = "imports" | "net_trade" | "exports";
+
+const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
+  imports: [
+    {
+      label: "Top 5 Importers",
+      description: "The five largest end-consumer oil importers",
+      detail: "China, India, USA, Japan, and South Korea are the five largest oil importers by domestic consumption. Singapore and the Netherlands import more by volume but are re-export hubs — their figures don't reflect domestic demand.",
+      regions: ["China", "India", "USA", "Japan", "Korea"],
+    },
+    {
+      label: "Asia Pacific",
+      description: "Major oil importers in the Asia-Pacific region",
+      detail: "China, India, Japan, South Korea, Australia, and Singapore account for the majority of Asia-Pacific oil import demand. This region is where EV adoption growth is most consequential for global oil markets.",
+      regions: ["China", "India", "Japan", "Korea", "Australia", "Singapore"],
+    },
+    {
+      label: "All Countries",
+      description: "All 10 countries in the imports dataset",
+      detail: "All 10 major oil importing nations tracked in the IEA dataset.",
+      regions: null,
+    },
+  ],
+  net_trade: [
+    {
+      label: "Top 5 Net Importers",
+      description: "Countries that import far more oil than they export",
+      detail: "China, India, Japan, South Korea, and Germany are the five biggest net oil importers in 2023. These are the countries where EV adoption could most significantly reduce oil dependency.",
+      regions: ["China", "India", "Japan", "Korea", "Germany"],
+    },
+    {
+      label: "Top 5 Net Exporters",
+      description: "Countries that export far more oil than they import",
+      detail: "Saudi Arabia, Russia, Canada, Iraq, and UAE are the five biggest net oil exporters in 2023. Their net trade values are positive — they produce and export more than they consume domestically.",
+      regions: ["Saudi Arabia", "Russia", "Canada", "Iraq", "UAE"],
+    },
+    {
+      label: "Asia Pacific",
+      description: "Major Asian oil importers and re-export hubs",
+      detail: "China, India, Japan, South Korea, and Singapore — the five major Asia-Pacific countries in the dataset. All are net importers except Singapore, which is a re-export hub. This region is where EV adoption growth has the largest potential impact on global oil demand.",
+      regions: ["China", "India", "Japan", "Korea", "Singapore"],
+    },
+    {
+      label: "Europe",
+      description: "European countries in the net trade dataset",
+      detail: "France, Germany, Norway, and Spain — the four European countries in the dataset. Norway stands out as a major net exporter (North Sea oil), while France, Germany, and Spain are all significant net importers.",
+      regions: ["France", "Germany", "Norway", "Spain"],
+    },
+    {
+      label: "All Countries",
+      description: "All 20 countries in the net trade dataset",
+      detail: "All 20 countries tracked across net trade — includes both net importers (negative values) and net exporters (positive values).",
+      regions: null,
+    },
+  ],
+  exports: [
+    {
+      label: "Top 5 Exporters",
+      description: "The five largest oil exporters by 2023 volume",
+      detail: "USA, Saudi Arabia, Russia, Canada, and UAE were the five largest oil exporters in 2023. The USA leads partly due to shale oil production; Saudi Arabia and Russia are the dominant OPEC and non-OPEC producers.",
+      regions: ["USA", "Saudi Arabia", "Russia", "Canada", "UAE"],
+    },
+    {
+      label: "Middle East",
+      description: "Major Middle Eastern oil exporters",
+      detail: "Saudi Arabia, UAE, Iraq, Kuwait, Qatar, and Iran — the six major Middle Eastern oil exporters in the dataset. This region holds the majority of the world's proven oil reserves and is most exposed to long-term demand decline from EV adoption.",
+      regions: ["Saudi Arabia", "UAE", "Iraq", "Kuwait", "Qatar", "Iran"],
+    },
+    {
+      label: "Americas",
+      description: "Western Hemisphere oil exporters",
+      detail: "USA, Canada, Mexico, and Venezuela — the four major oil exporters in the Western Hemisphere. The USA and Canada are the dominant non-OPEC producers; Venezuela holds some of the world's largest proven reserves but output has declined sharply.",
+      regions: ["USA", "Canada", "Mexico", "Venezuela"],
+    },
+    {
+      label: "Africa",
+      description: "Major African oil exporters",
+      detail: "Nigeria, Algeria, Libya, and Angola are the four largest African oil exporters in the dataset. All four are OPEC members. Nigeria is Sub-Saharan Africa's largest producer; Algeria and Libya dominate North African output.",
+      regions: ["Nigeria", "Algeria", "Libya", "Angola"],
+    },
+    {
+      label: "All Countries",
+      description: "All 20 countries in the exports dataset",
+      detail: "All 20 major oil exporting nations tracked in the IEA dataset — includes OPEC members, non-OPEC producers, and re-export hubs.",
+      regions: null,
+    },
+  ],
+};
 
 const DATASETS: { id: Dataset; label: string; description: string; chartLabel: string }[] = [
   { id: "imports", label: "Imports", description: "Total oil import volumes (kb/d)", chartLabel: "Oil Imports (KBD)" },
@@ -80,7 +168,7 @@ export default function OilExplorerPage() {
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {active.length > 0 ? (
-            <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} />
+            <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} />
           ) : !activeError ? (
             <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
           ) : null}

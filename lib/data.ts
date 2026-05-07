@@ -106,16 +106,25 @@ export async function fetchTargets(): Promise<TargetRow[]> {
     }));
 }
 
+const NET_TRADE_NAMES: Record<string, string> = {
+  Usa: "USA",
+  Saudiarab: "Saudi Arabia",
+  Uae: "UAE",
+  Kazakhsta: "Kazakhstan",
+};
+
 export async function fetchNetTrade(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/net_trade_forecast.csv`);
-  return raw.map((d) => ({
-    Country: d.Country === "Usa" ? "USA" : (d.Country ?? ""),
-    Year: +(d.Year ?? 0),
-    Type: d.Type ?? "",
-    value: +(d["Net_Trade"] ?? 0),
-    ciLow: d["Net_CI_Low"] ? +d["Net_CI_Low"] : null,
-    ciHigh: d["Net_CI_High"] ? +d["Net_CI_High"] : null,
-  }));
+  return raw
+    .map((d) => ({
+      Country: NET_TRADE_NAMES[d.Country ?? ""] ?? d.Country ?? "",
+      Year: +(d.Year ?? 0),
+      Type: d.Type ?? "",
+      value: +(d["Net_Trade"] ?? 0),
+      ciLow: d["Net_CI_Low"] ? +d["Net_CI_Low"] : null,
+      ciHigh: d["Net_CI_High"] ? +d["Net_CI_High"] : null,
+    }))
+    .filter((row) => !(row.value === 0 && row.Type === "Historical"));
 }
 
 export async function fetchOilExports(): Promise<OilRow[]> {
