@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchEvData, fetchGdpMeta } from "@/lib/data";
 import type { EvRow, GdpMeta } from "@/lib/data";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false });
 
@@ -16,8 +18,8 @@ export default function EvGdpImpactPage() {
   });
 
   useEffect(() => {
-    fetchEvData().then(setEvData).catch(() => setErrors((e) => ({ ...e, evData: "Failed to load EV data." })));
-    fetchGdpMeta().then(setGdpMeta).catch(() => setErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })));
+    fetchEvData().then(setEvData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
+    fetchGdpMeta().then(setGdpMeta).catch((err) => { console.error(err); setErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
   }, []);
 
   const ready = evData.length > 0 && gdpMeta.length > 0;
@@ -39,15 +41,15 @@ export default function EvGdpImpactPage() {
       />
       {(errors.evData || errors.gdpMeta) && (
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6 flex flex-col gap-2">
-          {errors.evData && <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.evData}</p>}
-          {errors.gdpMeta && <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.gdpMeta}</p>}
+          {errors.evData && <ErrorMessage message={errors.evData} />}
+          {errors.gdpMeta && <ErrorMessage message={errors.gdpMeta} />}
         </div>
       )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
         {ready ? (
           <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} />
         ) : loading ? (
-          <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+          <LoadingPlaceholder text="Loading data…" />
         ) : null}
       </div>
     </>

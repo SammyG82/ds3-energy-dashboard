@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast } from "@/lib/data";
 import type { OilRow, EvRow } from "@/lib/data";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
@@ -45,9 +47,9 @@ export default function LandingPage() {
   });
 
   useEffect(() => {
-    fetchEvSales().then(setEvSales).catch(() => setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })));
-    fetchEvData().then(setEvData).catch(() => setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })));
-    fetchOilForecast().then(setOilData).catch(() => setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })));
+    fetchEvSales().then(setEvSales).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
+    fetchEvData().then(setEvData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
+    fetchOilForecast().then(setOilData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
   }, []);
 
   return (
@@ -93,11 +95,11 @@ export default function LandingPage() {
             </Link>
           </div>
           {errors.evSales ? (
-            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.evSales}</p>
+            <ErrorMessage message={errors.evSales} />
           ) : evSales.length > 0 ? (
             <EvShareChart data={evSales} preview />
           ) : (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
 
@@ -113,11 +115,11 @@ export default function LandingPage() {
             </Link>
           </div>
           {errors.evData ? (
-            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.evData}</p>
+            <ErrorMessage message={errors.evData} />
           ) : evData.length > 0 ? (
             <EvForecastChart data={evData} preview />
           ) : (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
 
@@ -133,11 +135,11 @@ export default function LandingPage() {
             </Link>
           </div>
           {errors.oilData ? (
-            <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{errors.oilData}</p>
+            <ErrorMessage message={errors.oilData} />
           ) : oilData.length > 0 ? (
             <OilForecastChart data={oilData} preview />
           ) : (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
       </section>

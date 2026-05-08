@@ -6,6 +6,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
 import { fetchTargets } from "@/lib/data";
 import type { TargetRow } from "@/lib/data";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const CapacityChart = dynamic(() => import("@/components/charts/CapacityChart"), { ssr: false });
 
@@ -13,7 +15,7 @@ export default function GlobalTargetsPage() {
   const [data, setData] = useState<TargetRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { fetchTargets().then(setData).catch(() => setError("Failed to load data.")); }, []);
+  useEffect(() => { fetchTargets().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
 
   const top15 = useMemo(
     () => [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw).slice(0, 15),
@@ -43,14 +45,14 @@ export default function GlobalTargetsPage() {
           <StatCard label="Target Year" value="2030" accent="blue" />
         </div>
 
-        {error && <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3 mb-4">{error}</p>}
+        {error && <div className="mb-4"><ErrorMessage message={error} /></div>}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 mb-1">Top 15 Countries by Capacity Target (GW)</h2>
           <p className="text-sm text-slate-500 mb-4">Renewable energy generation capacity committed for 2030</p>
           {data.length > 0 ? (
             <CapacityChart data={data} />
           ) : !error ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading…</div>
+            <LoadingPlaceholder />
           ) : null}
         </div>
       </div>

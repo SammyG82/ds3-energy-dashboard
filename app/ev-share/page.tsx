@@ -5,6 +5,8 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchEvSales } from "@/lib/data";
 import type { EvRow } from "@/lib/data";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvTrendChart = dynamic(() => import("@/components/charts/EvTrendChart"), { ssr: false });
@@ -13,7 +15,7 @@ export default function EvSharePage() {
   const [data, setData] = useState<EvRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { fetchEvSales().then(setData).catch(() => setError("Failed to load data.")); }, []);
+  useEffect(() => { fetchEvSales().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
 
   return (
     <>
@@ -30,7 +32,7 @@ export default function EvSharePage() {
       />
       {error && (
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6">
-          <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>
+          <ErrorMessage message={error} />
         </div>
       )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
@@ -45,7 +47,7 @@ export default function EvSharePage() {
           {data.length > 0 ? (
             <EvShareChart data={data} />
           ) : !error ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           ) : null}
         </div>
 
@@ -59,7 +61,7 @@ export default function EvSharePage() {
           {data.length > 0 ? (
             <EvTrendChart data={data} />
           ) : !error ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           ) : null}
         </div>
 

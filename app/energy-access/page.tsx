@@ -6,6 +6,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
 import { fetchEnergyAccess } from "@/lib/data";
 import type { EnergyAccessRow } from "@/lib/data";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const ReliabilityChart = dynamic(() => import("@/components/charts/ReliabilityChart"), { ssr: false });
 const EnergyBurdenChart = dynamic(() => import("@/components/charts/EnergyBurdenChart"), { ssr: false });
@@ -14,7 +16,7 @@ export default function EnergyAccessPage() {
   const [data, setData] = useState<EnergyAccessRow[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => { fetchEnergyAccess().then(setData).catch(() => setError("Failed to load data.")); }, []);
+  useEffect(() => { fetchEnergyAccess().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
 
   const avgSaidi = useMemo(
     () => data.length ? data.reduce((s, d) => s + d.saidi, 0) / data.length : 0,
@@ -46,14 +48,14 @@ export default function EnergyAccessPage() {
           <StatCard label="Year" value="2024" accent="blue" />
         </div>
 
-        {error && <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{error}</p>}
+        {error && <ErrorMessage message={error} />}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 mb-1">Grid Reliability (SAIDI)</h2>
           <p className="text-sm text-slate-500 mb-4">Minutes of outage per customer per year</p>
           {data.length > 0 ? (
             <ReliabilityChart data={data} />
           ) : !error ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading…</div>
+            <LoadingPlaceholder />
           ) : null}
         </div>
 
@@ -63,7 +65,7 @@ export default function EnergyAccessPage() {
           {data.length > 0 ? (
             <EnergyBurdenChart data={data} />
           ) : !error ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading…</div>
+            <LoadingPlaceholder />
           ) : null}
         </div>
       </div>

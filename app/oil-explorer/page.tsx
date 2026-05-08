@@ -6,6 +6,8 @@ import PageHeader from "@/components/ui/PageHeader";
 import { fetchOilForecast, fetchNetTrade, fetchOilExports } from "@/lib/data";
 import type { OilRow } from "@/lib/data";
 import type { PresetItem } from "@/components/ui/RegionPicker";
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false });
 
@@ -114,9 +116,9 @@ export default function OilExplorerPage() {
   });
 
   useEffect(() => {
-    fetchOilForecast().then(setImports).catch(() => setErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })));
-    fetchNetTrade().then(setNetTrade).catch(() => setErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })));
-    fetchOilExports().then(setExportsData).catch(() => setErrors((e) => ({ ...e, exports: "Failed to load exports data." })));
+    fetchOilForecast().then(setImports).catch((err) => { console.error(err); setErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
+    fetchNetTrade().then(setNetTrade).catch((err) => { console.error(err); setErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
+    fetchOilExports().then(setExportsData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
   }, []);
 
   const active = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
@@ -138,7 +140,7 @@ export default function OilExplorerPage() {
       />
       {activeError && (
         <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6">
-          <p className="text-sm text-red-500 font-mono bg-red-50 border border-red-200 rounded-lg px-4 py-3">{activeError}</p>
+          <ErrorMessage message={activeError} />
         </div>
       )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
@@ -170,7 +172,7 @@ export default function OilExplorerPage() {
           {active.length > 0 ? (
             <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} />
           ) : !activeError ? (
-            <div className="flex items-center justify-center h-48 text-slate-400 text-sm font-mono">Loading data…</div>
+            <LoadingPlaceholder text="Loading data…" />
           ) : null}
         </div>
       </div>

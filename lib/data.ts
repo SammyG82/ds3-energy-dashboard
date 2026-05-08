@@ -2,6 +2,11 @@ import * as d3 from "d3";
 
 const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "";
 
+// d3.csv returns "" for empty cells (not null/undefined), so both checks are required
+function parseCI(value: string | undefined): number | null {
+  return value != null && value !== "" ? +value : null;
+}
+
 export interface EvRow {
   region_country: string;
   year: number;
@@ -53,8 +58,8 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Oil Imports (KBD)"] ?? 0),
-    ciLow: d["CI Low (KBD)"] != null && d["CI Low (KBD)"] !== "" ? +d["CI Low (KBD)"] : null,
-    ciHigh: d["CI High (KBD)"] != null && d["CI High (KBD)"] !== "" ? +d["CI High (KBD)"] : null,
+    ciLow: parseCI(d["CI Low (KBD)"]),
+    ciHigh: parseCI(d["CI High (KBD)"]),
   }));
 }
 
@@ -121,8 +126,8 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
       Year: +(d.Year ?? 0),
       Type: d.Type ?? "",
       value: +(d["Net_Trade"] ?? 0),
-      ciLow: d["Net_CI_Low"] != null && d["Net_CI_Low"] !== "" ? +d["Net_CI_Low"] : null,
-      ciHigh: d["Net_CI_High"] != null && d["Net_CI_High"] !== "" ? +d["Net_CI_High"] : null,
+      ciLow: parseCI(d["Net_CI_Low"]),
+      ciHigh: parseCI(d["Net_CI_High"]),
     }))
     .filter((row) => !(row.value === 0 && row.Type === "Historical"));
 }
@@ -134,8 +139,8 @@ export async function fetchOilExports(): Promise<OilRow[]> {
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Value"] ?? 0),
-    ciLow: d["Lower_CI"] != null && d["Lower_CI"] !== "" ? +d["Lower_CI"] : null,
-    ciHigh: d["Upper_CI"] != null && d["Upper_CI"] !== "" ? +d["Upper_CI"] : null,
+    ciLow: parseCI(d["Lower_CI"]),
+    ciHigh: parseCI(d["Upper_CI"]),
   }));
 }
 

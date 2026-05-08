@@ -116,7 +116,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                 onSelectGroup(regions);
                 setShowCustom(false);
               }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
                   : "bg-white text-slate-600 border-slate-200 hover:border-teal-400 hover:text-teal-700"
@@ -129,7 +129,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
         <button
           onClick={() => setShowCustom((v) => !v)}
-          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors ${
+          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
               : "bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600"
