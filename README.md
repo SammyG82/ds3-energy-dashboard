@@ -88,13 +88,27 @@ Notebooks live in `analysis/` and `eda/`. Always run them from inside their own 
 
 **4. Contributing changes**
 
-Direct pushes to `main` are restricted. To make changes:
-```bash
-git checkout -b your-branch-name
-# make your changes
-git push origin your-branch-name
-```
-Then open a pull request on GitHub — anyone on the team can review and merge it.
+Direct pushes to `main` are blocked. All changes must go through a pull request:
+
+a. Create a new branch and switch to it:
+   ```bash
+   git checkout -b your-branch-name
+   ```
+b. Make your changes, then stage and commit:
+   ```bash
+   git add .
+   git commit -m "short description of what you changed"
+   ```
+c. Push the branch to GitHub:
+   ```bash
+   git push origin your-branch-name
+   ```
+d. Open a pull request on GitHub:
+   - Go to the repo at https://github.com/SammyG82/ds3-energy-dashboard
+   - You'll see a yellow banner at the top: **"your-branch-name had recent pushes — Compare & pull request"**
+   - Click **"Compare & pull request"**
+   - Add a title and description, then click **"Create pull request"**
+   - Once you're happy with the changes and there are no merge conflicts, click **"Merge pull request"** — the live site will redeploy automatically
 
 **5. Get oriented**
 - The live site is at https://sammyg82.github.io/ds3-energy-dashboard/ — any push to `main` auto-deploys
