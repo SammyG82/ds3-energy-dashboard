@@ -38,6 +38,7 @@ export default function ReliabilityChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [pinnedPos, setPinnedPos] = useState<{ x: number; y: number } | null>(null);
   const [showInfo, setShowInfo] = useState(false);
@@ -58,7 +59,10 @@ export default function ReliabilityChart({ data }: Props) {
   }, [data]);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    const obs = new ResizeObserver((entries) => {
+      setContainerWidth(Math.floor(entries[0].contentRect.width));
+      setContainerHeight(Math.floor(entries[0].contentRect.height));
+    });
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
@@ -204,7 +208,7 @@ export default function ReliabilityChart({ data }: Props) {
             style={{
               left: pinnedPos.x < containerWidth * 0.6 ? pinnedPos.x + 14 : undefined,
               right: pinnedPos.x >= containerWidth * 0.6 ? containerWidth - pinnedPos.x + 14 : undefined,
-              top: Math.max(4, pinnedPos.y - 10),
+              top: Math.max(4, Math.min(pinnedPos.y - 10, containerHeight - 130)),
             }}
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">

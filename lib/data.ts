@@ -80,7 +80,7 @@ export interface TargetRow {
 export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
   const raw = await d3.csv(`${BASE}/data/energy_access_with_burden.csv`);
   return raw
-    .filter((d) => +d.year === 2024 && d.state?.length === 2)
+    .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US")
     .map((d) => ({
       state: d.state,
       year: +d.year,

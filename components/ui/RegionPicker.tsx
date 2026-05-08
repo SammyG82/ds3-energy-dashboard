@@ -99,7 +99,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
   useEffect(() => {
     setQuery("");
-  }, [options]);
+  }, [options, showCustom]);
 
   return (
     <div className="flex flex-col gap-3">
