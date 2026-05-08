@@ -1,6 +1,6 @@
 # DS3 Energy Dashboard — EV Adoption & Oil Dependency
 
-A data-driven dashboard exploring whether rising electric vehicle adoption measurably reduces oil dependency in non-producing countries, and how the resulting savings could fund clean energy infrastructure.
+A data-driven dashboard exploring whether rising electric vehicle adoption measurably reduces oil dependency in oil-importing countries, and how the resulting savings could fund clean energy infrastructure.
 
 **Live site:** https://sammyg82.github.io/ds3-energy-dashboard/
 
@@ -17,7 +17,7 @@ This project combines IEA oil import/export data with global EV sales figures ac
 | Global new-car EV share (2023) | ~18% |
 | Oil displaced by EVs (2023) | ↓ 2.4 Mb/d |
 | Countries in dataset | 50+ |
-| Data time span | 1971–2035 |
+| Data time span | 2010–2035 |
 
 ## Pages
 
@@ -61,21 +61,49 @@ ds3-energy-dashboard/
 └── analysis/                            # Python notebooks and raw IEA data
 ```
 
-## Local Development
+## New Collaborators
 
-**Frontend:**
+Welcome to the project. Follow these steps to get fully set up.
+
+**1. Clone the repo**
+```bash
+git clone https://github.com/SammyG82/ds3-energy-dashboard.git
+cd ds3-energy-dashboard
+```
+
+**2. Set up the frontend**
 ```bash
 npm install
-npm run dev             # dev server at localhost:3000
-npm run build           # static export to out/
+npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000) — the dashboard should be running.
 
-**Python (for analysis notebooks only):**
+**3. Set up Python (only needed if you're working on the data notebooks)**
 ```bash
-conda env create -f environment.yml   # create the ds3-energy environment
+conda env create -f environment.yml
 conda activate ds3-energy
-jupyter notebook                      # open notebooks in analysis/ or eda/
+jupyter notebook
 ```
+Notebooks live in `analysis/` and `eda/`. Always run them from inside their own folder (some load data via relative paths).
+
+**4. Contributing changes**
+
+Direct pushes to `main` are restricted. To make changes:
+```bash
+git checkout -b your-branch-name
+# make your changes
+git push origin your-branch-name
+```
+Then open a pull request on GitHub — anyone on the team can review and merge it.
+
+**5. Get oriented**
+- The live site is at https://sammyg82.github.io/ds3-energy-dashboard/ — any push to `main` auto-deploys
+- All frontend data files are in `public/data/` — charts read from there, never from `analysis/`
+- Chart components are in `components/charts/`, one file per chart
+- All data fetching is in `lib/data.ts`
+- Never edit files in `analysis/`, `eda/`, or `eia_extraction/` without checking with the team first
+
+---
 
 ## Caveats
 
