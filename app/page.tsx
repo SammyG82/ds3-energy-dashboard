@@ -14,7 +14,7 @@ const stats = [
   { value: "~18%", label: "Global EV new-car share", accent: "text-blue-600" },
   { value: "↓2.4 Mb/d", label: "Oil displaced by EVs (2023)", accent: "text-teal-600" },
   { value: "50+", label: "Countries in dataset", accent: "text-amber-600" },
-  { value: "1971–2035", label: "Data time span", accent: "text-blue-600" },
+  { value: "2010–2035", label: "Data time span", accent: "text-blue-600" },
 ];
 
 const pillars = [
@@ -24,7 +24,7 @@ const pillars = [
   },
   {
     title: "Oil Import Pressure",
-    body: "Analyze how rising EV adoption correlates with declining oil import volumes in non-producing countries, controlling for GDP growth.",
+    body: "Analyze how rising EV adoption correlates with declining oil import volumes in oil-importing countries, controlling for GDP growth.",
   },
   {
     title: "Infrastructure Dividend",
@@ -63,7 +63,7 @@ export default function LandingPage() {
             <span className="text-teal-600">Oil Dependency</span>
           </h1>
           <p className="text-slate-500 max-w-2xl mx-auto text-base leading-relaxed mb-10">
-            Does rising electric vehicle adoption measurably reduce oil dependency in non-producing
+            Does rising electric vehicle adoption measurably reduce oil dependency in oil-importing
             countries — and how could the resulting savings fund clean energy infrastructure?
           </p>
 
