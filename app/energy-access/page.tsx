@@ -18,14 +18,16 @@ export default function EnergyAccessPage() {
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
 
-  const avgSaidi = useMemo(
-    () => data.length ? data.reduce((s, d) => s + d.saidi, 0) / data.length : 0,
-    [data]
-  );
-  const avgBurden = useMemo(
-    () => data.length ? data.reduce((s, d) => s + d.energy_burden_pct, 0) / data.length : 0,
-    [data]
-  );
+  const avgSaidi = useMemo(() => {
+    if (!data.length) return 0;
+    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
+    return data.reduce((s, d) => s + d.saidi * (d.avg_customers ?? 1), 0) / totalCustomers;
+  }, [data]);
+  const avgBurden = useMemo(() => {
+    if (!data.length) return 0;
+    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
+    return data.reduce((s, d) => s + d.energy_burden_pct * (d.avg_customers ?? 1), 0) / totalCustomers;
+  }, [data]);
 
   return (
     <>
@@ -54,9 +56,11 @@ export default function EnergyAccessPage() {
           <p className="text-sm text-slate-500 mb-4">Minutes of outage per customer per year</p>
           {data.length > 0 ? (
             <ReliabilityChart data={data} />
-          ) : !error ? (
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
             <LoadingPlaceholder />
-          ) : null}
+          )}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -64,9 +68,11 @@ export default function EnergyAccessPage() {
           <p className="text-sm text-slate-500 mb-4">Annual electricity bill as % of household income</p>
           {data.length > 0 ? (
             <EnergyBurdenChart data={data} />
-          ) : !error ? (
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
             <LoadingPlaceholder />
-          ) : null}
+          )}
         </div>
       </div>
     </>

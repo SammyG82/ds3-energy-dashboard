@@ -33,7 +33,6 @@ const COUNTRY_COLORS: Record<string, string> = {
   Brazil: "#15803d", Kazakhstan: "#a16207", Spain: "#9f1239",
 };
 
-const DEFAULT_FORECAST_BOUNDARY = 2024;
 const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 
 const OIL_PRESETS: PresetItem[] = [
@@ -71,7 +70,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   );
 
   const forecastBoundary = useMemo(
-    () => data.find((d) => d.Type === "Forecast")?.Year ?? DEFAULT_FORECAST_BOUNDARY,
+    () => data.find((d) => d.Type === "Forecast")?.Year,
     [data]
   );
 
@@ -83,6 +82,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     setSelected(new Set(preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries));
   }, [allCountries, preview]);
 
+  useEffect(() => {
+    setPinned(null);
+    setPreviewTooltip(null);
+    setPreviewTooltipPos(null);
+  }, [data]);
   useEffect(() => {
     setPinned(null);
     setPreviewTooltip(null);
@@ -113,7 +117,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   }, []);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || forecastBoundary === undefined) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();

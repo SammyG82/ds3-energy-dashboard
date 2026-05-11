@@ -112,6 +112,7 @@ export default function EnergyBurdenChart({ data }: Props) {
     barsSel
       .on("mouseover", function (event, d) {
         barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
+        g.selectAll(".val-label").interrupt();
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setPinned({ state: d.state, burden: d.energy_burden_pct, price: d.avg_price_cents_kwh, annualBill: d.est_annual_bill });
         const [cx, cy] = d3.pointer(event, containerRef.current);

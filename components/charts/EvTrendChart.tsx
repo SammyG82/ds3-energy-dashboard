@@ -15,7 +15,7 @@ interface Pinned {
   isForecast: boolean;
 }
 
-const DEFAULT_forecastBoundary = 2025;
+const DEFAULT_FORECAST_BOUNDARY = 2025;
 
 function fmtSales(v: number): string {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
@@ -40,9 +40,8 @@ export default function EvTrendChart({ data }: Props) {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
   }, [countries, country]);
 
-  useEffect(() => {
-    setPinned(null);
-  }, [country]);
+  useEffect(() => { setPinned(null); }, [country]);
+  useEffect(() => { setPinned(null); }, [data]);
 
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
@@ -50,7 +49,7 @@ export default function EvTrendChart({ data }: Props) {
   );
 
   const forecastBoundary = useMemo(
-    () => countryData.find((d) => d.type === "Forecast")?.year ?? DEFAULT_forecastBoundary,
+    () => countryData.find((d) => d.type === "Forecast")?.year ?? DEFAULT_FORECAST_BOUNDARY,
     [countryData]
   );
 

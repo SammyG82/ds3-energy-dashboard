@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { TargetRow } from "@/lib/data";
 
@@ -20,13 +20,9 @@ export default function CapacityChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [pinnedPos, setPinnedPos] = useState<{ x: number; y: number } | null>(null);
-
-  const top15 = useMemo(
-    () => [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw).slice(0, 15),
-    [data]
-  );
 
   useEffect(() => {
     setPinned(null);
@@ -34,13 +30,16 @@ export default function CapacityChart({ data }: Props) {
   }, [data]);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    const obs = new ResizeObserver((entries) => {
+      setContainerWidth(Math.floor(entries[0].contentRect.width));
+      setContainerHeight(Math.floor(entries[0].contentRect.height));
+    });
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !top15.length || containerWidth === 0) return;
+    if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -55,12 +54,12 @@ export default function CapacityChart({ data }: Props) {
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleBand()
-      .domain(top15.map((d) => d.country_code))
+      .domain(data.map((d) => d.country_code))
       .range([0, width])
       .padding(0.3);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(top15, (d) => d.capacity_target_gw) ?? 1])
+      .domain([0, d3.max(data, (d) => d.capacity_target_gw) ?? 1])
       .nice().range([height, 0]);
 
     g.selectAll(".grid-h").data(y.ticks(5)).enter()
@@ -69,7 +68,7 @@ export default function CapacityChart({ data }: Props) {
       .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
 
     const barsSel = g.selectAll<SVGRectElement, TargetRow>(".bar")
-      .data(top15)
+      .data(data)
       .enter()
       .append("rect")
       .attr("class", "bar")
@@ -84,8 +83,9 @@ export default function CapacityChart({ data }: Props) {
     barsSel
       .on("mouseover", function (event, d) {
         barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
+        g.selectAll(".val-label").interrupt();
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#14532d").attr("stroke-width", 1.5);
-        const rank = top15.findIndex((r) => r.country_code === d.country_code) + 1;
+        const rank = data.findIndex((r) => r.country_code === d.country_code) + 1;
         setPinned({ countryName: d.country_name, countryCode: d.country_code, gw: d.capacity_target_gw, sharePct: d.share_target_pct, rank });
         const [cx, cy] = d3.pointer(event, containerRef.current);
         setPinnedPos({ x: cx, y: cy });
@@ -106,7 +106,7 @@ export default function CapacityChart({ data }: Props) {
       .attr("height", (d) => height - y(d.capacity_target_gw));
 
     g.selectAll(".val-label")
-      .data(top15)
+      .data(data)
       .enter()
       .append("text")
       .attr("x", (d) => (x(d.country_code) ?? 0) + x.bandwidth() / 2)
@@ -130,7 +130,7 @@ export default function CapacityChart({ data }: Props) {
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((d) => `${d} GW`).ticks(5));
-  }, [top15, containerWidth]);
+  }, [data, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -142,7 +142,7 @@ export default function CapacityChart({ data }: Props) {
             style={{
               left: pinnedPos.x < containerWidth * 0.6 ? pinnedPos.x + 14 : undefined,
               right: pinnedPos.x >= containerWidth * 0.6 ? containerWidth - pinnedPos.x + 14 : undefined,
-              top: Math.max(4, pinnedPos.y - 10),
+              top: Math.max(4, Math.min(pinnedPos.y - 10, containerHeight - 120)),
             }}
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">

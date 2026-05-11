@@ -121,7 +121,6 @@ export default function BurdenVsPriceChart({ data }: Props) {
           .attr("opacity", 0.8)
           .attr("r", (d) => rScale(d.avg_customers ?? 0))
           .attr("stroke", "white").attr("stroke-width", 1);
-        setPinned(null);
       });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)

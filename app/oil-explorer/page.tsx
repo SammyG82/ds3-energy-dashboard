@@ -138,11 +138,6 @@ export default function OilExplorerPage() {
           { label: "2030 Forecast", color: "amber" },
         ]}
       />
-      {activeError && (
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6">
-          <ErrorMessage message={activeError} />
-        </div>
-      )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
 
         {/* Dataset toggle */}
@@ -171,9 +166,11 @@ export default function OilExplorerPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {active.length > 0 ? (
             <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} />
-          ) : !activeError ? (
+          ) : activeError ? (
+            <ErrorMessage message={activeError} />
+          ) : (
             <LoadingPlaceholder text="Loading data…" />
-          ) : null}
+          )}
         </div>
       </div>
     </>

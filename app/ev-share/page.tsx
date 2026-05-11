@@ -30,11 +30,6 @@ export default function EvSharePage() {
           { label: "50+ Countries", color: "amber" },
         ]}
       />
-      {error && (
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6">
-          <ErrorMessage message={error} />
-        </div>
-      )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
 
         {/* Rankings bar chart */}
@@ -46,9 +41,11 @@ export default function EvSharePage() {
           </div>
           {data.length > 0 ? (
             <EvShareChart data={data} />
-          ) : !error ? (
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
             <LoadingPlaceholder text="Loading data…" />
-          ) : null}
+          )}
         </div>
 
         {/* Single-country trend */}
@@ -60,9 +57,11 @@ export default function EvSharePage() {
           </div>
           {data.length > 0 ? (
             <EvTrendChart data={data} />
-          ) : !error ? (
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
             <LoadingPlaceholder text="Loading data…" />
-          ) : null}
+          )}
         </div>
 
       </div>

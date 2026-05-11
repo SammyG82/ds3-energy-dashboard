@@ -31,7 +31,7 @@ const DISPLAY_NAMES: Record<string, string> = {
 
 const dn = (r: string) => DISPLAY_NAMES[r] ?? r;
 
-const DEFAULT_forecastBoundary = 2025;
+const DEFAULT_FORECAST_BOUNDARY = 2025;
 const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
 
 function fmtSales(v: number) {
@@ -44,6 +44,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [pinned, setPinned] = useState<PinnedState | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<PinnedState | null>(null);
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -70,7 +71,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   }, [allRegions, preview]);
 
   const forecastBoundary = useMemo(
-    () => data.find((d) => d.type === "Forecast")?.year ?? DEFAULT_forecastBoundary,
+    () => data.find((d) => d.type === "Forecast")?.year ?? DEFAULT_FORECAST_BOUNDARY,
     [data]
   );
 
@@ -78,12 +79,13 @@ export default function EvForecastChart({ data, preview = false }: Props) {
 
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected]);
-  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
+  useEffect(() => { setPinned(null); setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) =>
-      setContainerWidth(Math.floor(entries[0].contentRect.width))
-    );
+    const obs = new ResizeObserver((entries) => {
+      setContainerWidth(Math.floor(entries[0].contentRect.width));
+      setContainerHeight(Math.floor(entries[0].contentRect.height));
+    });
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
@@ -175,8 +177,8 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .on("mousemove", function (event) {
         const [mx] = d3.pointer(event);
         const rawYear = x.invert(mx);
-        const [yMin, yMax] = x.domain();
-        const year = Math.round(Math.max(yMin, Math.min(yMax, rawYear)));
+        const [xMin, xMax] = x.domain();
+        const year = Math.round(Math.max(xMin, Math.min(xMax, rawYear)));
         const px = x(year);
 
         crosshair.style("visibility", "visible").attr("x1", px).attr("x2", px);
@@ -237,7 +239,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
             style={{
               left: previewTooltipPos.x < containerWidth * 0.6 ? previewTooltipPos.x + 14 : undefined,
               right: previewTooltipPos.x >= containerWidth * 0.6 ? containerWidth - previewTooltipPos.x + 14 : undefined,
-              top: Math.max(4, previewTooltipPos.y - 10),
+              top: Math.max(4, Math.min(previewTooltipPos.y - 10, containerHeight - 150)),
             }}
           >
             <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">

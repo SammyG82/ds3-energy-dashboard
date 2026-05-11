@@ -70,6 +70,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     () => gdpMeta.find((m) => m.country === country),
     [gdpMeta, country]
   );
+
+  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta]);
+  useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
+
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
     ? compute(meta.region, year, adoption, meta, evData)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
@@ -247,6 +251,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     barsSel
       .on("mouseover", function (_, d) {
         barsSel.interrupt().attr("opacity", 0.25).attr("stroke", "none");
+        g.selectAll(".val-label").interrupt();
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setGdpPinnedCountry(d.country);
       })

@@ -21,7 +21,7 @@ const COUNTRY_COLORS: Record<string, string> = {
   Japan: "#0891b2", "United Kingdom": "#db2777", France: "#ca8a04",
   Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea",
   Australia: "#0284c7", Sweden: "#15803d", Canada: "#b45309",
-  Spain: "#7c3aed", Brazil: "#16a34a", Italy: "#f97316", World: "#64748b",
+  Spain: "#be185d", Brazil: "#0d9488", Italy: "#f97316", World: "#64748b",
 };
 const DEFAULT_COLOR = "#2563eb";
 const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
@@ -40,6 +40,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -68,8 +69,13 @@ export default function EvShareChart({ data, preview = false }: Props) {
     [data, year, topN]
   );
 
+  const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
+
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    const obs = new ResizeObserver((entries) => {
+      setContainerWidth(Math.floor(entries[0].contentRect.width));
+      setContainerHeight(Math.floor(entries[0].contentRect.height));
+    });
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
@@ -104,8 +110,6 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .attr("x1", (d) => x(d)).attr("x2", (d) => x(d))
       .attr("y1", 0).attr("y2", height)
       .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.6);
-
-    const total = d3.sum(filtered, (d) => d.ev_sales);
 
     const barsSel = g.selectAll<SVGRectElement, EvRow>(".bar")
       .data(filtered)
@@ -167,7 +171,6 @@ export default function EvShareChart({ data, preview = false }: Props) {
   }, [filtered, preview, containerWidth]);
 
   const leader = filtered[0];
-  const total = filtered.reduce((s, d) => s + d.ev_sales, 0);
 
   return (
     <div className="flex flex-col gap-4">
@@ -230,7 +233,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
             style={{
               left: tooltipPos.x < containerWidth * 0.6 ? tooltipPos.x + 14 : undefined,
               right: tooltipPos.x >= containerWidth * 0.6 ? containerWidth - tooltipPos.x + 14 : undefined,
-              top: Math.max(4, tooltipPos.y - 10),
+              top: Math.max(4, Math.min(tooltipPos.y - 10, containerHeight - 110)),
             }}
           >
             <div className="flex items-center justify-between gap-3">
