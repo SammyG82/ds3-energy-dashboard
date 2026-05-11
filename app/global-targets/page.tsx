@@ -45,7 +45,6 @@ export default function GlobalTargetsPage() {
           <StatCard label="Target Year" value="2030" accent="blue" />
         </div>
 
-        {error && <div className="mb-4"><ErrorMessage message={error} /></div>}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 mb-1">Top 15 Countries by Capacity Target (GW)</h2>
           <p className="text-sm text-slate-500 mb-4">Renewable energy generation capacity committed for 2030</p>

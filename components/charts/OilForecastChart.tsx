@@ -60,6 +60,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerWidth, setContainerWidth] = useState(0);
+  const [containerHeight, setContainerHeight] = useState(0);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<Pinned | null>(null);
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -94,11 +95,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   }, [selected]);
 
   const { total2023, leader } = useMemo(() => {
-    const latest = data.filter((d) => d.Year === 2023);
+    const latest = data.filter((d) => d.Year === 2023 && selected.has(d.Country));
     const total = latest.reduce((s, d) => s + d.value, 0);
     const top = [...latest].sort((a, b) => b.value - a.value)[0];
     return { total2023: total, leader: top };
-  }, [data]);
+  }, [data, selected]);
 
   const toggle = (c: string) =>
     setSelected((prev) => {
@@ -111,7 +112,10 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    const obs = new ResizeObserver((entries) => {
+      setContainerWidth(Math.floor(entries[0].contentRect.width));
+      setContainerHeight(Math.floor(entries[0].contentRect.height));
+    });
     if (containerRef.current) obs.observe(containerRef.current);
     return () => obs.disconnect();
   }, []);
@@ -273,7 +277,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             style={{
               left: previewTooltipPos.x < containerWidth * 0.6 ? previewTooltipPos.x + 14 : undefined,
               right: previewTooltipPos.x >= containerWidth * 0.6 ? containerWidth - previewTooltipPos.x + 14 : undefined,
-              top: Math.max(4, previewTooltipPos.y - 10),
+              top: Math.max(4, Math.min(previewTooltipPos.y - 10, containerHeight - 150)),
             }}
           >
             <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">

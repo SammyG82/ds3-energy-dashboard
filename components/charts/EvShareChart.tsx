@@ -127,6 +127,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
     barsSel
       .on("mouseover", function (event, d) {
         barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
+        g.selectAll(".bar-label").interrupt();
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         const rank = filtered.findIndex((r) => r.region_country === d.region_country) + 1;
         setTooltip({ country: DISPLAY_NAMES[d.region_country] ?? d.region_country, sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank });
@@ -151,14 +152,19 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .data(filtered)
       .enter()
       .append("text")
-      .attr("x", (d) => x(d.ev_sales) + 5)
+      .attr("class", "bar-label")
+      .attr("x", 0)
       .attr("y", (d) => (y(DISPLAY_NAMES[d.region_country] ?? d.region_country) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", "11px")
       .attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
+      .attr("opacity", 0)
       .attr("pointer-events", "none")
-      .text((d) => fmtSales(d.ev_sales));
+      .text((d) => fmtSales(d.ev_sales))
+      .transition().duration(600).ease(d3.easeCubicOut)
+      .attr("x", (d) => x(d.ev_sales) + 5)
+      .attr("opacity", 1);
 
     g.append("g")
       .attr("class", "chart-axis")

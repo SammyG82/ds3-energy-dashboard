@@ -117,7 +117,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       const svg = d3.select(svgEl);
       svg.selectAll("*").remove();
 
-      const totalW = containerWidth / 2 - 16;
+      const totalW = (containerWidth - 16) / 2 - 32;
       const margin = { top: 12, right: 12, bottom: 28, left: 52 };
       const totalH = 220;
       const width = Math.max(totalW - margin.left - margin.right, 80);
@@ -269,6 +269,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
     g.selectAll(".val-label").data(chartData).enter()
       .append("text")
+      .attr("class", "val-label")
       .attr("x", (d) => (x(d.country) ?? 0) + x.bandwidth() / 2)
       .attr("y", height)
       .attr("text-anchor", "middle")

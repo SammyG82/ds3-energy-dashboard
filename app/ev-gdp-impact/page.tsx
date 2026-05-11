@@ -24,7 +24,6 @@ export default function EvGdpImpactPage() {
 
   const ready = evData.length > 0 && gdpMeta.length > 0;
   const anyError = errors.evData || errors.gdpMeta;
-  const loading = !ready && !anyError;
 
   return (
     <>
@@ -39,18 +38,17 @@ export default function EvGdpImpactPage() {
           { label: "2024 – 2030", color: "blue" },
         ]}
       />
-      {(errors.evData || errors.gdpMeta) && (
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 pt-6 flex flex-col gap-2">
-          {errors.evData && <ErrorMessage message={errors.evData} />}
-          {errors.gdpMeta && <ErrorMessage message={errors.gdpMeta} />}
-        </div>
-      )}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
         {ready ? (
           <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} />
-        ) : loading ? (
+        ) : anyError ? (
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-2">
+            {errors.evData && <ErrorMessage message={errors.evData} />}
+            {errors.gdpMeta && <ErrorMessage message={errors.gdpMeta} />}
+          </div>
+        ) : (
           <LoadingPlaceholder text="Loading data…" />
-        ) : null}
+        )}
       </div>
     </>
   );

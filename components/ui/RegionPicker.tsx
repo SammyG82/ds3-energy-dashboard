@@ -110,6 +110,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             <button
               key={preset.label}
               title={preset.description}
+              aria-label={preset.label}
               onClick={() => {
                 const regions = (preset.regions ?? options).filter((r) => options.includes(r));
                 if (regions.length === 0) return;
@@ -129,6 +130,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
         <button
           onClick={() => setShowCustom((v) => !v)}
+          aria-pressed={showCustom}
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
@@ -141,6 +143,8 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         <button
           onClick={() => setShowInfo((v) => !v)}
           title="Why these presets?"
+          aria-label="Why these presets?"
+          aria-pressed={showInfo}
           className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center flex-shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
@@ -170,6 +174,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search regions…"
+            aria-label="Search regions"
             className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-300"
           />
 

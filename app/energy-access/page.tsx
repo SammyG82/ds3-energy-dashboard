@@ -50,7 +50,6 @@ export default function EnergyAccessPage() {
           <StatCard label="Year" value="2024" accent="blue" />
         </div>
 
-        {error && <ErrorMessage message={error} />}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           <h2 className="text-lg font-bold text-slate-900 mb-1">Grid Reliability (SAIDI)</h2>
           <p className="text-sm text-slate-500 mb-4">Minutes of outage per customer per year</p>
