@@ -31,6 +31,19 @@ export interface GdpMeta {
   costPerBarrel: number;
 }
 
+export const EV_DISPLAY_NAMES: Record<string, string> = {
+  "Korea": "South Korea",
+  "Viet Nam": "Vietnam",
+  "World": "Global Total",
+  "Rest of the world": "Other Countries",
+};
+
+export function fmtEvSales(v: number): string {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  return `${Math.round(v)}`;
+}
+
 export async function fetchEvSales(): Promise<EvRow[]> {
   const raw = await d3.csv(`${BASE}/data/ev_sales.csv`);
   return raw.map((d) => ({
@@ -89,20 +102,20 @@ export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
     .map((d) => ({
       state: d.state,
       year: +d.year,
-      saidi: d.saidi ? +d.saidi : 0,
-      saifi: d.saifi ? +d.saifi : 0,
-      energy_burden_pct: d.energy_burden_pct ? +d.energy_burden_pct : 0,
-      avg_price_cents_kwh: d.avg_price_cents_kwh ? +d.avg_price_cents_kwh : 0,
-      est_annual_bill: d.est_annual_bill ? +d.est_annual_bill : null,
-      median_income_2024: d.median_income_2024 ? +d.median_income_2024 : null,
-      avg_customers: d.avg_customers ? +d.avg_customers : null,
+      saidi: +(d.saidi ?? 0),
+      saifi: +(d.saifi ?? 0),
+      energy_burden_pct: +(d.energy_burden_pct ?? 0),
+      avg_price_cents_kwh: +(d.avg_price_cents_kwh ?? 0),
+      est_annual_bill: parseCI(d.est_annual_bill),
+      median_income_2024: parseCI(d.median_income_2024),
+      avg_customers: parseCI(d.avg_customers),
     }));
 }
 
 export async function fetchTargets(): Promise<TargetRow[]> {
   const raw = await d3.csv(`${BASE}/data/merged_targets_clean.csv`);
   return raw
-    .filter((d) => d.capacity_target_gw && +d.capacity_target_gw > 0 && d.country_code !== "EU")
+    .filter((d) => +d.capacity_target_gw > 0 && d.country_code !== "EU")
     .map((d) => ({
       country_code: d.country_code ?? "",
       country_name: d.country_name ?? "",

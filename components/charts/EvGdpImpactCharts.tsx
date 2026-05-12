@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta } from "@/lib/data";
+import { fmtEvSales } from "@/lib/data";
 
 
 interface Props {
@@ -20,12 +21,6 @@ function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta
   const costSavings = (oilDisplaced * 1_000_000 * meta.costPerBarrel) / 1_000_000_000;
   const gdpPercent = (costSavings / meta.gdp) * 100;
   return { sales, oilDisplaced, costSavings, gdpPercent };
-}
-
-function fmtSales(v: number): string {
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
-  return `${v}`;
 }
 
 export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
@@ -71,7 +66,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     [gdpMeta, country]
   );
 
-  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta]);
+  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption]);
   useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
 
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
@@ -250,8 +245,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
     barsSel
       .on("mouseover", function (_, d) {
-        barsSel.interrupt().attr("opacity", 0.25).attr("stroke", "none");
-        g.selectAll(".val-label").interrupt();
+        barsSel.attr("opacity", 0.25).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setGdpPinnedCountry(d.country);
       })
@@ -342,7 +336,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200 rounded-xl p-4">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">EV Sales</p>
-          <p className="text-xl font-bold text-teal-600">{fmtSales(sales)}</p>
+          <p className="text-xl font-bold text-teal-600">{fmtEvSales(sales)}</p>
           <p className="text-xs text-slate-400 mt-0.5">{country} {year}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-xl p-4">
@@ -373,7 +367,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
               <span className="text-xs text-slate-700">
                 <span className="font-mono font-bold">{evPinnedYear}</span>
                 {" — "}
-                <span className="font-semibold">{fmtSales(evPinnedVal)}</span>
+                <span className="font-semibold">{fmtEvSales(evPinnedVal)}</span>
                 {" electric vehicles sold"}
               </span>
             ) : (

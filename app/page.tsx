@@ -94,10 +94,10 @@ export default function LandingPage() {
               Full Explorer →
             </Link>
           </div>
-          {errors.evSales ? (
-            <ErrorMessage message={errors.evSales} />
-          ) : evSales.length > 0 ? (
+          {evSales.length > 0 ? (
             <EvShareChart data={evSales} preview />
+          ) : errors.evSales ? (
+            <ErrorMessage message={errors.evSales} />
           ) : (
             <LoadingPlaceholder text="Loading data…" />
           )}
@@ -114,10 +114,10 @@ export default function LandingPage() {
               Full Forecast →
             </Link>
           </div>
-          {errors.evData ? (
-            <ErrorMessage message={errors.evData} />
-          ) : evData.length > 0 ? (
+          {evData.length > 0 ? (
             <EvForecastChart data={evData} preview />
+          ) : errors.evData ? (
+            <ErrorMessage message={errors.evData} />
           ) : (
             <LoadingPlaceholder text="Loading data…" />
           )}
@@ -134,10 +134,10 @@ export default function LandingPage() {
               Full Explorer →
             </Link>
           </div>
-          {errors.oilData ? (
-            <ErrorMessage message={errors.oilData} />
-          ) : oilData.length > 0 ? (
+          {oilData.length > 0 ? (
             <OilForecastChart data={oilData} preview />
+          ) : errors.oilData ? (
+            <ErrorMessage message={errors.oilData} />
           ) : (
             <LoadingPlaceholder text="Loading data…" />
           )}

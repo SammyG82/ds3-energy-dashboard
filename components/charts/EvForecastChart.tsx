@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
+import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
 import RegionPicker from "@/components/ui/RegionPicker";
 
 interface Props {
@@ -23,22 +24,10 @@ const REGION_COLORS = [
   "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
 ];
 
-const DISPLAY_NAMES: Record<string, string> = {
-  "World": "Global Total",
-  "Rest of the world": "Other Countries",
-  "Viet Nam": "Vietnam",
-};
-
-const dn = (r: string) => DISPLAY_NAMES[r] ?? r;
+const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
 
 const DEFAULT_FORECAST_BOUNDARY = 2025;
 const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
-
-function fmtSales(v: number) {
-  return v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M`
-    : v >= 1_000 ? `${(v / 1_000).toFixed(0)}k`
-    : v.toFixed(0);
-}
 
 export default function EvForecastChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -226,7 +215,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
             }
             onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allRegions.slice(0, 1))}
             colorMap={colorMap}
-            displayNames={DISPLAY_NAMES}
+            displayNames={EV_DISPLAY_NAMES}
           />
         </div>
       )}
@@ -252,7 +241,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
               <div key={region} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                 <span className="text-xs text-slate-700 flex-1">{dn(region)}</span>
-                <span className="text-xs font-mono font-semibold text-slate-900">{fmtSales(value)}</span>
+                <span className="text-xs font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
               </div>
             ))}
           </div>
@@ -274,7 +263,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
                   <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
                     <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
                     <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
-                    <span className="text-sm font-mono font-semibold text-slate-900">{fmtSales(value)}</span>
+                    <span className="text-sm font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
                   </div>
                 ))}
               </div>

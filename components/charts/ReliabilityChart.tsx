@@ -110,8 +110,7 @@ export default function ReliabilityChart({ data }: Props) {
 
     barsSel
       .on("mouseover", function (event, d) {
-        barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
-        g.selectAll(".val-label").interrupt();
+        barsSel.attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         setPinned({ state: d.state, saidi: d.saidi, saifi: d.saifi });
         const [cx, cy] = d3.pointer(event, containerRef.current);
@@ -135,6 +134,7 @@ export default function ReliabilityChart({ data }: Props) {
       .data(sorted)
       .enter()
       .append("text")
+      .attr("class", "val-label")
       .attr("x", 0)
       .attr("y", (d) => (y(d.state) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")

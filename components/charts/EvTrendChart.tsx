@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
+import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
 
 interface Props {
   data: EvRow[];
@@ -16,12 +17,7 @@ interface Pinned {
 }
 
 const DEFAULT_FORECAST_BOUNDARY = 2025;
-
-function fmtSales(v: number): string {
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(2)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
-  return `${v}`;
-}
+const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
 
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -168,7 +164,7 @@ export default function EvTrendChart({ data }: Props) {
       });
   }, [countryData, forecastBoundary, containerWidth]);
 
-  const historicalRows = countryData.filter((d) => d.type === "Actual");
+  const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual"), [countryData]);
   const peak = historicalRows.length > 0
     ? historicalRows.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, historicalRows[0])
     : null;
@@ -190,7 +186,7 @@ export default function EvTrendChart({ data }: Props) {
           className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-300"
         >
           {countries.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>{dn(c)}</option>
           ))}
         </select>
       </div>
@@ -199,7 +195,7 @@ export default function EvTrendChart({ data }: Props) {
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{latest?.year ?? "—"} Sales</p>
           <p className="text-lg font-bold text-teal-600">
-            {latest ? fmtSales(latest.ev_sales) : "—"}
+            {latest ? fmtEvSales(latest.ev_sales) : "—"}
           </p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
@@ -214,7 +210,7 @@ export default function EvTrendChart({ data }: Props) {
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2030 Forecast</p>
           <p className="text-lg font-bold text-teal-600">
-            {forecast2030 ? fmtSales(forecast2030.ev_sales) : "—"}
+            {forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"}
           </p>
         </div>
       </div>
@@ -233,7 +229,7 @@ export default function EvTrendChart({ data }: Props) {
               </span>
             </div>
             <p className="text-xl font-bold text-teal-600 mt-1">
-              {fmtSales(pinned.sales)} <span className="text-sm font-normal text-slate-500">electric vehicles sold</span>
+              {fmtEvSales(pinned.sales)} <span className="text-sm font-normal text-slate-500">electric vehicles sold</span>
             </p>
             {pinned.yoy !== null && (
               <p className={`text-sm font-semibold ${pinned.yoy >= 0 ? "text-green-600" : "text-red-500"}`}>

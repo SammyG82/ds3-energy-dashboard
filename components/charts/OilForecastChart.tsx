@@ -87,12 +87,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     setPinned(null);
     setPreviewTooltip(null);
     setPreviewTooltipPos(null);
-  }, [data]);
-  useEffect(() => {
-    setPinned(null);
-    setPreviewTooltip(null);
-    setPreviewTooltipPos(null);
-  }, [selected]);
+  }, [data, selected]);
 
   const { total2023, leader } = useMemo(() => {
     const latest = data.filter((d) => d.Year === 2023 && selected.has(d.Country));

@@ -82,8 +82,7 @@ export default function CapacityChart({ data }: Props) {
 
     barsSel
       .on("mouseover", function (event, d) {
-        barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
-        g.selectAll(".val-label").interrupt();
+        barsSel.attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#14532d").attr("stroke-width", 1.5);
         const rank = data.findIndex((r) => r.country_code === d.country_code) + 1;
         setPinned({ countryName: d.country_name, countryCode: d.country_code, gw: d.capacity_target_gw, sharePct: d.share_target_pct, rank });

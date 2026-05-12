@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
+import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
 
 interface Props {
   data: EvRow[];
@@ -25,16 +26,7 @@ const COUNTRY_COLORS: Record<string, string> = {
 };
 const DEFAULT_COLOR = "#2563eb";
 const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
-const DISPLAY_NAMES: Record<string, string> = {
-  "Viet Nam": "Vietnam",
-  "Korea": "South Korea",
-};
-
-function fmtSales(v: number): string {
-  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
-  return `${v}`;
-}
+const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
 
 export default function EvShareChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -98,7 +90,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
     const x = d3.scaleLinear().domain([0, d3.max(filtered, (d) => d.ev_sales) ?? 1]).range([0, width]);
     const y = d3.scaleBand()
-      .domain(filtered.map((d) => DISPLAY_NAMES[d.region_country] ?? d.region_country))
+      .domain(filtered.map((d) => dn(d.region_country)))
       .range([0, height])
       .padding(0.15);
 
@@ -117,7 +109,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .append("rect")
       .attr("class", "bar")
       .attr("x", 0)
-      .attr("y", (d) => y(DISPLAY_NAMES[d.region_country] ?? d.region_country) ?? 0)
+      .attr("y", (d) => y(dn(d.region_country)) ?? 0)
       .attr("height", y.bandwidth())
       .attr("rx", 3)
       .attr("fill", (d) => COUNTRY_COLORS[d.region_country] ?? DEFAULT_COLOR)
@@ -126,11 +118,10 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
     barsSel
       .on("mouseover", function (event, d) {
-        barsSel.interrupt().attr("opacity", 0.3).attr("stroke", "none");
-        g.selectAll(".bar-label").interrupt();
+        barsSel.attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
         const rank = filtered.findIndex((r) => r.region_country === d.region_country) + 1;
-        setTooltip({ country: DISPLAY_NAMES[d.region_country] ?? d.region_country, sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank });
+        setTooltip({ country: dn(d.region_country), sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank });
         const [mx, my] = d3.pointer(event, containerRef.current);
         setTooltipPos({ x: mx, y: my });
       })
@@ -154,14 +145,14 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .append("text")
       .attr("class", "bar-label")
       .attr("x", 0)
-      .attr("y", (d) => (y(DISPLAY_NAMES[d.region_country] ?? d.region_country) ?? 0) + y.bandwidth() / 2)
+      .attr("y", (d) => (y(dn(d.region_country)) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", "11px")
       .attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
       .attr("opacity", 0)
       .attr("pointer-events", "none")
-      .text((d) => fmtSales(d.ev_sales))
+      .text((d) => fmtEvSales(d.ev_sales))
       .transition().duration(600).ease(d3.easeCubicOut)
       .attr("x", (d) => x(d.ev_sales) + 5)
       .attr("opacity", 1);
@@ -200,11 +191,11 @@ export default function EvShareChart({ data, preview = false }: Props) {
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Total Sales</p>
-          <p className="text-lg font-bold text-blue-600">{fmtSales(total)}</p>
+          <p className="text-lg font-bold text-blue-600">{fmtEvSales(total)}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Leader</p>
-          <p className="text-lg font-bold text-teal-600">{leader ? (DISPLAY_NAMES[leader.region_country] ?? leader.region_country) : "—"}</p>
+          <p className="text-lg font-bold text-teal-600">{leader ? dn(leader.region_country) : "—"}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Leader Share</p>
