@@ -36,12 +36,12 @@ export default function AffordabilityPage() {
       />
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          {error ? (
-            <ErrorMessage message={error} />
-          ) : !data.length ? (
-            <LoadingPlaceholder />
-          ) : (
+          {filtered.length > 0 ? (
             <BurdenVsPriceChart data={filtered} />
+          ) : error ? (
+            <ErrorMessage message={error} />
+          ) : (
+            <LoadingPlaceholder />
           )}
         </div>
       </div>

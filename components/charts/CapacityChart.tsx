@@ -109,6 +109,7 @@ export default function CapacityChart({ data }: Props) {
       .data(data)
       .enter()
       .append("text")
+      .attr("class", "val-label")
       .attr("x", (d) => (x(d.country_code) ?? 0) + x.bandwidth() / 2)
       .attr("y", height)
       .attr("text-anchor", "middle")
