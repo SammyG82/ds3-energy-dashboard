@@ -224,7 +224,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
             </div>
             {previewTooltip.entries.map(({ region, value, color }) => (
               <div key={region} className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                 <span className="text-xs text-slate-700 flex-1">{dn(region)}</span>
                 <span className="text-xs font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
               </div>
@@ -246,7 +246,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
               <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
                 {pinned.entries.map(({ region, value, color }) => (
                   <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: color }} />
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
                     <span className="text-sm font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
                   </div>

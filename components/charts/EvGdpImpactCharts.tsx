@@ -108,7 +108,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       const svg = d3.select(svgEl);
       svg.selectAll("*").remove();
 
-      const totalW = (containerWidth - 16) / 2 - 32;
+      const isTwoCol = containerWidth >= 640;
+      const totalW = isTwoCol ? (containerWidth - 16) / 2 - 32 : containerWidth - 32;
       const margin = { top: 12, right: 12, bottom: 28, left: 52 };
       const totalH = 220;
       const width = Math.max(totalW - margin.left - margin.right, 80);
@@ -331,13 +332,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       {/* Stat tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard size="xl" label="EV Sales" value={fmtEvSales(sales)} sub={`${country} ${year}`} accent="teal" />
-        <StatCard size="xl" label="Oil Saved" value={`${oilDisplaced.toFixed(0)}M`} sub="barrels per year" accent="amber" />
+        <StatCard size="xl" label="Oil Saved" value={`${oilDisplaced >= 1 ? oilDisplaced.toFixed(0) : oilDisplaced.toFixed(1)}M`} sub="barrels per year" accent="amber" />
         <StatCard size="xl" label="GDP Savings" value={`${gdpPercent.toFixed(3)}%`} sub="of GDP" accent="teal" />
         <StatCard size="xl" label="Cost Saved" value={`$${costSavings.toFixed(1)}B`} sub="annually" accent="blue" />
       </div>
 
       {/* Two area charts side by side */}
-      <div ref={containerRef} className="grid grid-cols-2 gap-4">
+      <div ref={containerRef} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Trajectory</p>
           <p className="text-sm font-bold text-slate-800">EV Sales Volume</p>

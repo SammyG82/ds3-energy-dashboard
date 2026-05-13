@@ -48,10 +48,11 @@ export default function ReliabilityChart({ data }: Props) {
     [data]
   );
 
-  const natAvgSaidi = useMemo(
-    () => Math.round(d3.mean(data, (d) => d.saidi) ?? 0),
-    [data]
-  );
+  const natAvgSaidi = useMemo(() => {
+    if (!data.length) return 0;
+    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
+    return Math.round(data.reduce((s, d) => s + d.saidi * (d.avg_customers ?? 1), 0) / totalCustomers);
+  }, [data]);
 
   useEffect(() => {
     setPinned(null);
@@ -164,8 +165,9 @@ export default function ReliabilityChart({ data }: Props) {
         <button
           onClick={() => setShowInfo((v) => !v)}
           title="Why these thresholds?"
+          aria-label="Why these thresholds?"
           aria-pressed={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center flex-shrink-0 transition-colors ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"

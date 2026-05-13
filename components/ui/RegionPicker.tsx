@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 
 const EUROPE = [
   "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
@@ -65,6 +65,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [query, setQuery] = useState("");
+  const customBtnRef = useRef<HTMLButtonElement>(null);
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
@@ -129,6 +130,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         })}
 
         <button
+          ref={customBtnRef}
           onClick={() => setShowCustom((v) => !v)}
           aria-pressed={showCustom}
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
@@ -145,7 +147,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           title="Why these presets?"
           aria-label="Why these presets?"
           aria-pressed={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center flex-shrink-0 transition-colors ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
@@ -173,6 +175,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Escape") { setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search regions"
             className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -194,11 +197,11 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                     type="checkbox"
                     checked={selectedSet.has(region)}
                     onChange={() => onToggle(region)}
-                    className="accent-teal-600 w-3.5 h-3.5 flex-shrink-0"
+                    className="accent-teal-600 w-3.5 h-3.5 shrink-0"
                   />
                   <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
                   <span
-                    className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: colorMap[region] ?? "#94a3b8" }}
                   />
                 </label>

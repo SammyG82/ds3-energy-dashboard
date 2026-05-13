@@ -49,10 +49,11 @@ export default function EnergyBurdenChart({ data }: Props) {
     [data]
   );
 
-  const natAvgBurden = useMemo(
-    () => +(d3.mean(data, (d) => d.energy_burden_pct) ?? 0).toFixed(2),
-    [data]
-  );
+  const natAvgBurden = useMemo(() => {
+    if (!data.length) return 0;
+    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
+    return +(data.reduce((s, d) => s + d.energy_burden_pct * (d.avg_customers ?? 1), 0) / totalCustomers).toFixed(2);
+  }, [data]);
 
   useEffect(() => {
     setPinned(null);
@@ -165,8 +166,9 @@ export default function EnergyBurdenChart({ data }: Props) {
         <button
           onClick={() => setShowInfo((v) => !v)}
           title="Why these thresholds?"
+          aria-label="Why these thresholds?"
           aria-pressed={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center flex-shrink-0 transition-colors ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"

@@ -157,29 +157,31 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
   const leader = filtered[0];
 
+  const yearSlider = years.length > 0 ? (
+    <div className="flex items-center gap-3">
+      <span className="text-xs font-mono uppercase tracking-widest text-slate-400 whitespace-nowrap">Year</span>
+      <input
+        type="range"
+        min={years[0]}
+        max={years[years.length - 1]}
+        step="1"
+        value={year}
+        onChange={(e) => setYear(Number(e.target.value))}
+        className="flex-1 accent-blue-600"
+        aria-label="Select year"
+      />
+      <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
+      <span className={`text-xs px-2 py-0.5 rounded font-mono whitespace-nowrap ${year >= forecastBoundary ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
+        {year >= forecastBoundary ? "Projected forecast" : "Historical data"}
+      </span>
+    </div>
+  ) : null;
+
   return (
     <div className="flex flex-col gap-4">
-      {!preview && years.length > 0 && (
-        <div className="flex items-center gap-3">
-          <label className="text-xs font-mono uppercase tracking-widest text-slate-400 whitespace-nowrap">Year</label>
-          <input
-            type="range"
-            min={years[0]}
-            max={years[years.length - 1]}
-            step="1"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="flex-1 accent-blue-600"
-            aria-label="Select year"
-          />
-          <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
-          {year >= forecastBoundary && (
-            <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-mono whitespace-nowrap">Projected</span>
-          )}
-        </div>
-      )}
+      {!preview && yearSlider}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Total Sales</p>
           <p className="text-lg font-bold text-blue-600">{fmtEvSales(total)}</p>
@@ -196,31 +198,13 @@ export default function EvShareChart({ data, preview = false }: Props) {
         </div>
       </div>
 
-      {preview && years.length > 0 && (
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-mono uppercase tracking-widest text-slate-400 whitespace-nowrap">Year</span>
-          <input
-            type="range"
-            min={years[0]}
-            max={years[years.length - 1]}
-            step="1"
-            value={year}
-            onChange={(e) => setYear(Number(e.target.value))}
-            className="flex-1 accent-blue-600"
-            aria-label="Select year"
-          />
-          <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
-          {year >= forecastBoundary && (
-            <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-mono whitespace-nowrap">Projected</span>
-          )}
-        </div>
-      )}
+      {preview && yearSlider}
 
       <div ref={containerRef} className="w-full relative">
         <svg ref={svgRef} className="w-full" role="img" aria-label="Horizontal bar chart of top EV sales countries" />
         {tooltip && tooltipPos && (
           <div
-            className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-[180px] shadow-sm"
+            className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-45 shadow-sm"
             style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >
             <div className="flex items-center justify-between gap-3">

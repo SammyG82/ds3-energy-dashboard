@@ -48,11 +48,11 @@ export default function EvTrendChart({ data }: Props) {
     [countryData]
   );
 
-  const history = useMemo(() => countryData.filter((d) => d.year <= forecastBoundary), [countryData, forecastBoundary]);
-  const forecast = useMemo(() => countryData.filter((d) => d.year >= forecastBoundary), [countryData, forecastBoundary]);
-
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !countryData.length || containerWidth === 0) return;
+
+    const history = countryData.filter((d) => d.year <= forecastBoundary);
+    const forecast = countryData.filter((d) => d.year >= forecastBoundary);
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
