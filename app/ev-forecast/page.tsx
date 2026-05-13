@@ -19,7 +19,6 @@ export default function EvForecastPage() {
   return (
     <>
       <PageHeader
-        eyebrow="EV Adoption · Projections"
         title="EV Sales"
         titleAccent="Forecast"
         subtitle="Logistic S-curve projections of EV sales by region through 2035. Select multiple regions to compare trajectories. Solid lines = actual, dashed = forecast."

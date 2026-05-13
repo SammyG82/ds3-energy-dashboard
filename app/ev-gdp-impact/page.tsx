@@ -28,7 +28,6 @@ export default function EvGdpImpactPage() {
   return (
     <>
       <PageHeader
-        eyebrow="EV Impact · Oil Spending"
         title="EV GDP"
         titleAccent="Impact"
         subtitle="How EV adoption changes oil spending as a percentage of GDP. Explore projections by country with adjustable adoption rate and analysis year."

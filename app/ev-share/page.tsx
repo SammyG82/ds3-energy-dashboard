@@ -20,7 +20,6 @@ export default function EvSharePage() {
   return (
     <>
       <PageHeader
-        eyebrow="EV Sales · Rankings"
         title="EV Share"
         titleAccent="Explorer"
         subtitle="Interactive ranking of EV sales by country and year, plus single-country sales trends with S-curve forecasts through 2035."

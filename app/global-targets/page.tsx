@@ -27,7 +27,6 @@ export default function GlobalTargetsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Renewable Energy · 2030 Targets"
         title="Global Renewable"
         titleAccent="Targets"
         subtitle="Top 15 countries by 2030 renewable energy capacity targets (GW), sourced from Ember's global renewable energy database."

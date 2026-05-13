@@ -24,7 +24,6 @@ export default function AffordabilityPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Affordability · Price vs Burden"
         title="Energy"
         titleAccent="Affordability"
         subtitle="Scatter plot of electricity price vs. energy burden by US state (2024). Color represents household income level — green = high income, red = low. Bubble size = customer count."

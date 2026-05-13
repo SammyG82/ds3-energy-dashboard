@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { TargetRow } from "@/lib/data";
+import { tooltipStyle } from "@/lib/ui-utils";
 
 interface Props {
   data: TargetRow[];
@@ -30,12 +31,16 @@ export default function CapacityChart({ data }: Props) {
   }, [data]);
 
   useEffect(() => {
+    let tid: ReturnType<typeof setTimeout>;
     const obs = new ResizeObserver((entries) => {
-      setContainerWidth(Math.floor(entries[0].contentRect.width));
-      setContainerHeight(Math.floor(entries[0].contentRect.height));
+      clearTimeout(tid);
+      tid = setTimeout(() => {
+        setContainerWidth(Math.floor(entries[0].contentRect.width));
+        setContainerHeight(Math.floor(entries[0].contentRect.height));
+      }, 150);
     });
     if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
+    return () => { clearTimeout(tid); obs.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -139,11 +144,7 @@ export default function CapacityChart({ data }: Props) {
         {pinned && pinnedPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm z-10"
-            style={{
-              left: pinnedPos.x < containerWidth * 0.6 ? pinnedPos.x + 14 : undefined,
-              right: pinnedPos.x >= containerWidth * 0.6 ? containerWidth - pinnedPos.x + 14 : undefined,
-              top: Math.max(4, Math.min(pinnedPos.y - 10, containerHeight - 120)),
-            }}
+            style={tooltipStyle(pinnedPos.x, pinnedPos.y, containerWidth, containerHeight, 120)}
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">
               <span className="text-sm font-bold text-slate-800">{pinned.countryName}</span>

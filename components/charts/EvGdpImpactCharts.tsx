@@ -56,9 +56,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   const [gdpPinnedCountry, setGdpPinnedCountry] = useState<string | null>(null);
 
   useEffect(() => {
-    const obs = new ResizeObserver((entries) => setContainerWidth(Math.floor(entries[0].contentRect.width)));
+    let tid: ReturnType<typeof setTimeout>;
+    const obs = new ResizeObserver((entries) => {
+      clearTimeout(tid);
+      tid = setTimeout(() => setContainerWidth(Math.floor(entries[0].contentRect.width)), 150);
+    });
     if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
+    return () => { clearTimeout(tid); obs.disconnect(); };
   }, []);
 
   const meta = useMemo(

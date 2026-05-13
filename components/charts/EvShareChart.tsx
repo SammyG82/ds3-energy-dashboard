@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
+import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS } from "@/lib/data";
+import { tooltipStyle } from "@/lib/ui-utils";
 
 interface Props {
   data: EvRow[];
@@ -17,13 +18,6 @@ interface Tooltip {
   rank: number;
 }
 
-const COUNTRY_COLORS: Record<string, string> = {
-  China: "#e85d04", USA: "#2563eb", Germany: "#7c3aed", India: "#059669",
-  Japan: "#0891b2", "United Kingdom": "#db2777", France: "#ca8a04",
-  Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea",
-  Australia: "#0284c7", Sweden: "#15803d", Canada: "#b45309",
-  Spain: "#be185d", Brazil: "#0d9488", Italy: "#f97316", World: "#64748b",
-};
 const DEFAULT_COLOR = "#2563eb";
 const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
@@ -64,12 +58,16 @@ export default function EvShareChart({ data, preview = false }: Props) {
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
   useEffect(() => {
+    let tid: ReturnType<typeof setTimeout>;
     const obs = new ResizeObserver((entries) => {
-      setContainerWidth(Math.floor(entries[0].contentRect.width));
-      setContainerHeight(Math.floor(entries[0].contentRect.height));
+      clearTimeout(tid);
+      tid = setTimeout(() => {
+        setContainerWidth(Math.floor(entries[0].contentRect.width));
+        setContainerHeight(Math.floor(entries[0].contentRect.height));
+      }, 150);
     });
     if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
+    return () => { clearTimeout(tid); obs.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -227,11 +225,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
         {tooltip && tooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-[180px] shadow-sm"
-            style={{
-              left: tooltipPos.x < containerWidth * 0.6 ? tooltipPos.x + 14 : undefined,
-              right: tooltipPos.x >= containerWidth * 0.6 ? containerWidth - tooltipPos.x + 14 : undefined,
-              top: Math.max(4, Math.min(tooltipPos.y - 10, containerHeight - 110)),
-            }}
+            style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >
             <div className="flex items-center justify-between gap-3">
               <span className="font-bold text-slate-800 text-sm">{tooltip.country}</span>

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
+import { tooltipStyle } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 
 interface Props {
@@ -71,12 +72,16 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   useEffect(() => { setPinned(null); setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
 
   useEffect(() => {
+    let tid: ReturnType<typeof setTimeout>;
     const obs = new ResizeObserver((entries) => {
-      setContainerWidth(Math.floor(entries[0].contentRect.width));
-      setContainerHeight(Math.floor(entries[0].contentRect.height));
+      clearTimeout(tid);
+      tid = setTimeout(() => {
+        setContainerWidth(Math.floor(entries[0].contentRect.width));
+        setContainerHeight(Math.floor(entries[0].contentRect.height));
+      }, 150);
     });
     if (containerRef.current) obs.observe(containerRef.current);
-    return () => obs.disconnect();
+    return () => { clearTimeout(tid); obs.disconnect(); };
   }, []);
 
   useEffect(() => {
@@ -225,11 +230,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
-            style={{
-              left: previewTooltipPos.x < containerWidth * 0.6 ? previewTooltipPos.x + 14 : undefined,
-              right: previewTooltipPos.x >= containerWidth * 0.6 ? containerWidth - previewTooltipPos.x + 14 : undefined,
-              top: Math.max(4, Math.min(previewTooltipPos.y - 10, containerHeight - 150)),
-            }}
+            style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150)}
           >
             <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">
               <p className="text-xs font-mono font-bold text-slate-500">{previewTooltip.year}</p>

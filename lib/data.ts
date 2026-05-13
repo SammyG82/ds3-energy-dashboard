@@ -36,6 +36,26 @@ export const EV_DISPLAY_NAMES: Record<string, string> = {
   "Viet Nam": "Vietnam",
   "World": "Global Total",
   "Rest of the world": "Other Countries",
+  "United Kingdom": "UK",
+};
+
+export const COUNTRY_COLORS: Record<string, string> = {
+  // EV + shared countries — EV palette is canonical
+  China: "#e85d04", USA: "#2563eb", Germany: "#7c3aed", India: "#059669",
+  Japan: "#0891b2", "United Kingdom": "#db2777", UK: "#db2777", France: "#ca8a04",
+  Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea", Australia: "#0284c7",
+  Sweden: "#15803d", Canada: "#b45309", Spain: "#be185d", Brazil: "#0d9488",
+  Italy: "#f97316", World: "#64748b",
+  // Oil-only — no EV conflict
+  UAE: "#1d4ed8", Kuwait: "#d97706", Iran: "#7c2d12", Qatar: "#0f766e",
+  Nigeria: "#166534", Algeria: "#92400e", Angola: "#c2410c", Indonesia: "#4d7c0f",
+  Libya: "#1e3a5f", Venezuela: "#7f1d1d", Kazakhstan: "#a16207",
+  // Oil-only — color changed to avoid collision with EV canonical colors
+  Mexico: "#f59e0b",       // was #ca8a04 = France
+  Singapore: "#06b6d4",    // was #0284c7 = Australia
+  "Saudi Arabia": "#854d0e", // was #b45309 = Canada
+  Russia: "#991b1b",       // was #dc2626 = Netherlands
+  Iraq: "#86198f",         // was #be185d = Spain
 };
 
 export function fmtEvSales(v: number): string {

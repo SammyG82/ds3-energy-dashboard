@@ -32,7 +32,6 @@ export default function EnergyAccessPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Energy Access · US States"
         title="Grid Reliability &"
         titleAccent="Energy Access"
         subtitle="US state-level grid reliability (SAIDI/SAIFI) and energy burden metrics for 2024. Color thresholds show good, fair, and poor performance."

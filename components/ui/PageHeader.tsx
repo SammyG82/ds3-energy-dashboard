@@ -4,7 +4,6 @@ export interface Badge {
 }
 
 export interface PageHeaderProps {
-  eyebrow: string;
   title: string;
   titleAccent?: string;
   subtitle: string;
@@ -17,15 +16,11 @@ const badgeColors = {
   blue:  "bg-blue-50 text-blue-700 border-blue-200",
 };
 
-export default function PageHeader({ eyebrow, title, titleAccent, subtitle, badges }: PageHeaderProps) {
+export default function PageHeader({ title, titleAccent, subtitle, badges }: PageHeaderProps) {
   return (
     <div className="border-b border-slate-200 bg-slate-50">
       <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap items-start justify-between gap-6">
         <div>
-          <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-2 flex items-center gap-2">
-            <span className="inline-block w-6 h-px bg-teal-500" aria-hidden="true" />
-            {eyebrow}
-          </p>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
             {title}{" "}
             {titleAccent && <span className="text-teal-600">{titleAccent}</span>}

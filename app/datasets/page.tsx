@@ -98,7 +98,6 @@ export default function DatasetsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Data Sources · Methodology"
         title="Datasets &"
         titleAccent="Methods"
         subtitle="All datasets used in this project, their sources, coverage, and the methodology behind each model."

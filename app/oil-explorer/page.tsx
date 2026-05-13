@@ -128,7 +128,6 @@ export default function OilExplorerPage() {
   return (
     <>
       <PageHeader
-        eyebrow="Oil Trade · ARIMA Forecast"
         title="Oil Trade"
         titleAccent="Explorer"
         subtitle="Historical oil trade volumes (KBD) with Log-ARIMA model forecasts and 95% confidence intervals through 2030. Toggle countries and datasets to compare."
