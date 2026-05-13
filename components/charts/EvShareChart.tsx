@@ -18,7 +18,7 @@ interface Tooltip {
   rank: number;
 }
 
-const DEFAULT_COLOR = "#2563eb";
+const DEFAULT_COLOR = "#94a3b8";
 const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export default function EvShareChart({ data, preview = false }: Props) {
@@ -54,6 +54,11 @@ export default function EvShareChart({ data, preview = false }: Props) {
   );
 
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
+
+  const forecastBoundary = useMemo(
+    () => data.find((d) => d.type === "Forecast")?.year ?? 2025,
+    [data]
+  );
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !filtered.length || containerWidth === 0) return;
@@ -168,6 +173,9 @@ export default function EvShareChart({ data, preview = false }: Props) {
             aria-label="Select year"
           />
           <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
+          {year >= forecastBoundary && (
+            <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-mono whitespace-nowrap">Projected</span>
+          )}
         </div>
       )}
 
@@ -202,6 +210,9 @@ export default function EvShareChart({ data, preview = false }: Props) {
             aria-label="Select year"
           />
           <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
+          {year >= forecastBoundary && (
+            <span className="text-xs bg-amber-50 text-amber-600 border border-amber-200 px-2 py-0.5 rounded font-mono whitespace-nowrap">Projected</span>
+          )}
         </div>
       )}
 

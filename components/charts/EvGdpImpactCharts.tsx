@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import type { EvRow, GdpMeta } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
 import { useContainerSize } from "@/lib/ui-utils";
+import StatCard from "@/components/ui/StatCard";
 
 
 interface Props {
@@ -329,26 +330,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
       {/* Stat tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">EV Sales</p>
-          <p className="text-xl font-bold text-teal-600">{fmtEvSales(sales)}</p>
-          <p className="text-xs text-slate-400 mt-0.5">{country} {year}</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Oil Saved</p>
-          <p className="text-xl font-bold text-amber-600">{oilDisplaced.toFixed(0)}M</p>
-          <p className="text-xs text-slate-400 mt-0.5">barrels per year</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">GDP Savings</p>
-          <p className="text-xl font-bold text-teal-600">{gdpPercent.toFixed(3)}%</p>
-          <p className="text-xs text-slate-400 mt-0.5">of GDP</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-xl p-4">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Cost Saved</p>
-          <p className="text-xl font-bold text-blue-600">${costSavings.toFixed(1)}B</p>
-          <p className="text-xs text-slate-400 mt-0.5">annually</p>
-        </div>
+        <StatCard size="xl" label="EV Sales" value={fmtEvSales(sales)} sub={`${country} ${year}`} accent="teal" />
+        <StatCard size="xl" label="Oil Saved" value={`${oilDisplaced.toFixed(0)}M`} sub="barrels per year" accent="amber" />
+        <StatCard size="xl" label="GDP Savings" value={`${gdpPercent.toFixed(3)}%`} sub="of GDP" accent="teal" />
+        <StatCard size="xl" label="Cost Saved" value={`$${costSavings.toFixed(1)}B`} sub="annually" accent="blue" />
       </div>
 
       {/* Two area charts side by side */}

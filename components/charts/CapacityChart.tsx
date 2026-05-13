@@ -117,7 +117,7 @@ export default function CapacityChart({ data }: Props) {
       .selectAll("text")
       .attr("transform", "rotate(-40)")
       .style("text-anchor", "end")
-      .attr("font-size", "11px");
+      .attr("font-size", containerWidth < 400 ? "9px" : "11px");
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((d) => `${d} GW`).ticks(5));

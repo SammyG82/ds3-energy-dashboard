@@ -66,7 +66,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
 
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected]);
-  useEffect(() => { setPinned(null); setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
+  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;

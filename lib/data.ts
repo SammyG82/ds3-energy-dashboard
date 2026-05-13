@@ -4,7 +4,9 @@ const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "
 
 // d3.csv returns "" for empty cells (not null/undefined), so both checks are required
 function parseCI(value: string | undefined): number | null {
-  return value != null && value !== "" ? +value : null;
+  if (value == null || value === "") return null;
+  const n = +value;
+  return Number.isFinite(n) ? n : null;
 }
 
 export interface EvRow {
@@ -48,6 +50,13 @@ export const COUNTRY_COLORS: Record<string, string> = {
   Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea", Australia: "#0284c7",
   Sweden: "#15803d", Canada: "#b45309", Spain: "#be185d", Brazil: "#0d9488",
   Italy: "#f97316", World: "#64748b",
+  // European EV markets not in the canonical shared list
+  Belgium: "#4338ca", Denmark: "#0369a1", Finland: "#be123c", Austria: "#5b21b6",
+  Switzerland: "#0c4a6e", "Czech Republic": "#78350f", Poland: "#9a3412",
+  Ireland: "#064e3b", Portugal: "#1e3a8a",
+  // Asian / Oceania / other EV markets
+  Thailand: "#c026d3", "Viet Nam": "#65a30d", Malaysia: "#831843",
+  "New Zealand": "#713f12", Israel: "#525252", Turkiye: "#6366f1",
   // Oil-only — no EV conflict
   UAE: "#1d4ed8", Kuwait: "#d97706", Iran: "#7c2d12", Qatar: "#0f766e",
   Nigeria: "#166534", Algeria: "#92400e", Angola: "#c2410c", Indonesia: "#4d7c0f",
@@ -77,7 +86,8 @@ export async function fetchEvSales(): Promise<EvRow[]> {
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
-  const raw = (await d3.json<Array<{ region_country: string; year: number; ev_sales: number; type: string }>>(`${BASE}/data/ev_data.json`)) ?? [];
+  const raw = await d3.json<Array<{ region_country: string; year: number; ev_sales: number; type: string }>>(`${BASE}/data/ev_data.json`);
+  if (!Array.isArray(raw)) throw new Error("Invalid EV data");
   return raw.map((d) => ({
     region_country: d.region_country ?? "",
     year: +(d.year ?? 0),
@@ -181,5 +191,6 @@ export async function fetchOilExports(): Promise<OilRow[]> {
 
 export async function fetchGdpMeta(): Promise<GdpMeta[]> {
   const raw = await d3.json<GdpMeta[]>(`${BASE}/data/gdp_country_meta.json`);
-  return raw ?? [];
+  if (!Array.isArray(raw)) throw new Error("Invalid GDP metadata");
+  return raw;
 }
