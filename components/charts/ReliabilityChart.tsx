@@ -45,7 +45,7 @@ export default function ReliabilityChart({ data }: Props) {
   const [showInfo, setShowInfo] = useState(false);
 
   const sorted = useMemo(
-    () => [...data].sort((a, b) => b.saidi - a.saidi).slice(0, 40),
+    () => [...data].sort((a, b) => b.saidi - a.saidi).slice(0, 40).reverse(),
     [data]
   );
 

@@ -46,7 +46,7 @@ export default function EnergyBurdenChart({ data }: Props) {
   const [showInfo, setShowInfo] = useState(false);
 
   const sorted = useMemo(
-    () => [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct).slice(0, 40),
+    () => [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct).slice(0, 40).reverse(),
     [data]
   );
 
