@@ -19,7 +19,7 @@ const badgeColors = {
 export default function PageHeader({ title, titleAccent, subtitle, badges }: PageHeaderProps) {
   return (
     <div className="border-b border-slate-200 bg-slate-50">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap items-start justify-between gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap items-start justify-between gap-6">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 tracking-tight">
             {title}{" "}

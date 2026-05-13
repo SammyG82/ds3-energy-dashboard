@@ -107,7 +107,7 @@ export default function DatasetsPage() {
         ]}
       />
 
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-12">
 
         {/* Dataset table */}
         <section>

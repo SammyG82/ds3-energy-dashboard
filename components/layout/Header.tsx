@@ -20,7 +20,7 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4 py-3">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4 py-3">
         <Link href="/" className="font-bold text-base tracking-tight whitespace-nowrap">
           <span className="text-amber-600">DS3</span>{" "}
           <span className="text-slate-900">Energy Dashboard</span>

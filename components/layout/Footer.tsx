@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="border-t border-slate-200 mt-16">
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap justify-between items-center gap-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap justify-between items-center gap-4">
         <p className="text-xs text-slate-400 font-mono">
           © {new Date().getFullYear()} DS3 Energy Dashboard · Data: IEA · EIA · Ember
         </p>

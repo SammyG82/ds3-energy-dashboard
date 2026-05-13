@@ -7,7 +7,6 @@ import { fmtEvSales } from "@/lib/data";
 import { useContainerSize } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 
-
 interface Props {
   evData: EvRow[];
   gdpMeta: GdpMeta[];
@@ -62,7 +61,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     [gdpMeta, country]
   );
 
-  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption, year]);
+  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption, year, containerWidth]);
   useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
 
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta

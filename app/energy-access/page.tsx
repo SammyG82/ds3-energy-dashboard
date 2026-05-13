@@ -41,7 +41,7 @@ export default function EnergyAccessPage() {
           { label: "SAIDI · SAIFI", color: "amber" },
         ]}
       />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="States" value={data.length ? data.length.toString() : "—"} accent="blue" />
           <StatCard label="Avg Outage Time" value={data.length ? avgSaidi.toFixed(0) + " min" : "—"} accent="amber" />
@@ -57,7 +57,7 @@ export default function EnergyAccessPage() {
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (
-            <LoadingPlaceholder />
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
 
@@ -69,7 +69,7 @@ export default function EnergyAccessPage() {
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (
-            <LoadingPlaceholder />
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
       </div>

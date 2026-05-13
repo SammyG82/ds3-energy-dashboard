@@ -15,6 +15,7 @@ interface Props {
   preview?: boolean;
   datasetLabel?: string;
   chartPresets?: PresetItem[];
+  statYear?: number;
 }
 
 interface Pinned {
@@ -46,7 +47,7 @@ const OIL_PRESETS: PresetItem[] = [
   },
 ];
 
-export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets }: Props) {
+export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -64,36 +65,70 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     [data]
   );
 
-  const [selected, setSelected] = useState<Set<string>>(
-    () => new Set(preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries)
+  const [selected, setSelected] = useState<string[]>(
+    () => preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries
   );
 
   useEffect(() => {
-    setSelected(new Set(preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries));
+    setSelected(preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries);
   }, [allCountries, preview]);
 
   useEffect(() => {
     setPinned(null);
     setPreviewTooltip(null);
     setPreviewTooltipPos(null);
-  }, [data, selected]);
+  }, [data, selected, containerWidth]);
 
-  const { total2023, leader } = useMemo(() => {
-    const latest = data.filter((d) => d.Year === 2023 && selected.has(d.Country));
+  const latestHistYear = forecastBoundary !== undefined ? forecastBoundary - 1 : 2023;
+  const statDisplayYear = statYear ?? latestHistYear;
+
+  const { latestTotal, leader } = useMemo(() => {
+    const latest = data.filter((d) => d.Year === statDisplayYear && selected.includes(d.Country));
     const total = latest.reduce((s, d) => s + d.value, 0);
     const top = [...latest].sort((a, b) => b.value - a.value)[0];
-    return { total2023: total, leader: top };
-  }, [data, selected]);
+    return { latestTotal: total, leader: top };
+  }, [data, selected, statDisplayYear]);
+
+  const { netLargestImporter, netLargestExporter, netBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
+    const historical = data.filter((d) => d.Type === "Historical" && selected.includes(d.Country) && d.Year <= statDisplayYear);
+    const importerRows = historical.filter((d) => d.value < 0);
+    const exporterRows = historical.filter((d) => d.value > 0);
+    const maxImporterYear = importerRows.length > 0 ? Math.max(...importerRows.map((d) => d.Year)) : statDisplayYear;
+    const maxExporterYear = exporterRows.length > 0 ? Math.max(...exporterRows.map((d) => d.Year)) : statDisplayYear;
+    const topImporter = importerRows.filter((d) => d.Year === maxImporterYear).sort((a, b) => a.value - b.value)[0] ?? null;
+    const topExporter = exporterRows.filter((d) => d.Year === maxExporterYear).sort((a, b) => b.value - a.value)[0] ?? null;
+    const baseYear = Math.max(maxImporterYear, maxExporterYear);
+    const deficit = Math.abs(importerRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0));
+    const surplus = exporterRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0);
+    return { netLargestImporter: topImporter, netLargestExporter: topExporter, netBaseYear: baseYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
+  }, [data, selected, statDisplayYear]);
 
   const toggle = (c: string) =>
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(c) && next.size > 1) next.delete(c);
-      else next.add(c);
-      return next;
-    });
+    setSelected((prev) =>
+      prev.includes(c)
+        ? prev.length > 1 ? prev.filter((x) => x !== c) : prev
+        : [...prev, c]
+    );
 
-  const selectedArray = useMemo(() => Array.from(selected), [selected]);
+  const displayYear = pinned ? pinned.year : statDisplayYear;
+  const displayTotal = pinned ? pinned.entries.reduce((s, e) => s + e.value, 0) : latestTotal;
+  const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null);
+  const netPinnedLast = pinned?.entries.at(-1) ?? null;
+  const netPinnedFirst = pinned?.entries[0] ?? null;
+  const hasImporters = (netLargestImporter?.Year ?? 0) >= (netLargestExporter?.Year ?? 0);
+  const displayNetImporter = pinned
+    ? (netPinnedLast && netPinnedLast.value < 0 ? netPinnedLast.country : null)
+    : (netLargestImporter?.Country ?? null);
+  const displayNetExporterName = pinned
+    ? (netPinnedFirst && netPinnedFirst.value > 0 ? netPinnedFirst.country : null)
+    : (netLargestExporter?.Country ?? null);
+  const displayNetDeficit = pinned
+    ? Math.abs(pinned.entries.filter((e) => e.value < 0).reduce((s, e) => s + e.value, 0))
+    : staticNetDeficit;
+  const displayNetSurplus = pinned
+    ? pinned.entries.filter((e) => e.value > 0).reduce((s, e) => s + e.value, 0)
+    : staticNetSurplus;
+  const netDisplayYear = pinned ? pinned.year : netBaseYear;
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || forecastBoundary === undefined) return;
@@ -101,8 +136,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const activeCountries = allCountries.filter((c) => selected.has(c));
-    const activeData = data.filter((d) => selected.has(d.Country));
+    const activeCountries = allCountries.filter((c) => selected.includes(c));
+    const activeData = data.filter((d) => selected.includes(d.Country));
 
     const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 60 };
@@ -214,7 +249,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selected, preview, allCountries, forecastBoundary, containerWidth]);
+  }, [data, selected, preview, forecastBoundary, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -223,21 +258,60 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           {datasetLabel === "Oil Imports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2023 Total</p>
-                <p className="text-lg font-bold text-blue-600">{Math.round(total2023).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayYear} Total</p>
+                <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3">
                 <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Importer</p>
-                <p className="text-lg font-bold text-teal-600">{leader ? dn(leader.Country) : "—"}</p>
+                <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
+              </div>
+            </div>
+          )}
+
+          {datasetLabel === "Net Trade (KBD)" && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                  {netDisplayYear} {hasImporters ? "Import Deficit" : "Export Surplus"}
+                </p>
+                <p className="text-lg font-bold text-blue-600">
+                  {hasImporters
+                    ? (displayNetDeficit > 0 ? Math.round(displayNetDeficit).toLocaleString() : "—")
+                    : (displayNetSurplus > 0 ? Math.round(displayNetSurplus).toLocaleString() : "—")}
+                  {((hasImporters && displayNetDeficit > 0) || (!hasImporters && displayNetSurplus > 0)) && (
+                    <span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
+                  )}
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
+                  {hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}
+                </p>
+                <p className="text-lg font-bold text-teal-600">
+                  {hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {datasetLabel === "Oil Exports (KBD)" && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayYear} Total</p>
+                <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-lg p-3">
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Exporter</p>
+                <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
               </div>
             </div>
           )}
 
           <RegionPicker
             options={allCountries}
-            selected={selectedArray}
+            selected={selected}
             onToggle={toggle}
-            onSelectGroup={(regions) => setSelected(new Set(regions.length > 0 ? regions : allCountries.slice(0, 1)))}
+            onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allCountries.slice(0, 1))}
             colorMap={COUNTRY_COLORS}
             displayNames={OIL_DISPLAY}
             presets={chartPresets ?? OIL_PRESETS}

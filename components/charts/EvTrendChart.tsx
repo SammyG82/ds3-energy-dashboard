@@ -18,6 +18,7 @@ interface Pinned {
 }
 
 const DEFAULT_FORECAST_BOUNDARY = 2025;
+const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -26,7 +27,7 @@ export default function EvTrendChart({ data }: Props) {
   const [pinned, setPinned] = useState<Pinned | null>(null);
 
   const countries = useMemo(
-    () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => c !== "World").sort(),
+    () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => !AGGREGATES.has(c)).sort(),
     [data]
   );
 
@@ -36,7 +37,7 @@ export default function EvTrendChart({ data }: Props) {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
   }, [countries, country]);
 
-  useEffect(() => { setPinned(null); }, [country, data]);
+  useEffect(() => { setPinned(null); }, [country, data, containerWidth]);
 
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
@@ -196,7 +197,7 @@ export default function EvTrendChart({ data }: Props) {
           <p className="text-lg font-bold text-blue-600">{peak ? peak.year : "—"}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Annual Growth Rate</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">CAGR</p>
           <p className="text-lg font-bold text-amber-600">{cagr ? `${cagr}%` : "—"}</p>
           <p className="text-xs text-slate-400">CAGR since first sale</p>
         </div>

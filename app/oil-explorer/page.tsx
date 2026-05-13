@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { fetchOilForecast, fetchNetTrade, fetchOilExports } from "@/lib/data";
@@ -125,6 +125,11 @@ export default function OilExplorerPage() {
   const activeMeta = DATASETS.find((d) => d.id === dataset)!;
   const activeError = errors[dataset];
 
+  const sharedStatYear = useMemo(() => {
+    const boundary = imports.find((d) => d.Type === "Forecast")?.Year;
+    return boundary !== undefined ? boundary - 1 : undefined;
+  }, [imports]);
+
   return (
     <>
       <PageHeader
@@ -137,7 +142,7 @@ export default function OilExplorerPage() {
           { label: "2030 Forecast", color: "amber" },
         ]}
       />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
 
         {/* Dataset toggle */}
         <div className="flex flex-col gap-2">
@@ -164,7 +169,7 @@ export default function OilExplorerPage() {
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {active.length > 0 ? (
-            <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} />
+            <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} />
           ) : activeError ? (
             <ErrorMessage message={activeError} />
           ) : (

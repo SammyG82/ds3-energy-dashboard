@@ -36,7 +36,7 @@ export default function GlobalTargetsPage() {
           { label: "2030 Target Year", color: "amber" },
         ]}
       />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <StatCard label="Shown" value={top15.length ? top15.length.toString() : "—"} accent="blue" />
           <StatCard label="Total Target" value={top15.length ? totalGW.toFixed(0) + " GW" : "—"} accent="teal" />
@@ -52,7 +52,7 @@ export default function GlobalTargetsPage() {
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (
-            <LoadingPlaceholder />
+            <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
       </div>

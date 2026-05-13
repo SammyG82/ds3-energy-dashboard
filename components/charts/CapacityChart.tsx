@@ -134,7 +134,7 @@ export default function CapacityChart({ data }: Props) {
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">
               <span className="text-sm font-bold text-slate-800">{pinned.countryName}</span>
-              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">#{pinned.rank} of {data.length}</span>
+              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">#{pinned.rank}</span>
             </div>
             <div>
               <p className="text-xs text-slate-400">Renewable capacity target by 2030</p>

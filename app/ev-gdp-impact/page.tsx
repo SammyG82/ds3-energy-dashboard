@@ -37,7 +37,7 @@ export default function EvGdpImpactPage() {
           { label: "2024 – 2030", color: "blue" },
         ]}
       />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
         {ready ? (
           <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} />
         ) : anyError ? (

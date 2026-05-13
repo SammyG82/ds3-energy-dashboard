@@ -29,7 +29,7 @@ export default function EvSharePage() {
           { label: "50+ Countries", color: "amber" },
         ]}
       />
-      <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
 
         {/* Rankings bar chart */}
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">

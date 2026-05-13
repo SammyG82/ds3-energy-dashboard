@@ -56,7 +56,7 @@ export default function LandingPage() {
     <>
       {/* Hero */}
       <section className="bg-white border-b border-slate-200">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-16 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
           <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-3">
             DS3 · UCSD Data Science Student Society
           </p>
@@ -81,7 +81,7 @@ export default function LandingPage() {
       </section>
 
       {/* Preview charts */}
-      <section className="max-w-screen-xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
+      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           <div className="flex items-center justify-between mb-4">
@@ -146,7 +146,7 @@ export default function LandingPage() {
 
       {/* Project goals */}
       <section className="bg-slate-50 border-t border-slate-200">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-14">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14">
           <h2 className="text-2xl font-bold text-slate-900 mb-8">Project Goals</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {pillars.map(({ title, body }) => (
@@ -161,7 +161,7 @@ export default function LandingPage() {
 
       {/* Methods */}
       <section className="border-t border-slate-200">
-        <div className="max-w-screen-xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {(
             [
               {
