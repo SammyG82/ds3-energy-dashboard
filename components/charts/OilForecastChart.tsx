@@ -5,7 +5,10 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+
+const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
+const dn = (c: string) => OIL_DISPLAY[c] ?? c;
 
 interface Props {
   data: OilRow[];
@@ -46,8 +49,7 @@ const OIL_PRESETS: PresetItem[] = [
 export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<Pinned | null>(null);
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -92,19 +94,6 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     });
 
   const selectedArray = useMemo(() => Array.from(selected), [selected]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        setContainerWidth(Math.floor(entries[0].contentRect.width));
-        setContainerHeight(Math.floor(entries[0].contentRect.height));
-      }, 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || forecastBoundary === undefined) return;
@@ -239,7 +228,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3">
                 <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Importer</p>
-                <p className="text-lg font-bold text-teal-600">{leader?.Country ?? "—"}</p>
+                <p className="text-lg font-bold text-teal-600">{leader ? dn(leader.Country) : "—"}</p>
               </div>
             </div>
           )}
@@ -250,6 +239,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             onToggle={toggle}
             onSelectGroup={(regions) => setSelected(new Set(regions.length > 0 ? regions : allCountries.slice(0, 1)))}
             colorMap={COUNTRY_COLORS}
+            displayNames={OIL_DISPLAY}
             presets={chartPresets ?? OIL_PRESETS}
           />
         </>
@@ -271,7 +261,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             {previewTooltip.entries.map(({ country, value, color }) => (
               <div key={country} className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-xs text-slate-700 flex-1">{country}</span>
+                <span className="text-xs text-slate-700 flex-1">{dn(country)}</span>
                 <span className="text-xs font-mono font-semibold text-slate-900">
                   {value.toFixed(0)}<span className="text-slate-400 font-normal ml-0.5">KBD</span>
                 </span>
@@ -299,7 +289,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
                 {pinned.entries.map(({ country, value, color }) => (
                   <div key={country} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-sm text-slate-700 flex-1">{country}</span>
+                    <span className="text-sm text-slate-700 flex-1">{dn(country)}</span>
                     <span className="text-sm font-mono font-semibold text-slate-900">
                       {value.toFixed(0)}<span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
                     </span>

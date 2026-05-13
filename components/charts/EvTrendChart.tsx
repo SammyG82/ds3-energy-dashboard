@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
+import { fmtEvSales, dn } from "@/lib/data";
+import { useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
   data: EvRow[];
@@ -17,12 +18,11 @@ interface Pinned {
 }
 
 const DEFAULT_FORECAST_BOUNDARY = 2025;
-const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
 
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
 
   const countries = useMemo(
@@ -36,8 +36,7 @@ export default function EvTrendChart({ data }: Props) {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
   }, [countries, country]);
 
-  useEffect(() => { setPinned(null); }, [country]);
-  useEffect(() => { setPinned(null); }, [data]);
+  useEffect(() => { setPinned(null); }, [country, data]);
 
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
@@ -51,16 +50,6 @@ export default function EvTrendChart({ data }: Props) {
 
   const history = useMemo(() => countryData.filter((d) => d.year <= forecastBoundary), [countryData, forecastBoundary]);
   const forecast = useMemo(() => countryData.filter((d) => d.year >= forecastBoundary), [countryData, forecastBoundary]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => setContainerWidth(Math.floor(entries[0].contentRect.width)), 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !countryData.length || containerWidth === 0) return;

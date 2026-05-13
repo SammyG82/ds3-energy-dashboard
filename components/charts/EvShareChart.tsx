@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS } from "@/lib/data";
-import { tooltipStyle } from "@/lib/ui-utils";
+import { fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
+import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
   data: EvRow[];
@@ -20,13 +20,11 @@ interface Tooltip {
 
 const DEFAULT_COLOR = "#2563eb";
 const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
-const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
 
 export default function EvShareChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -56,19 +54,6 @@ export default function EvShareChart({ data, preview = false }: Props) {
   );
 
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        setContainerWidth(Math.floor(entries[0].contentRect.width));
-        setContainerHeight(Math.floor(entries[0].contentRect.height));
-      }, 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !filtered.length || containerWidth === 0) return;

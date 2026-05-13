@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
+import { useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
@@ -34,22 +35,12 @@ const STATE_NAMES: Record<string, string> = {
 export default function BurdenVsPriceChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
 
   useEffect(() => {
     setPinned(null);
   }, [data]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => setContainerWidth(Math.floor(entries[0].contentRect.width)), 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;

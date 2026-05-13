@@ -39,6 +39,8 @@ export const EV_DISPLAY_NAMES: Record<string, string> = {
   "United Kingdom": "UK",
 };
 
+export const dn = (r: string): string => EV_DISPLAY_NAMES[r] ?? r;
+
 export const COUNTRY_COLORS: Record<string, string> = {
   // EV + shared countries — EV palette is canonical
   China: "#e85d04", USA: "#2563eb", Germany: "#7c3aed", India: "#059669",

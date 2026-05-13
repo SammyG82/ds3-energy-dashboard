@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
+import { useContainerSize } from "@/lib/ui-utils";
 
 
 interface Props {
@@ -28,7 +29,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   const oilSvg = useRef<SVGSVGElement>(null);
   const gdpSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const { width: containerWidth } = useContainerSize(containerRef);
 
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const years = useMemo(
@@ -55,22 +56,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   // Pinned country for GDP bar chart
   const [gdpPinnedCountry, setGdpPinnedCountry] = useState<string | null>(null);
 
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => setContainerWidth(Math.floor(entries[0].contentRect.width)), 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
-
   const meta = useMemo(
     () => gdpMeta.find((m) => m.country === country),
     [gdpMeta, country]
   );
 
-  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption]);
+  useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption, year]);
   useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
 
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
@@ -213,7 +204,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     const svg = d3.select(gdpSvg.current);
     svg.selectAll("*").remove();
 
-    const totalW = containerWidth;
+    const totalW = containerWidth - 32;  // subtract p-4 card padding (16px each side)
     const margin = { top: 16, right: 16, bottom: 56, left: 56 };
     const totalH = 260;
     const width = totalW - margin.left - margin.right;

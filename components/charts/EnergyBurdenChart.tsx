@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
-import { tooltipStyle } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
@@ -39,8 +39,7 @@ function burdenRating(b: number) {
 export default function EnergyBurdenChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [pinnedPos, setPinnedPos] = useState<{ x: number; y: number } | null>(null);
   const [showInfo, setShowInfo] = useState(false);
@@ -59,19 +58,6 @@ export default function EnergyBurdenChart({ data }: Props) {
     setPinned(null);
     setPinnedPos(null);
   }, [data]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        setContainerWidth(Math.floor(entries[0].contentRect.width));
-        setContainerHeight(Math.floor(entries[0].contentRect.height));
-      }, 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !sorted.length || containerWidth === 0) return;
@@ -179,6 +165,7 @@ export default function EnergyBurdenChart({ data }: Props) {
         <button
           onClick={() => setShowInfo((v) => !v)}
           title="Why these thresholds?"
+          aria-pressed={showInfo}
           className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center flex-shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"

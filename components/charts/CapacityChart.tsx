@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import type { TargetRow } from "@/lib/data";
-import { tooltipStyle } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
   data: TargetRow[];
@@ -20,8 +20,7 @@ interface Pinned {
 export default function CapacityChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [pinnedPos, setPinnedPos] = useState<{ x: number; y: number } | null>(null);
 
@@ -29,19 +28,6 @@ export default function CapacityChart({ data }: Props) {
     setPinned(null);
     setPinnedPos(null);
   }, [data]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        setContainerWidth(Math.floor(entries[0].contentRect.width));
-        setContainerHeight(Math.floor(entries[0].contentRect.height));
-      }, 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;
@@ -148,7 +134,7 @@ export default function CapacityChart({ data }: Props) {
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">
               <span className="text-sm font-bold text-slate-800">{pinned.countryName}</span>
-              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">#{pinned.rank} of 15</span>
+              <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono">#{pinned.rank} of {data.length}</span>
             </div>
             <div>
               <p className="text-xs text-slate-400">Renewable capacity target by 2030</p>

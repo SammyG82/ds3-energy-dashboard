@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { EV_DISPLAY_NAMES, fmtEvSales } from "@/lib/data";
-import { tooltipStyle } from "@/lib/ui-utils";
+import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
+import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 
 interface Props {
@@ -25,16 +25,13 @@ const REGION_COLORS = [
   "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
 ];
 
-const dn = (r: string) => EV_DISPLAY_NAMES[r] ?? r;
-
 const DEFAULT_FORECAST_BOUNDARY = 2025;
 const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
 
 export default function EvForecastChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
-  const [containerHeight, setContainerHeight] = useState(0);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<PinnedState | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<PinnedState | null>(null);
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -50,7 +47,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   );
 
   const colorMap = useMemo(
-    () => Object.fromEntries(allRegions.map((r) => [r, colorScale(r)])),
+    () => Object.fromEntries(allRegions.map((r) => [r, COUNTRY_COLORS[r] ?? colorScale(r)])),
     [allRegions, colorScale]
   );
 
@@ -70,19 +67,6 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected]);
   useEffect(() => { setPinned(null); setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data]);
-
-  useEffect(() => {
-    let tid: ReturnType<typeof setTimeout>;
-    const obs = new ResizeObserver((entries) => {
-      clearTimeout(tid);
-      tid = setTimeout(() => {
-        setContainerWidth(Math.floor(entries[0].contentRect.width));
-        setContainerHeight(Math.floor(entries[0].contentRect.height));
-      }, 150);
-    });
-    if (containerRef.current) obs.observe(containerRef.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
-  }, []);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
@@ -137,7 +121,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
       .curve(d3.curveMonotoneX);
 
     regionData.forEach(({ region, values }) => {
-      const color = colorScale(region);
+      const color = colorMap[region];
       const actual = values.filter((d) => d.year <= forecastBoundary);
       const forecast = values.filter((d) => d.year >= forecastBoundary);
       if (actual.length > 1)
@@ -181,7 +165,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
           .map(({ region, values }) => ({
             region,
             value: values.find((d) => d.year === year)?.ev_sales ?? 0,
-            color: colorScale(region),
+            color: colorMap[region],
           }))
           .filter((e) => e.value > 0)
           .sort((a, b) => b.value - a.value);
@@ -201,7 +185,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selected, preview, colorScale, forecastBoundary, containerWidth]);
+  }, [data, selected, preview, colorMap, forecastBoundary, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
