@@ -43,7 +43,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
   useEffect(() => {
     setTooltip(null);
     setTooltipPos(null);
-  }, [year, data]);
+  }, [year, data, containerWidth]);
 
   const filtered = useMemo(
     () => data

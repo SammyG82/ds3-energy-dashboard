@@ -27,7 +27,7 @@ export default function CapacityChart({ data }: Props) {
   useEffect(() => {
     setPinned(null);
     setPinnedPos(null);
-  }, [data]);
+  }, [data, containerWidth]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;

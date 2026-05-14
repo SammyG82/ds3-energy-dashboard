@@ -338,7 +338,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                 <span className="text-xs text-slate-700 flex-1">{dn(country)}</span>
                 <span className="text-xs font-mono font-semibold text-slate-900">
-                  {value.toFixed(0)}<span className="text-slate-400 font-normal ml-0.5">KBD</span>
+                  {Math.round(value).toLocaleString()}<span className="text-slate-400 font-normal ml-0.5">KBD</span>
                 </span>
               </div>
             ))}
@@ -366,7 +366,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span className="text-sm text-slate-700 flex-1">{dn(country)}</span>
                     <span className="text-sm font-mono font-semibold text-slate-900">
-                      {value.toFixed(0)}<span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
+                      {Math.round(value).toLocaleString()}<span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
                     </span>
                   </div>
                 ))}

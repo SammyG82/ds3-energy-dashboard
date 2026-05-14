@@ -40,7 +40,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
 
   useEffect(() => {
     setPinned(null);
-  }, [data]);
+  }, [data, containerWidth]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !data.length || containerWidth === 0) return;
@@ -144,7 +144,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
         <span>Bubble size: number of electricity customers</span>
       </div>
 
-      <div ref={containerRef} className="w-full">
+      <div ref={containerRef} className="w-full relative">
         <svg ref={svgRef} className="w-full" role="img" aria-label="Scatter plot of energy burden vs electricity price by US state" />
       </div>
 

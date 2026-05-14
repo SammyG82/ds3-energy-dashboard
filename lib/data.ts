@@ -71,7 +71,10 @@ export const COUNTRY_COLORS: Record<string, string> = {
 
 export function fmtEvSales(v: number): string {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) return `${(v / 1_000).toFixed(0)}k`;
+  if (v >= 1_000) {
+    const k = Math.round(v / 1_000);
+    return k >= 1_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${k}k`;
+  }
   return `${Math.round(v)}`;
 }
 
@@ -86,7 +89,7 @@ export async function fetchEvSales(): Promise<EvRow[]> {
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
-  const raw = await d3.json<Array<{ region_country: string; year: number; ev_sales: number; type: string }>>(`${BASE}/data/ev_data.json`);
+  const raw = await d3.json<EvRow[]>(`${BASE}/data/ev_data.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
   return raw.map((d) => ({
     region_country: d.region_country ?? "",

@@ -62,7 +62,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   );
 
   useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption, year, containerWidth]);
-  useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
+  useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country, containerWidth]);
 
   const forecastBoundary = useMemo(() => evData.find((d) => d.type === "Forecast")?.year ?? 2025, [evData]);
   const isProjected = year >= forecastBoundary;
@@ -240,7 +240,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       .attr("rx", 3)
       .attr("fill", (d) => d.country === country ? "#d97706" : "#0891b2")
       .attr("opacity", (d) => d.country === country ? 1 : 0.7)
-      .attr("y", height).attr("height", 0);
+      .attr("y", (d) => y(d.pct))
+      .attr("height", (d) => height - y(d.pct));
 
     barsSel
       .on("mouseover", function (_, d) {
@@ -256,7 +257,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       });
 
     barsSel
-      .transition().duration(500)
       .attr("y", (d) => y(d.pct))
       .attr("height", (d) => height - y(d.pct));
 
@@ -264,16 +264,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       .append("text")
       .attr("class", "val-label")
       .attr("x", (d) => (x(d.country) ?? 0) + x.bandwidth() / 2)
-      .attr("y", height)
+      .attr("y", (d) => y(d.pct) - 5)
       .attr("text-anchor", "middle")
       .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
       .attr("fill", "#64748b")
-      .attr("opacity", 0)
+      .attr("opacity", 1)
       .attr("pointer-events", "none")
-      .text((d) => d.pct.toFixed(3) + "%")
-      .transition().duration(500)
-      .attr("y", (d) => y(d.pct) - 5)
-      .attr("opacity", 1);
+      .text((d) => d.pct.toFixed(3) + "%");
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x))

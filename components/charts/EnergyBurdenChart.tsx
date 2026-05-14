@@ -58,7 +58,7 @@ export default function EnergyBurdenChart({ data }: Props) {
   useEffect(() => {
     setPinned(null);
     setPinnedPos(null);
-  }, [data]);
+  }, [data, containerWidth]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !sorted.length || containerWidth === 0) return;
@@ -167,7 +167,7 @@ export default function EnergyBurdenChart({ data }: Props) {
           onClick={() => setShowInfo((v) => !v)}
           title="Why these thresholds?"
           aria-label="Why these thresholds?"
-          aria-pressed={showInfo}
+          aria-expanded={showInfo}
           className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"

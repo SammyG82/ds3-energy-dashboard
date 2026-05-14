@@ -49,7 +49,7 @@ export default function EnergyAccessPage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard label="Avg Outage Time" value={data.length ? avgSaidi.toFixed(0) + " min" : "—"} accent="amber" />
+          <StatCard label="Avg Outage Time" value={data.length ? avgSaidi.toFixed(0) + " min/year" : "—"} accent="amber" />
           <StatCard label="Avg Burden" value={data.length ? avgBurden.toFixed(2) + "%" : "—"} accent="teal" />
           <StatCard label="Avg Price" value={data.length ? avgPrice.toFixed(1) + " ¢/kWh" : "—"} accent="blue" />
         </div>

@@ -81,12 +81,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
     [presets, options, selected, selectedSet]
   );
 
-  const base = useMemo(
-    () => query.trim()
-      ? options.filter((r) => r.toLowerCase().includes(query.toLowerCase()))
-      : options,
-    [options, query]
-  );
+  const base = useMemo(() => {
+    if (!query.trim()) return options;
+    const q = query.toLowerCase();
+    return options.filter(
+      (r) => r.toLowerCase().includes(q) || (displayNames[r] ?? r).toLowerCase().includes(q)
+    );
+  }, [options, query, displayNames]);
 
   const filtered = useMemo(
     () => query.trim()
@@ -132,7 +133,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         <button
           ref={customBtnRef}
           onClick={() => setShowCustom((v) => !v)}
-          aria-pressed={showCustom}
+          aria-expanded={showCustom}
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
@@ -146,7 +147,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           onClick={() => setShowInfo((v) => !v)}
           title="Why these presets?"
           aria-label="Why these presets?"
-          aria-pressed={showInfo}
+          aria-expanded={showInfo}
           className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
