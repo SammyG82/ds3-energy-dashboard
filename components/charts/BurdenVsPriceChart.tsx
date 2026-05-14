@@ -77,7 +77,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
       .attr("cx", (d) => x(d.avg_price_cents_kwh))
       .attr("cy", (d) => y(d.energy_burden_pct))
       .attr("r", (d) => rScale(d.avg_customers ?? 0))
-      .attr("fill", (d) => d.median_income_2024 != null ? colorScale(d.median_income_2024) : "#94a3b8")
+      .attr("fill", (d) => d.median_income_2024 !== null ? colorScale(d.median_income_2024) : "#94a3b8")
       .attr("opacity", 0.8)
       .attr("stroke", "white").attr("stroke-width", 1);
 

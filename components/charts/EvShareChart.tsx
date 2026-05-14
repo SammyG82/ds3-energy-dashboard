@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
+import { fmtEvSales, COUNTRY_COLORS, dn, AGGREGATES } from "@/lib/data";
 import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
@@ -19,7 +19,6 @@ interface Tooltip {
 }
 
 const DEFAULT_COLOR = "#94a3b8";
-const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export default function EvShareChart({ data, preview = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);

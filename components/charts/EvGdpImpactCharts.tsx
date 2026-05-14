@@ -13,12 +13,12 @@ interface Props {
 }
 
 const GALLONS_PER_EV = 1300;
-const BARRELS_PER_GALLON = 1 / 42;
+const GALLONS_PER_BARREL = 42;
 
 function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta, evData: EvRow[]) {
   const row = evData.find((d) => d.region_country === evRegion && d.year === year);
   const sales = (row?.ev_sales ?? 0) * adoption;
-  const oilDisplaced = (sales * GALLONS_PER_EV * BARRELS_PER_GALLON) / 1_000_000;
+  const oilDisplaced = (sales * GALLONS_PER_EV) / (GALLONS_PER_BARREL * 1_000_000);
   const costSavings = (oilDisplaced * 1_000_000 * meta.costPerBarrel) / 1_000_000_000;
   const gdpPercent = (costSavings / meta.gdp) * 100;
   return { sales, oilDisplaced, costSavings, gdpPercent };
@@ -185,7 +185,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
       year,
       (yr) => compute(meta.region, yr, adoption, meta, evData).sales,
       "#0891b2",
-      (v) => v >= 1_000_000 ? (v / 1_000_000).toFixed(1) + "M" : (v / 1_000).toFixed(0) + "k",
+      (v) => fmtEvSales(v),
       setEvPinnedYear,
       () => setEvPinnedYear(null),
       maxEvY
@@ -255,10 +255,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
           .attr("stroke", "none");
         setGdpPinnedCountry(null);
       });
-
-    barsSel
-      .attr("y", (d) => y(d.pct))
-      .attr("height", (d) => height - y(d.pct));
 
     g.selectAll(".val-label").data(chartData).enter()
       .append("text")
@@ -342,7 +338,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Trajectory</p>
           <p className="text-sm font-bold text-slate-800">EV Sales Volume</p>
           <svg ref={evSvg} className="w-full" role="img" aria-label="Area chart of EV sales trajectory over time" />
-          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-[40px] flex items-center">
+          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center">
             {evPinnedYear !== null && evPinnedVal !== null ? (
               <span className="text-xs text-slate-700">
                 <span className="font-mono font-bold">{evPinnedYear}</span>
@@ -359,7 +355,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Displacement</p>
           <p className="text-sm font-bold text-slate-800">Oil Displaced</p>
           <svg ref={oilSvg} className="w-full" role="img" aria-label="Area chart of oil displaced by EVs over time" />
-          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-[40px] flex items-center">
+          <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center">
             {oilPinnedYear !== null && oilPinnedVal !== null ? (
               <span className="text-xs text-slate-700">
                 <span className="font-mono font-bold">{oilPinnedYear}</span>

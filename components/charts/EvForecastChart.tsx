@@ -142,12 +142,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => {
-        const n = +v;
-        return n >= 1_000_000 ? (n / 1_000_000).toFixed(0) + "M"
-          : n >= 1_000 ? (n / 1_000).toFixed(0) + "k"
-          : n.toFixed(0);
-      }).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
 
     const crosshair = g.append("line")
       .attr("y1", 0).attr("y2", height)

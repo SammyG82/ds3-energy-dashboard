@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { fmtEvSales, dn } from "@/lib/data";
+import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
 import { useContainerSize } from "@/lib/ui-utils";
 
 interface Props {
@@ -18,7 +18,6 @@ interface Pinned {
 }
 
 const DEFAULT_FORECAST_BOUNDARY = 2025;
-const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -127,10 +126,7 @@ export default function EvTrendChart({ data }: Props) {
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => {
-        const n = +v;
-        return n >= 1_000_000 ? `${(n / 1_000_000).toFixed(1)}M` : n >= 1_000 ? `${(n / 1_000).toFixed(0)}k` : `${n}`;
-      }).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
 
     const crosshair = g.append("line")
       .attr("y1", 0).attr("y2", height)
@@ -197,9 +193,9 @@ export default function EvTrendChart({ data }: Props) {
           <p className="text-lg font-bold text-blue-600">{peak ? peak.year : "—"}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">CAGR</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Annual Growth Rate</p>
           <p className="text-lg font-bold text-amber-600">{cagr ? `${cagr}%` : "—"}</p>
-          <p className="text-xs text-slate-400">CAGR since first sale</p>
+          <p className="text-xs text-slate-400">since first sale</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2030 Forecast</p>

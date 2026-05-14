@@ -4,14 +4,12 @@ import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
-import { fetchEvData, fmtEvSales, dn } from "@/lib/data";
+import { fetchEvData, fmtEvSales, dn, AGGREGATES } from "@/lib/data";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
-
-const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export default function EvForecastPage() {
   const [data, setData] = useState<EvRow[]>([]);

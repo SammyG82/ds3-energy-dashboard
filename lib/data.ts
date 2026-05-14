@@ -25,6 +25,19 @@ export interface OilRow {
   ciHigh: number | null;
 }
 
+function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?: unknown; type?: unknown }): EvRow {
+  return {
+    region_country: String(d.region_country ?? ""),
+    year: +(d.year ?? 0),
+    ev_sales: +(d.ev_sales ?? 0),
+    type: String(d.type ?? ""),
+  };
+}
+
+function normalizeOilCountry(c: string | undefined): string {
+  return c === "Usa" ? "USA" : (c ?? "");
+}
+
 export interface GdpMeta {
   country: string;
   region: string;
@@ -42,6 +55,8 @@ export const EV_DISPLAY_NAMES: Record<string, string> = {
 };
 
 export const dn = (r: string): string => EV_DISPLAY_NAMES[r] ?? r;
+
+export const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export const COUNTRY_COLORS: Record<string, string> = {
   // EV + shared countries — EV palette is canonical
@@ -73,36 +88,26 @@ export function fmtEvSales(v: number): string {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
   if (v >= 1_000) {
     const k = Math.round(v / 1_000);
-    return k >= 1_000 ? `${(v / 1_000_000).toFixed(1)}M` : `${k}k`;
+    return k >= 1_000 ? `${(k / 1_000).toFixed(1)}M` : `${k}k`;
   }
   return `${Math.round(v)}`;
 }
 
 export async function fetchEvSales(): Promise<EvRow[]> {
   const raw = await d3.csv(`${BASE}/data/ev_sales.csv`);
-  return raw.map((d) => ({
-    region_country: d.region_country ?? "",
-    year: +(d.year ?? 0),
-    ev_sales: +(d.ev_sales ?? 0),
-    type: d.type ?? "",
-  }));
+  return raw.map(normalizeEvRow);
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
   const raw = await d3.json<EvRow[]>(`${BASE}/data/ev_data.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
-  return raw.map((d) => ({
-    region_country: d.region_country ?? "",
-    year: +(d.year ?? 0),
-    ev_sales: +(d.ev_sales ?? 0),
-    type: d.type ?? "",
-  }));
+  return raw.map(normalizeEvRow);
 }
 
 export async function fetchOilForecast(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/oil_forecast.csv`);
   return raw.map((d) => ({
-    Country: d.Country === "Usa" ? "USA" : (d.Country ?? ""),
+    Country: normalizeOilCountry(d.Country),
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Oil Imports (KBD)"] ?? 0),
@@ -183,7 +188,7 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
 export async function fetchOilExports(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/exports.csv`);
   return raw.map((d) => ({
-    Country: d.Country === "Usa" ? "USA" : (d.Country ?? ""),
+    Country: normalizeOilCountry(d.Country),
     Year: +(d.Year ?? 0),
     Type: d.Type ?? "",
     value: +(d["Value"] ?? 0),
