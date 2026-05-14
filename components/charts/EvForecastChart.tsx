@@ -10,6 +10,8 @@ import RegionPicker from "@/components/ui/RegionPicker";
 interface Props {
   data: EvRow[];
   preview?: boolean;
+  onYearChange?: (year: number | null) => void;
+  onSelectionChange?: (regions: string[]) => void;
 }
 
 interface PinnedState {
@@ -28,9 +30,11 @@ const REGION_COLORS = [
 const DEFAULT_FORECAST_BOUNDARY = 2025;
 const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
 
-export default function EvForecastChart({ data, preview = false }: Props) {
+export default function EvForecastChart({ data, preview = false, onYearChange, onSelectionChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const onYearChangeRef = useRef(onYearChange);
+  useEffect(() => { onYearChangeRef.current = onYearChange; }, [onYearChange]);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<PinnedState | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<PinnedState | null>(null);
@@ -65,6 +69,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
+  useEffect(() => { onSelectionChange?.(selected); }, [selected, onSelectionChange]);
   useEffect(() => { setPinned(null); }, [selected, containerWidth]);
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, containerWidth]);
 
@@ -176,6 +181,7 @@ export default function EvForecastChart({ data, preview = false }: Props) {
           setPreviewTooltipPos({ x: cmx, y: cmy });
         } else {
           setPinned({ year, entries });
+          onYearChangeRef.current?.(year);
         }
       })
       .on("mouseleave", function () {
@@ -183,6 +189,8 @@ export default function EvForecastChart({ data, preview = false }: Props) {
         if (preview) {
           setPreviewTooltip(null);
           setPreviewTooltipPos(null);
+        } else {
+          onYearChangeRef.current?.(null);
         }
       });
   }, [data, selected, preview, colorMap, forecastBoundary, containerWidth]);

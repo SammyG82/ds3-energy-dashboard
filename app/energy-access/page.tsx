@@ -18,16 +18,22 @@ export default function EnergyAccessPage() {
 
   useEffect(() => { fetchEnergyAccess().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
 
+  const totalCustomers = useMemo(
+    () => data.reduce((s, d) => s + (d.avg_customers ?? 1), 0),
+    [data]
+  );
   const avgSaidi = useMemo(() => {
     if (!data.length) return 0;
-    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
     return data.reduce((s, d) => s + d.saidi * (d.avg_customers ?? 1), 0) / totalCustomers;
-  }, [data]);
+  }, [data, totalCustomers]);
   const avgBurden = useMemo(() => {
     if (!data.length) return 0;
-    const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
     return data.reduce((s, d) => s + d.energy_burden_pct * (d.avg_customers ?? 1), 0) / totalCustomers;
-  }, [data]);
+  }, [data, totalCustomers]);
+  const avgPrice = useMemo(() => {
+    if (!data.length) return 0;
+    return data.reduce((s, d) => s + d.avg_price_cents_kwh * (d.avg_customers ?? 1), 0) / totalCustomers;
+  }, [data, totalCustomers]);
 
   return (
     <>
@@ -42,11 +48,10 @@ export default function EnergyAccessPage() {
         ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard label="States" value={data.length ? data.length.toString() : "—"} accent="blue" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard label="Avg Outage Time" value={data.length ? avgSaidi.toFixed(0) + " min" : "—"} accent="amber" />
           <StatCard label="Avg Burden" value={data.length ? avgBurden.toFixed(2) + "%" : "—"} accent="teal" />
-          <StatCard label="Year" value="2024" accent="blue" />
+          <StatCard label="Avg Price" value={data.length ? avgPrice.toFixed(1) + " ¢/kWh" : "—"} accent="blue" />
         </div>
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">

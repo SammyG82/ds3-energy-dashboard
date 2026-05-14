@@ -64,6 +64,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
   useEffect(() => { setEvPinnedYear(null); setOilPinnedYear(null); }, [meta, adoption, year, containerWidth]);
   useEffect(() => { setGdpPinnedCountry(null); }, [year, adoption, country]);
 
+  const forecastBoundary = useMemo(() => evData.find((d) => d.type === "Forecast")?.year ?? 2025, [evData]);
+  const isProjected = year >= forecastBoundary;
+
   const { sales, oilDisplaced, costSavings, gdpPercent } = meta
     ? compute(meta.region, year, adoption, meta, evData)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
@@ -330,10 +333,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
 
       {/* Stat tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard size="xl" label="EV Sales" value={fmtEvSales(sales)} sub={`${country} ${year}`} accent="teal" />
-        <StatCard size="xl" label="Oil Saved" value={`${oilDisplaced >= 1 ? oilDisplaced.toFixed(0) : oilDisplaced.toFixed(1)}M`} sub="barrels per year" accent="amber" />
-        <StatCard size="xl" label="GDP Savings" value={`${gdpPercent.toFixed(3)}%`} sub="of GDP" accent="teal" />
-        <StatCard size="xl" label="Cost Saved" value={`$${costSavings.toFixed(1)}B`} sub="annually" accent="blue" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}EV Sales`} value={fmtEvSales(sales)} sub={`${country} ${year}`} accent="teal" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Oil Saved`} value={`${oilDisplaced >= 1 ? oilDisplaced.toFixed(0) : oilDisplaced.toFixed(1)}M`} sub="barrels per year" accent="amber" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}GDP Savings`} value={`${gdpPercent.toFixed(3)}%`} sub="of GDP" accent="teal" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Cost Saved`} value={`$${costSavings.toFixed(1)}B`} sub="annually" accent="blue" />
       </div>
 
       {/* Two area charts side by side */}

@@ -183,15 +183,15 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Total Sales</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Total Sales</p>
           <p className="text-lg font-bold text-blue-600">{fmtEvSales(total)}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Leader</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Leader</p>
           <p className="text-lg font-bold text-teal-600">{leader ? dn(leader.region_country) : "—"}</p>
         </div>
         <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Leader Share</p>
+          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Leader Share</p>
           <p className="text-lg font-bold text-amber-600">
             {leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"}
           </p>

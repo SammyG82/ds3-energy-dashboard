@@ -111,6 +111,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     );
 
   const displayYear = pinned ? pinned.year : statDisplayYear;
+  const displayIsForecast = pinned?.isForecast ?? false;
   const displayTotal = pinned ? pinned.entries.reduce((s, e) => s + e.value, 0) : latestTotal;
   const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null);
   const netPinnedLast = pinned?.entries.at(-1) ?? null;
@@ -258,11 +259,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           {datasetLabel === "Oil Imports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayYear} Total</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}{displayYear} Total</p>
                 <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Importer</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}Largest Importer</p>
                 <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
               </div>
             </div>
@@ -272,7 +273,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white border border-slate-200 rounded-lg p-3">
                 <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
-                  {netDisplayYear} {hasImporters ? "Import Deficit" : "Export Surplus"}
+                  {displayIsForecast ? "Projected " : ""}{netDisplayYear} {hasImporters ? "Import Deficit" : "Export Surplus"}
                 </p>
                 <p className="text-lg font-bold text-blue-600">
                   {hasImporters
@@ -285,7 +286,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3">
                 <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
-                  {hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}
+                  {displayIsForecast ? "Projected " : ""}{hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}
                 </p>
                 <p className="text-lg font-bold text-teal-600">
                   {hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
@@ -297,11 +298,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           {datasetLabel === "Oil Exports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayYear} Total</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}{displayYear} Total</p>
                 <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
               </div>
               <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Largest Exporter</p>
+                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}Largest Exporter</p>
                 <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
               </div>
             </div>
