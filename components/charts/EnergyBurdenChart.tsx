@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
-import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, STATE_NAMES } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
@@ -15,20 +15,6 @@ interface Pinned {
   price: number;
   annualBill: number | null;
 }
-
-const STATE_NAMES: Record<string, string> = {
-  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
-  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
-  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
-  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
-  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
-  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
-  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
-  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
-  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
-  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
-  DC: "Washington D.C.",
-};
 
 function burdenRating(b: number) {
   if (b < 2.0) return { label: "Low burden", color: "#16a34a", bg: "bg-green-100", text: "text-green-700" };
