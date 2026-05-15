@@ -34,7 +34,7 @@ const datasets = [
     description: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2030.",
     rows: "1,220 rows",
     columns: "Country, Year, Type, Net_Trade, Net_CI_Low, Net_CI_High, Exports, Imports, Exports_Order, Imports_Order, Avg_MAPE",
-    source: "Derived from JODI Oil World Database — DS3 model",
+    source: "Derived from IEA Oil Information Database (OIWORLD.csv) — DS3 model",
     license: "Open",
   },
   {
@@ -59,7 +59,7 @@ const datasets = [
     name: "Oil Exports Forecast",
     file: "exports.csv",
     description: "Historical oil export volumes by country (1971–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
-    rows: "610 rows",
+    rows: "1,220 rows",
     columns: "Country, Year, Type, Value, Lower_CI, Upper_CI, ARIMA_Order, MAPE",
     source: "International Energy Agency (IEA)",
     license: "IEA Terms of Use",
@@ -78,7 +78,7 @@ const datasets = [
 const methodology = [
   {
     label: "Oil Forecasting",
-    body: "Log-ARIMA models fitted per country using AIC-based grid search over (p, d, q) ∈ [0,2]³ with d ≤ 1 stability constraint. Forecasts generated with 95% confidence intervals. MAPE calculated on held-out validation split.",
+    body: "Log-ARIMA models fitted per country using AIC-based grid search over p,q ∈ [0,3], d ∈ {0,1}. Forecasts generated with 95% confidence intervals. MAPE calculated on held-out validation split.",
   },
   {
     label: "EV Adoption Projection",
