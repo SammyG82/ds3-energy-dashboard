@@ -68,9 +68,9 @@ const datasets = [
     name: "EV GDP Impact Metadata",
     file: "gdp_country_meta.json",
     description: "Country-level GDP, oil import volumes, and cost-per-barrel figures used for the EV GDP impact calculations.",
-    rows: "10 countries",
+    rows: "13 countries",
     columns: "country, region, gdp (B USD), oilImports (Mb/d), costPerBarrel (USD)",
-    source: "World Bank / IEA — DS3 compilation",
+    source: "World Bank Open Data 2023 (GDP) · IEA Oil Information Database (oil imports) · IEA/EIA estimates (cost per barrel)",
     license: "Open",
   },
 ];

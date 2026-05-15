@@ -154,7 +154,7 @@ export default function EvTrendChart({ data }: Props) {
       });
   }, [countryData, forecastBoundary, containerWidth]);
 
-  const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual"), [countryData]);
+  const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);
   const peak = historicalRows.length > 0
     ? historicalRows.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, historicalRows[0])
     : null;

@@ -137,9 +137,10 @@ export interface TargetRow {
 
 export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
   const raw = await d3.csv(`${BASE}/data/energy_access_with_burden.csv`);
-  const latestYear = d3.max(raw, (d) => +(d.year ?? 0)) ?? 2024;
   return raw
-    .filter((d) => +d.year === latestYear && d.state?.length === 2 && d.state !== "US" && d.state !== "DC")
+    // Hardcoded to 2024: SAIDI is only available for that year. When 2025 EIA reliability
+    // data is downloaded and the pipeline re-run, change to 2025 and verify SAIDI is non-null.
+    .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US" && d.state !== "DC")
     .map((d) => ({
       state: d.state,
       year: +d.year,

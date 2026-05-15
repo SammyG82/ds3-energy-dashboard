@@ -209,12 +209,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
     svg.selectAll("*").remove();
 
     const totalW = containerWidth - 32;  // subtract p-4 card padding (16px each side)
-    const margin = { top: 16, right: 16, bottom: 56, left: 56 };
-    const totalH = 260;
+    const margin = { top: 16, right: 16, bottom: 80, left: 56 };
+    const totalH = 290;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
-    svg.attr("width", totalW).attr("height", totalH);
+    svg.attr("width", totalW).attr("height", totalH).attr("overflow", "visible");
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
     const chartData = gdpMeta.map((m) => ({
