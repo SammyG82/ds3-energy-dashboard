@@ -204,3 +204,17 @@ export async function fetchGdpMeta(): Promise<GdpMeta[]> {
   if (!Array.isArray(raw)) throw new Error("Invalid GDP metadata");
   return raw;
 }
+
+export interface OilPriceRow {
+  year: number;
+  brent_nominal: number | null;
+  wti_nominal: number | null;
+  brent_real: number | null;
+  wti_real: number | null;
+}
+
+export async function fetchOilPrices(): Promise<OilPriceRow[]> {
+  const raw = await d3.json<OilPriceRow[]>(`${BASE}/data/oil_prices.json`);
+  if (!Array.isArray(raw)) throw new Error("Invalid oil price data");
+  return raw;
+}
