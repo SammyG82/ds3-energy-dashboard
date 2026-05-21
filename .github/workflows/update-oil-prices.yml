@@ -1,0 +1,37 @@
+name: Update Oil Prices
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 6am UTC daily
+  workflow_dispatch:        # allow manual trigger from GitHub Actions UI
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch oil prices from FRED
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: node scripts/fetch-oil-prices.mjs
+
+      - name: Commit updated data if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/data/oil_prices.json
+          if git diff --cached --quiet; then
+            echo "No changes to oil_prices.json — skipping commit."
+          else
+            git commit -m "chore: update oil prices from FRED [skip ci]"
+            git push
+          fi

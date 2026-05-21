@@ -1,0 +1,289 @@
+[
+  {
+    "year": 1986,
+    "brent_nominal": null,
+    "wti_nominal": 15.05,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1987,
+    "brent_nominal": 18.53,
+    "wti_nominal": 19.2,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1988,
+    "brent_nominal": 14.91,
+    "wti_nominal": 15.97,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1989,
+    "brent_nominal": 18.23,
+    "wti_nominal": 19.64,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1990,
+    "brent_nominal": 23.76,
+    "wti_nominal": 24.53,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1991,
+    "brent_nominal": 20.04,
+    "wti_nominal": 21.54,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1992,
+    "brent_nominal": 19.32,
+    "wti_nominal": 20.58,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1993,
+    "brent_nominal": 17.01,
+    "wti_nominal": 18.43,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1994,
+    "brent_nominal": 15.86,
+    "wti_nominal": 17.2,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1995,
+    "brent_nominal": 17.02,
+    "wti_nominal": 18.43,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1996,
+    "brent_nominal": 20.64,
+    "wti_nominal": 22.12,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1997,
+    "brent_nominal": 19.11,
+    "wti_nominal": 20.61,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1998,
+    "brent_nominal": 12.76,
+    "wti_nominal": 14.42,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 1999,
+    "brent_nominal": 17.9,
+    "wti_nominal": 19.34,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2000,
+    "brent_nominal": 28.66,
+    "wti_nominal": 30.38,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2001,
+    "brent_nominal": 24.46,
+    "wti_nominal": 25.98,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2002,
+    "brent_nominal": 24.99,
+    "wti_nominal": 26.18,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2003,
+    "brent_nominal": 28.85,
+    "wti_nominal": 31.08,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2004,
+    "brent_nominal": 38.26,
+    "wti_nominal": 41.51,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2005,
+    "brent_nominal": 54.57,
+    "wti_nominal": 56.64,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2006,
+    "brent_nominal": 65.16,
+    "wti_nominal": 66.05,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2007,
+    "brent_nominal": 72.44,
+    "wti_nominal": 72.34,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2008,
+    "brent_nominal": 96.94,
+    "wti_nominal": 99.67,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2009,
+    "brent_nominal": 61.74,
+    "wti_nominal": 61.95,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2010,
+    "brent_nominal": 79.61,
+    "wti_nominal": 79.48,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2011,
+    "brent_nominal": 111.26,
+    "wti_nominal": 94.88,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2012,
+    "brent_nominal": 111.57,
+    "wti_nominal": 94.05,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2013,
+    "brent_nominal": 108.56,
+    "wti_nominal": 97.98,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2014,
+    "brent_nominal": 98.97,
+    "wti_nominal": 93.17,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2015,
+    "brent_nominal": 52.32,
+    "wti_nominal": 48.66,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2016,
+    "brent_nominal": 43.64,
+    "wti_nominal": 43.29,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2017,
+    "brent_nominal": 54.12,
+    "wti_nominal": 50.8,
+    "brent_real": 69.26,
+    "wti_real": 65.01
+  },
+  {
+    "year": 2018,
+    "brent_nominal": 71.33,
+    "wti_nominal": 65.23,
+    "brent_real": 89.11,
+    "wti_real": 81.49
+  },
+  {
+    "year": 2019,
+    "brent_nominal": 64.3,
+    "wti_nominal": 56.99,
+    "brent_real": 78.9,
+    "wti_real": 69.93
+  },
+  {
+    "year": 2020,
+    "brent_nominal": 41.96,
+    "wti_nominal": 39.16,
+    "brent_real": 50.86,
+    "wti_real": 47.46
+  },
+  {
+    "year": 2021,
+    "brent_nominal": 70.86,
+    "wti_nominal": 68.14,
+    "brent_real": 82.03,
+    "wti_real": 78.88
+  },
+  {
+    "year": 2022,
+    "brent_nominal": 100.93,
+    "wti_nominal": 94.9,
+    "brent_real": 108.18,
+    "wti_real": 101.72
+  },
+  {
+    "year": 2023,
+    "brent_nominal": 82.49,
+    "wti_nominal": 77.58,
+    "brent_real": 84.92,
+    "wti_real": 79.87
+  },
+  {
+    "year": 2024,
+    "brent_nominal": 80.52,
+    "wti_nominal": 76.63,
+    "brent_real": 80.52,
+    "wti_real": 76.63
+  },
+  {
+    "year": 2025,
+    "brent_nominal": 69.14,
+    "wti_nominal": 65.39,
+    "brent_real": null,
+    "wti_real": null
+  },
+  {
+    "year": 2026,
+    "brent_nominal": 91.94,
+    "wti_nominal": 82.96,
+    "brent_real": null,
+    "wti_real": null
+  }
+]
