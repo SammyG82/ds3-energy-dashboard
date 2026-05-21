@@ -389,11 +389,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta }: Props) {
         </div>
       </div>
 
-      <p className="text-xs text-slate-400 font-mono bg-blue-50 border border-blue-100 rounded-lg p-3">
-        <strong className="text-blue-600 font-mono">Methodology</strong> — EV forecasts via logistic S-curve.
-        Each EV displaces ~1,300 gallons/year (≈31 barrels). GDP savings use country-specific import cost per barrel and nominal GDP.
-        Adoption rate multiplier scales projected sales linearly.
-      </p>
     </div>
   );
 }

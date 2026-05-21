@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
+import MethodologySection from "@/components/ui/MethodologySection";
 import { fetchEnergyAccess } from "@/lib/data";
 import type { EnergyAccessRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -75,6 +76,13 @@ export default function AffordabilityPage() {
             <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
+
+        <MethodologySection cols={1} items={[
+          {
+            label: "Customer-Weighted Averages",
+            body: "Avg Annual Bill and the national average used for \"States Above Avg Burden\" are both customer-weighted means — larger states count for more based on their number of electricity customers. \"States Above Avg Burden\" counts how many of the 50 states exceed that weighted national average, not a fixed threshold.",
+          },
+        ]} />
       </div>
     </>
   );

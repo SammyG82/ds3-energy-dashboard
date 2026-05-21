@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
+import MethodologySection from "@/components/ui/MethodologySection";
 import { fetchTargets } from "@/lib/data";
 import type { TargetRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -55,6 +56,17 @@ export default function GlobalTargetsPage() {
             <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
+
+        <MethodologySection cols={2} items={[
+          {
+            label: "Top 15 Only — EU Excluded",
+            body: "The EU supranational aggregate (1,236 GW) is excluded — at that scale it would make every individual country's bar invisible.",
+          },
+          {
+            label: "Capacity vs. Share",
+            body: "GW (gigawatts) measures the maximum power output of installed renewable generators. The tooltip's \"Share of electricity\" figure is a separate target — what percentage of total electricity generation should come from renewables by 2030.",
+          },
+        ]} />
       </div>
     </>
   );

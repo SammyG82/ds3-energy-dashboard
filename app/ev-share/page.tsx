@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
+import MethodologySection from "@/components/ui/MethodologySection";
 import { fetchEvSales } from "@/lib/data";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -62,6 +63,24 @@ export default function EvSharePage() {
             <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
+
+        <MethodologySection cols={2} items={[
+          {
+            label: "Annual Growth Rate",
+            body: (<>
+              Compound annual growth rate (CAGR) from the first year with recorded sales to the most recent historical year.
+              {" "}Formula:{" "}
+              <span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
+                {"((latest ÷ first)^(1 ÷ years) − 1) × 100"}
+              </span>
+              . It smooths year-to-year swings, so a market that grew slowly then spiked will show a lower rate than the spike alone suggests.
+            </>),
+          },
+          {
+            label: "Peak Year & 2030 Forecast",
+            body: `Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from the IEA's Stated Policies Scenario (STEPS) in the Global EV Outlook 2024, modelling adoption under currently enacted policies.`,
+          },
+        ]} />
 
       </div>
     </>

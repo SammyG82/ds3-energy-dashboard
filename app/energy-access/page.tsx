@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
+import MethodologySection from "@/components/ui/MethodologySection";
 import { fetchEnergyAccess } from "@/lib/data";
 import type { EnergyAccessRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -77,6 +78,21 @@ export default function EnergyAccessPage() {
             <LoadingPlaceholder text="Loading data…" />
           )}
         </div>
+
+        <MethodologySection items={[
+          {
+            label: "SAIDI",
+            body: "System Average Interruption Duration Index — total minutes of electricity outage per customer per year. Thresholds: Good = under 60 min, Fair = 60–150 min, Poor = over 150 min.",
+          },
+          {
+            label: "Energy Burden",
+            body: "The US Department of Energy defines high energy burden as 6% or more of household income spent on electricity. States above this threshold are flagged as High in the tooltip.",
+          },
+          {
+            label: "Customer-Weighted Averages",
+            body: "All three national average stat cards use customer-weighted means — each state's value is weighted by its number of electricity customers, not treated equally.",
+          },
+        ]} />
       </div>
     </>
   );
