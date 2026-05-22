@@ -15,18 +15,18 @@ export default function EvGdpImpactPage() {
   const [evData, setEvData] = useState<EvRow[]>([]);
   const [gdpMeta, setGdpMeta] = useState<GdpMeta[]>([]);
   const [oilPrices, setOilPrices] = useState<OilPriceRow[]>([]);
-  const [errors, setErrors] = useState<{ evData: string | null; gdpMeta: string | null }>({
-    evData: null, gdpMeta: null,
+  const [errors, setErrors] = useState<{ evData: string | null; gdpMeta: string | null; oilPrices: string | null }>({
+    evData: null, gdpMeta: null, oilPrices: null,
   });
 
   useEffect(() => {
     fetchEvData().then(setEvData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
     fetchGdpMeta().then(setGdpMeta).catch((err) => { console.error(err); setErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
-    fetchOilPrices().then(setOilPrices).catch((err) => { console.error(err); });
+    fetchOilPrices().then(setOilPrices).catch((err) => { console.error(err); setErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
   }, []);
 
   const ready = evData.length > 0 && gdpMeta.length > 0;
-  const anyError = errors.evData || errors.gdpMeta;
+  const anyError = errors.evData || errors.gdpMeta || errors.oilPrices;
 
   return (
     <>
@@ -47,12 +47,13 @@ export default function EvGdpImpactPage() {
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-2">
             {errors.evData && <ErrorMessage message={errors.evData} />}
             {errors.gdpMeta && <ErrorMessage message={errors.gdpMeta} />}
+            {errors.oilPrices && <ErrorMessage message={errors.oilPrices} />}
           </div>
         ) : (
           <LoadingPlaceholder text="Loading data…" />
         )}
 
-        <MethodologySection cols={2} items={[
+        <MethodologySection cols={1} items={[
           {
             label: "Oil Displacement",
             body: (<>

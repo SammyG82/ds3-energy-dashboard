@@ -43,9 +43,9 @@ export default function EvForecastPage() {
       <PageHeader
         title="EV Sales"
         titleAccent="Forecast"
-        subtitle="Logistic S-curve projections of EV sales by region through 2035. Select multiple regions to compare trajectories. Solid lines = actual, dashed = forecast."
+        subtitle="IEA Stated Policies Scenario (STEPS) projections of EV sales by region through 2035. Select multiple regions to compare trajectories. Solid lines = actual, dashed = forecast."
         badges={[
-          { label: "S-Curve Model", color: "teal" },
+          { label: "IEA STEPS", color: "teal" },
           { label: "Multi-Region", color: "blue" },
           { label: "2035 Horizon", color: "amber" },
         ]}

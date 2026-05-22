@@ -212,7 +212,7 @@ export default function EnergyBurdenChart({ data }: Props) {
       </div>
 
       <p className="text-xs text-slate-400 font-mono">
-        Energy burden = electricity costs as a share of household income &nbsp;·&nbsp; National average: {natAvgBurden}%{data.length > sorted.length ? ` · Showing top ${sorted.length} of ${data.length} states` : ""}
+        Energy burden = electricity costs as a share of household income &nbsp;·&nbsp; National average: {natAvgBurden}%{data.length > sorted.length ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>
   );

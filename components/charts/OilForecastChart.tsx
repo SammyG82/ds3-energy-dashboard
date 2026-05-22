@@ -211,7 +211,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       .call(d3.axisLeft(y).tickFormat((v) => {
         const n = +v;
         if (n === 0) return "0";
-        return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${n}`;
+        return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${Math.round(n)}`;
       }).ticks(5));
 
     const crosshair = g.append("line")
@@ -250,7 +250,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selected, preview, forecastBoundary, containerWidth]);
+  }, [data, selected, preview, forecastBoundary, containerWidth, allCountries]);
 
   return (
     <div className="flex flex-col gap-4">

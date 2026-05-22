@@ -205,7 +205,7 @@ export default function ReliabilityChart({ data }: Props) {
       </div>
 
       <p className="text-xs text-slate-400 font-mono">
-        SAIDI = how long the average customer loses power per year &nbsp;·&nbsp; National average: {natAvgSaidi} min/year{data.length > sorted.length ? ` · Showing top ${sorted.length} of ${data.length} states` : ""}
+        SAIDI = how long the average customer loses power per year &nbsp;·&nbsp; National average: {natAvgSaidi} min/year{data.length > sorted.length ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>
   );

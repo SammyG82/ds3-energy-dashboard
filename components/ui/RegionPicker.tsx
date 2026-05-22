@@ -133,6 +133,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         <button
           ref={customBtnRef}
           onClick={() => setShowCustom((v) => !v)}
+          aria-label="Select custom regions"
           aria-expanded={showCustom}
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
             showCustom

@@ -206,7 +206,7 @@ export default function EvTrendChart({ data }: Props) {
       </div>
 
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Line chart of EV sales over time with S-curve forecast" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Line chart of EV sales over time with IEA STEPS projection" />
       </div>
 
       <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
@@ -235,7 +235,7 @@ export default function EvTrendChart({ data }: Props) {
       </div>
 
       <p className="text-xs text-slate-400 font-mono">
-        Solid = Historical data · Dashed = S-curve projected forecast · Unit: vehicles/year
+        Solid = Historical data · Dashed = IEA STEPS projected forecast · Unit: vehicles/year
       </p>
     </div>
   );

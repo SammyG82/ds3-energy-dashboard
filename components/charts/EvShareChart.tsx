@@ -211,7 +211,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
               <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">#{tooltip.rank}</span>
             </div>
             <p className="text-blue-600 font-bold text-base mt-0.5">
-              {tooltip.sales.toLocaleString()} <span className="text-slate-400 text-xs font-normal">vehicles</span>
+              {fmtEvSales(tooltip.sales)} <span className="text-slate-400 text-xs font-normal">vehicles</span>
             </p>
             <p className="text-slate-400 text-xs">
               {tooltip.sharePct.toFixed(1)}% of top {topN} countries' combined sales

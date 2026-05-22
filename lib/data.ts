@@ -162,7 +162,7 @@ export async function fetchTargets(): Promise<TargetRow[]> {
       country_code: d.country_code ?? "",
       country_name: d.country_name ?? "",
       capacity_target_gw: +d.capacity_target_gw,
-      share_target_pct: d.share_target_pct ? +d.share_target_pct : null,
+      share_target_pct: parseCI(d.share_target_pct),
     }));
 }
 

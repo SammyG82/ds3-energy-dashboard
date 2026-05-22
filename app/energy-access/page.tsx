@@ -41,11 +41,11 @@ export default function EnergyAccessPage() {
       <PageHeader
         title="Grid Reliability &"
         titleAccent="Energy Access"
-        subtitle="US state-level grid reliability (SAIDI/SAIFI) and energy burden metrics for 2024. Color thresholds show good, fair, and poor performance."
+        subtitle="US state-level grid reliability (SAIDI) and energy burden metrics for 2024. Color thresholds show good, fair, and poor performance."
         badges={[
           { label: "EIA Source", color: "teal" },
           { label: "US States 2024", color: "blue" },
-          { label: "SAIDI · SAIFI", color: "amber" },
+          { label: "SAIDI", color: "amber" },
         ]}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
@@ -82,11 +82,11 @@ export default function EnergyAccessPage() {
         <MethodologySection items={[
           {
             label: "SAIDI",
-            body: "System Average Interruption Duration Index — total minutes of electricity outage per customer per year. Thresholds: Good = under 60 min, Fair = 60–150 min, Poor = over 150 min.",
+            body: "System Average Interruption Duration Index — total minutes of electricity outage per customer per year. Thresholds: Good = under 100 min, Fair = 100–200 min, Poor = over 200 min.",
           },
           {
             label: "Energy Burden",
-            body: "The US Department of Energy defines high energy burden as 6% or more of household income spent on electricity. States above this threshold are flagged as High in the tooltip.",
+            body: "Energy burden is the share of household income spent on electricity. Thresholds used in this chart: Low = under 2.0%, Moderate = 2.0–2.5%, High = 2.5% or above. These match the EIA's state-level reporting conventions — the US national average is approximately 2%.",
           },
           {
             label: "Customer-Weighted Averages",

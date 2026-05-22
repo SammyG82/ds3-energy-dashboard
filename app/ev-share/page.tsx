@@ -23,7 +23,7 @@ export default function EvSharePage() {
       <PageHeader
         title="EV Share"
         titleAccent="Explorer"
-        subtitle="Interactive ranking of EV sales by country and year, plus single-country sales trends with S-curve forecasts through 2035."
+        subtitle="Interactive ranking of EV sales by country and year, plus single-country sales trends with IEA STEPS projections through 2035."
         badges={[
           { label: "IEA Source", color: "teal" },
           { label: "2010–2035", color: "blue" },
@@ -53,7 +53,7 @@ export default function EvSharePage() {
           <div className="mb-4">
             <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">Country Trend</p>
             <h2 className="text-lg font-bold text-slate-900">EV Sales Over Time</h2>
-            <p className="text-sm text-slate-500">Single-country sales trajectory with S-curve forecast through 2035</p>
+            <p className="text-sm text-slate-500">Single-country sales trajectory with IEA STEPS projection through 2035</p>
           </div>
           {data.length > 0 ? (
             <EvTrendChart data={data} />

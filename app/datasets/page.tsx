@@ -20,12 +20,12 @@ const datasets = [
     license: "IEA Terms of Use",
   },
   {
-    name: "EV Forecast Data (S-Curve)",
+    name: "EV Forecast Data",
     file: "ev_data.json",
-    description: "Logistic S-curve projections of EV sales by region through 2035, fitted by nonlinear least-squares regression.",
+    description: "IEA Stated Policies Scenario (STEPS) projections of EV sales by region through 2035.",
     rows: "1,302 records",
     columns: "region_country, year, ev_sales, type",
-    source: "Derived from IEA data — DS3 model",
+    source: "International Energy Agency (IEA) — Global EV Outlook 2024 (Projection-STEPS)",
     license: "Open",
   },
   {
@@ -82,7 +82,7 @@ const methodology = [
   },
   {
     label: "EV Adoption Projection",
-    body: "Logistic S-curve f(t) = L / (1 + e^(-k(t−t₀))) fitted by nonlinear least-squares regression per region. Parameters: L (carrying capacity), k (growth rate), t₀ (inflection point).",
+    body: "IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024. Historical rows use the 'Historical' category; projections use 'Projection-STEPS'. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.",
   },
   {
     label: "GDP Impact Estimate",

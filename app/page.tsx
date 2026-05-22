@@ -22,7 +22,7 @@ const stats = [
 const pillars = [
   {
     title: "EV Growth",
-    body: "Track EV adoption across 50+ countries from 2010 to 2035 using IEA historical data and logistic S-curve projections.",
+    body: "Track EV adoption across 50+ countries from 2010 to 2035 using IEA historical data and Stated Policies Scenario (STEPS) projections.",
   },
   {
     title: "Oil Import Pressure",
@@ -108,7 +108,7 @@ export default function LandingPage() {
             <div>
               <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">Forecast</p>
               <h2 className="text-xl font-bold text-slate-900">EV Sales Trajectory <span className="text-slate-400 font-normal text-base">(Top 5 Markets)</span></h2>
-              <p className="text-sm text-slate-500">Logistic S-curve projections through 2035</p>
+              <p className="text-sm text-slate-500">IEA STEPS projections through 2035</p>
             </div>
             <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-600 hover:underline">
               Full Forecast →
@@ -177,11 +177,7 @@ export default function LandingPage() {
                 body: (
                   <>
                     Oil: Log-ARIMA with AIC-based grid search.<br />
-                    EV: Logistic S-curve{" "}
-                    <span className="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded whitespace-nowrap">
-                      f(t) = L / (1 + e<sup>−k(t−t₀)</sup>)
-                    </span>{" "}
-                    fitted by nonlinear least-squares.
+                    EV: IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024.
                   </>
                 ),
               },

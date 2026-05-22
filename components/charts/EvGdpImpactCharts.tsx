@@ -45,8 +45,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
   const [country,     setCountry]     = useState(() => countries[0] ?? "");
   const [year,        setYear]        = useState(() => years[0] ?? 2024);
   const [adoption,    setAdoption]    = useState(1.0);
-  const [benchmark,   setBenchmark]   = useState<Benchmark>("brent");
-  const [customPrice, setCustomPrice] = useState<number>(FALLBACK_PRICE);
+  const [benchmark,        setBenchmark]        = useState<Benchmark>("brent");
+  const [customBrentPrice, setCustomBrentPrice] = useState<number>(FALLBACK_PRICE);
+  const [customWtiPrice,   setCustomWtiPrice]   = useState<number>(FALLBACK_PRICE);
 
   useEffect(() => { if (countries.length) setCountry(countries[0]); }, [countries]);
   useEffect(() => { if (years.length)     setYear(years[0]);         }, [years]);
@@ -68,12 +69,16 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
   const latestDataYear = useMemo(() => oilPrices.length ? oilPrices[oilPrices.length - 1].year : 2026, [oilPrices]);
   const beyondData = year > latestDataYear;
 
-  // When switching benchmark, reset custom price to that benchmark's latest nominal value
+  // Initialise each benchmark's custom price once when oil price data loads
   useEffect(() => {
     if (!oilPrices.length) return;
     const lastRow = oilPrices[oilPrices.length - 1];
-    setCustomPrice((benchmark === "brent" ? lastRow.brent_nominal : lastRow.wti_nominal) ?? FALLBACK_PRICE);
-  }, [benchmark, oilPrices]);
+    setCustomBrentPrice(lastRow.brent_nominal ?? FALLBACK_PRICE);
+    setCustomWtiPrice(lastRow.wti_nominal ?? FALLBACK_PRICE);
+  }, [oilPrices]);
+
+  const customPrice    = benchmark === "brent" ? customBrentPrice : customWtiPrice;
+  const setCustomPrice = benchmark === "brent" ? setCustomBrentPrice : setCustomWtiPrice;
 
   // For years within data range use actual nominal price; beyond that use the slider
   const currentOilPrice = useMemo(() => {
@@ -116,7 +121,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
       currentYear: number,
       getY: (yr: number) => number,
       color: string,
-      yFmt: (v: number) => string,
+      yFmt: (v: d3.NumberValue) => string,
       onHover: (yr: number) => void,
       onClear: () => void,
       maxY?: number
@@ -161,7 +166,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
       g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
         .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(4));
       g.append("g").attr("class", "chart-axis")
-        .call(d3.axisLeft(yScale).ticks(4).tickFormat(yFmt as (v: d3.NumberValue) => string));
+        .call(d3.axisLeft(yScale).ticks(4).tickFormat(yFmt));
 
       const crosshair = g.append("line")
         .attr("y1", 0).attr("y2", height)
@@ -184,8 +189,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
 
   useEffect(() => {
     if (!meta) return;
-    drawAreaChart(evSvg.current,  year, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).sales,        "#0891b2", (v) => fmtEvSales(v),                                       setEvPinnedYear,  () => setEvPinnedYear(null),  maxEvY);
-    drawAreaChart(oilSvg.current, year, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).oilDisplaced, "#d97706", (v) => v >= 1 ? v.toFixed(1) + "M" : v.toFixed(2) + "M", setOilPinnedYear, () => setOilPinnedYear(null), maxOilY);
+    drawAreaChart(evSvg.current,  year, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).sales,        "#0891b2", (v: d3.NumberValue) => fmtEvSales(+v),                                              setEvPinnedYear,  () => setEvPinnedYear(null),  maxEvY);
+    drawAreaChart(oilSvg.current, year, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).oilDisplaced, "#d97706", (v: d3.NumberValue) => +v >= 1 ? (+v).toFixed(1) + "M" : (+v).toFixed(2) + "M", setOilPinnedYear, () => setOilPinnedYear(null), maxOilY);
   }, [meta, year, adoption, evData, currentOilPrice, drawAreaChart]);
 
   // GDP bar chart
@@ -259,8 +264,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
     svg.selectAll("*").remove();
 
     const chartData = oilPrices.filter((r) => r.year >= 2017);
-    const latestDataYear = oilPrices[oilPrices.length - 1].year;
-    const refYear = Math.min(year, latestDataYear);
+    if (!chartData.length) return;
+    const priceChartLastYear = oilPrices[oilPrices.length - 1].year;
+    const refYear = Math.min(year, priceChartLastYear);
 
     const totalW = containerWidth - 32;
     const margin = { top: 16, right: 24, bottom: 28, left: 52 };
@@ -385,7 +391,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
     <div className="flex flex-col gap-6">
 
       {/* Controls */}
-      <div className="bg-white border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-3 gap-5">
+      <div className="bg-white border border-slate-200 rounded-xl p-4 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">
+        {/* Row 1 left: EV Adoption Rate */}
         <div>
           <div className="flex justify-between mb-1">
             <span className="text-xs font-mono uppercase tracking-widest text-slate-400">EV Adoption Rate</span>
@@ -398,6 +405,16 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
           <p className="text-xs text-slate-400 font-mono mt-1">0.5x = slower growth · 2x = double the projected rate</p>
         </div>
 
+        {/* Row 1 right: Country */}
+        <div className="flex flex-col gap-2">
+          <label htmlFor="gdp-country-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
+          <select id="gdp-country-select" value={country} onChange={(e) => setCountry(e.target.value)}
+            className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
+            {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+
+        {/* Row 2 left: Analysis Year */}
         <div>
           <div className="flex justify-between mb-1">
             <span className="text-xs font-mono uppercase tracking-widest text-slate-400">Analysis Year</span>
@@ -411,28 +428,20 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
           <p className="text-xs text-slate-400 font-mono mt-1">Select 2024 – 2030</p>
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="gdp-country-select" className="text-xs font-mono uppercase tracking-widest text-slate-400">Country</label>
-            <select id="gdp-country-select" value={country} onChange={(e) => setCountry(e.target.value)}
-              className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-teal-300">
-              {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-mono uppercase tracking-widest text-slate-400">Price Benchmark</span>
-            <div className="flex gap-2">
-              {(["brent", "wti"] as Benchmark[]).map((b) => (
-                <button key={b} onClick={() => setBenchmark(b)}
-                  className={`flex-1 text-xs font-mono py-1.5 rounded-lg border transition-colors ${
-                    benchmark === b
-                      ? "bg-teal-600 text-white border-teal-600"
-                      : "bg-white text-slate-500 border-slate-200 hover:border-teal-300"
-                  }`}>
-                  {b === "brent" ? "Brent" : "WTI"}
-                </button>
-              ))}
-            </div>
+        {/* Row 2 right: Price Benchmark */}
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-mono uppercase tracking-widest text-slate-400">Price Benchmark</span>
+          <div className="flex gap-2">
+            {(["brent", "wti"] as Benchmark[]).map((b) => (
+              <button key={b} onClick={() => setBenchmark(b)}
+                className={`flex-1 text-xs font-mono py-2 rounded-lg border transition-colors ${
+                  benchmark === b
+                    ? "bg-teal-600 text-white border-teal-600"
+                    : "bg-white text-slate-500 border-slate-200 hover:border-teal-300"
+                }`}>
+                {b === "brent" ? "Brent" : "WTI"}
+              </button>
+            ))}
           </div>
         </div>
       </div>
@@ -448,9 +457,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
       {/* Stat cards — row 2: oil price + scenario slider */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <StatCard size="xl"
-          label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData ? "" : ` (${priceRefYear} avg)`}`}
+          label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData || !oilPrices.length ? "" : ` (${priceRefYear} avg)`}`}
           value={`$${currentOilPrice.toFixed(2)}/bbl`}
-          sub={beyondData ? "custom scenario assumption" : "nominal USD · FRED"}
+          sub={beyondData ? "custom scenario assumption" : !oilPrices.length ? "estimate — data unavailable" : "nominal USD · FRED"}
           accent="amber" />
 
         <div className={`bg-white border rounded-xl p-4 flex flex-col justify-between transition-opacity ${beyondData ? "border-amber-200" : "border-slate-200 opacity-40 pointer-events-none select-none"}`}>
@@ -460,13 +469,16 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
               <p className="text-xs text-slate-400 font-mono">
                 {beyondData ? `No oil price data beyond ${latestDataYear} — set your own` : `Unlocks for years after ${latestDataYear}`}
               </p>
+              {beyondData && (
+                <p className="text-xs text-slate-400 font-mono mt-0.5">Due to political factors, oil prices are hard to predict.</p>
+              )}
             </div>
             <span className={`text-xl font-bold tabular-nums ${beyondData ? "text-amber-600" : "text-slate-400"}`}>
               ${beyondData ? customPrice.toFixed(0) : "—"}/bbl
             </span>
           </div>
           <input type="range" min={40} max={150} step={1}
-            value={beyondData ? customPrice : FALLBACK_PRICE}
+            value={customPrice}
             disabled={!beyondData}
             aria-label="Custom oil price assumption"
             onChange={(e) => setCustomPrice(parseFloat(e.target.value))}
@@ -516,7 +528,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
         <div className="border border-slate-100 rounded-lg bg-slate-50 px-4 py-3 mt-3 relative">
           {!gdpPinnedData && (
             <div className="absolute inset-0 flex items-center px-4">
-              <span className="text-xs text-slate-400 font-mono">Click a country bar to see its oil savings breakdown</span>
+              <span className="text-xs text-slate-400 font-mono">Hover a country bar to see its oil savings breakdown</span>
             </div>
           )}
           <div className={`flex flex-wrap gap-x-8 gap-y-1 ${!gdpPinnedData ? "invisible" : ""}`}>
@@ -553,7 +565,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
             </span>
           </div>
         </div>
-        <svg ref={priceSvg} className="w-full" role="img" aria-label="Historical WTI and Brent crude oil prices" />
+        {!oilPrices.length
+          ? <p className="text-xs text-slate-400 font-mono text-center py-8">Oil price data unavailable</p>
+          : <svg ref={priceSvg} className="w-full" role="img" aria-label="Historical WTI and Brent crude oil prices" />
+        }
         <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center mt-2">
           {(() => {
             const row = pricePinnedYear !== null ? oilPrices.find((r) => r.year === pricePinnedYear) : null;

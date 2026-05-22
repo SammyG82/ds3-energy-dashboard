@@ -213,7 +213,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
       )}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line S-curve chart of EV sales by region" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line chart of IEA STEPS EV sales projections by region" />
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
@@ -265,7 +265,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
       )}
 
       <p className="text-xs text-slate-400 font-mono">
-        Solid = Historical data &nbsp;·&nbsp; Dashed = S-curve projected forecast
+        Solid = Historical data &nbsp;·&nbsp; Dashed = IEA STEPS projected forecast
       </p>
     </div>
   );
