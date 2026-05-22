@@ -48,3 +48,6 @@ eia_extraction/*.svg
 analysis/oil_info/*.png
 analysis/oil_info/*.svg
 analysis/oil_info/*.xlsx
+
+# Raw source data for oil price script (process manually, commit only oil_prices.json)
+public/raw data/

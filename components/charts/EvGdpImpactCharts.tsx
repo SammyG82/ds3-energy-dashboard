@@ -66,7 +66,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
   const forecastBoundary = useMemo(() => evData.find((d) => d.type === "Forecast")?.year ?? 2025, [evData]);
   const isProjected = year >= forecastBoundary;
 
-  const latestDataYear = useMemo(() => oilPrices.length ? oilPrices[oilPrices.length - 1].year : 2026, [oilPrices]);
+  const latestDataYear = useMemo(() => oilPrices.length ? oilPrices[oilPrices.length - 1].year : 2024, [oilPrices]);
   const beyondData = year > latestDataYear;
 
   // Initialise each benchmark's custom price once when oil price data loads
@@ -99,12 +99,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
     : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 };
 
   const maxEvY = useMemo(
-    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).sales) ?? undefined) : undefined,
-    [meta, adoption, evData, years, currentOilPrice]
+    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData, FALLBACK_PRICE).sales) ?? undefined) : undefined,
+    [meta, adoption, evData, years]
   );
   const maxOilY = useMemo(
-    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData, currentOilPrice).oilDisplaced) ?? undefined) : undefined,
-    [meta, adoption, evData, years, currentOilPrice]
+    () => meta ? (d3.max(years, (yr) => compute(meta.region, yr, adoption, meta, evData, FALLBACK_PRICE).oilDisplaced) ?? undefined) : undefined,
+    [meta, adoption, evData, years]
   );
 
   const evPinnedVal  = evPinnedYear  !== null && meta ? compute(meta.region, evPinnedYear,  adoption, meta, evData, currentOilPrice).sales         : null;

@@ -3,6 +3,13 @@ Extracts annual average WTI and Brent crude oil prices from the FRED Excel data,
 deflates them to real 2024 USD using US CPI from the IMF CPI CSV, and writes
 public/data/oil_prices.json.
 
+Run this manually once a year when refreshing the data:
+  1. Download updated Brent/WTI daily prices from FRED as an Excel file
+     (DCOILBRENTEU + DCOILWTICO series) → replace analysis/fred-oil.xlsx
+  2. Download updated US CPI data from the IMF → replace analysis/imf-cpi.csv
+  3. Run: python scripts/process_oil_prices.py
+  4. Commit the updated public/data/oil_prices.json
+
 Usage:
     python scripts/process_oil_prices.py
 """
@@ -11,8 +18,8 @@ import json
 import pandas as pd
 from pathlib import Path
 
-EXCEL_PATH = Path(__file__).parent.parent / "public" / "raw data" / "fred-oil.xlsx"
-CPI_PATH   = Path(__file__).parent.parent / "public" / "raw data" / "imf-cpi.csv"
+EXCEL_PATH = Path(__file__).parent.parent / "analysis" / "fred-oil.xlsx"
+CPI_PATH   = Path(__file__).parent.parent / "analysis" / "imf-cpi.csv"
 OUT_PATH   = Path(__file__).parent.parent / "public" / "data" / "oil_prices.json"
 
 BASE_YEAR = 2024  # real prices expressed in 2024 USD
