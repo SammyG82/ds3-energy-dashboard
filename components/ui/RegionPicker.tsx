@@ -110,9 +110,11 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           const isActive = activePreset?.label === preset.label;
           return (
             <button
+              type="button"
               key={preset.label}
               title={preset.description}
               aria-label={preset.label}
+              aria-pressed={isActive}
               onClick={() => {
                 const regions = (preset.regions ?? options).filter((r) => options.includes(r));
                 if (regions.length === 0) return;
@@ -131,6 +133,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         })}
 
         <button
+          type="button"
           ref={customBtnRef}
           onClick={() => setShowCustom((v) => !v)}
           aria-label="Select custom regions"
@@ -145,6 +148,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         </button>
 
         <button
+          type="button"
           onClick={() => setShowInfo((v) => !v)}
           title="Why these presets?"
           aria-label="Why these presets?"
@@ -203,6 +207,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                   />
                   <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
                   <span
+                    aria-hidden="true"
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: colorMap[region] ?? "#94a3b8" }}
                   />
@@ -211,7 +216,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             )}
           </div>
 
-          <p className="text-xs text-slate-400 font-mono">
+          <p aria-live="polite" aria-atomic="true" className="text-xs text-slate-400 font-mono">
             {selected.length} of {options.length} selected
           </p>
         </div>

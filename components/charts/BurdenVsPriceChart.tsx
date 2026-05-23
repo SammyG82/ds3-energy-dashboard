@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
 import { useContainerSize, STATE_NAMES } from "@/lib/ui-utils";
@@ -23,6 +23,12 @@ export default function BurdenVsPriceChart({ data }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
+
+  const ariaLabel = useMemo(() => {
+    if (!data.length) return "Energy burden vs electricity price: no data available.";
+    const top = [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct)[0];
+    return `Energy burden vs electricity price for ${data.length} US states. ${STATE_NAMES[top.state] ?? top.state} has the highest burden at ${top.energy_burden_pct.toFixed(2)}% of household income.`;
+  }, [data]);
 
   useEffect(() => {
     setPinned(null);
@@ -131,10 +137,10 @@ export default function BurdenVsPriceChart({ data }: Props) {
       </div>
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Scatter plot of energy burden vs electricity price by US state" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
       </div>
 
-      <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+      <div aria-live="polite" aria-atomic="true" className="border border-slate-200 rounded-xl bg-white overflow-hidden">
         {pinned ? (
           <div className="px-4 py-3 flex flex-col gap-2">
             <span className="font-bold text-slate-800">{STATE_NAMES[pinned.state] ?? pinned.state}</span>

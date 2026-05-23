@@ -433,8 +433,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
           <span className="text-xs font-mono uppercase tracking-widest text-slate-400">Price Benchmark</span>
           <div className="flex gap-2">
             {(["brent", "wti"] as Benchmark[]).map((b) => (
-              <button key={b} onClick={() => setBenchmark(b)}
-                className={`flex-1 text-xs font-mono py-2 rounded-lg border transition-colors ${
+              <button key={b} type="button" onClick={() => setBenchmark(b)}
+                aria-pressed={benchmark === b}
+                className={`flex-1 text-xs font-mono py-2 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
                   benchmark === b
                     ? "bg-teal-600 text-white border-teal-600"
                     : "bg-white text-slate-500 border-slate-200 hover:border-teal-300"
@@ -495,7 +496,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Trajectory</p>
           <p className="text-sm font-bold text-slate-800">EV Sales Volume</p>
-          <svg ref={evSvg} className="w-full" role="img" aria-label="Area chart of EV sales trajectory over time" />
+          <svg ref={evSvg} className="w-full" role="img" aria-label={`EV sales for ${country} at ${adoption}× adoption: ${fmtEvSales(sales)} vehicles in ${year}.`} />
           <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center">
             {evPinnedYear !== null && evPinnedVal !== null ? (
               <span className="text-xs text-slate-700">
@@ -508,7 +509,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
         <div className="bg-white border border-slate-200 rounded-xl p-4 flex flex-col gap-2">
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Displacement</p>
           <p className="text-sm font-bold text-slate-800">Oil Displaced</p>
-          <svg ref={oilSvg} className="w-full" role="img" aria-label="Area chart of oil displaced by EVs over time" />
+          <svg ref={oilSvg} className="w-full" role="img" aria-label={`Oil displaced by EVs for ${country}: ${oilDisplaced.toFixed(1)} million barrels per year in ${year} at ${adoption}× adoption.`} />
           <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center">
             {oilPinnedYear !== null && oilPinnedVal !== null ? (
               <span className="text-xs text-slate-700">
@@ -524,7 +525,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
       <div className="bg-white border border-slate-200 rounded-xl p-4">
         <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">Comparative</p>
         <p className="text-sm font-bold text-slate-800 mb-3">% of GDP Saved on Oil Imports by Country</p>
-        <svg ref={gdpSvg} className="w-full" role="img" aria-label="Bar chart of GDP savings from oil displacement by country" />
+        <svg ref={gdpSvg} className="w-full" role="img" aria-label={`GDP savings from oil displacement across ${gdpMeta.length} countries in ${year} at ${adoption}× adoption. ${country} saves ${gdpPercent.toFixed(2)}% of GDP.`} />
         <div className="border border-slate-100 rounded-lg bg-slate-50 px-4 py-3 mt-3 relative">
           {!gdpPinnedData && (
             <div className="absolute inset-0 flex items-center px-4">
@@ -552,22 +553,22 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices }: Props)
           {/* HTML legend — no overlap */}
           <div className="flex items-center gap-4 text-xs font-mono text-slate-500 pt-1">
             <span className="flex items-center gap-1.5">
-              <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="#d97706" strokeWidth={benchmark === "brent" ? 2.5 : 1.5} opacity={benchmark === "brent" ? 1 : 0.4} /></svg>
+              <svg width="20" height="8" aria-hidden="true"><line x1="0" y1="4" x2="20" y2="4" stroke="#d97706" strokeWidth={benchmark === "brent" ? 2.5 : 1.5} opacity={benchmark === "brent" ? 1 : 0.4} /></svg>
               Brent
             </span>
             <span className="flex items-center gap-1.5">
-              <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="#0891b2" strokeWidth={benchmark === "wti" ? 2.5 : 1.5} opacity={benchmark === "wti" ? 1 : 0.4} /></svg>
+              <svg width="20" height="8" aria-hidden="true"><line x1="0" y1="4" x2="20" y2="4" stroke="#0891b2" strokeWidth={benchmark === "wti" ? 2.5 : 1.5} opacity={benchmark === "wti" ? 1 : 0.4} /></svg>
               WTI
             </span>
             <span className="flex items-center gap-1.5">
-              <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3" /></svg>
+              <svg width="20" height="8" aria-hidden="true"><line x1="0" y1="4" x2="20" y2="4" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3" /></svg>
               Real (2024 USD)
             </span>
           </div>
         </div>
         {!oilPrices.length
           ? <p className="text-xs text-slate-400 font-mono text-center py-8">Oil price data unavailable</p>
-          : <svg ref={priceSvg} className="w-full" role="img" aria-label="Historical WTI and Brent crude oil prices" />
+          : <svg ref={priceSvg} className="w-full" role="img" aria-label={`Historical ${benchmark === "brent" ? "Brent" : "WTI"} crude oil prices: nominal and inflation-adjusted, through ${latestDataYear}.`} />
         }
         <div className="border border-slate-100 rounded-lg bg-slate-50 px-3 py-2 min-h-10 flex items-center mt-2">
           {(() => {

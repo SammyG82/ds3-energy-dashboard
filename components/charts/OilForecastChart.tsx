@@ -89,6 +89,13 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     return { latestTotal: total, leader: top };
   }, [data, selected, statDisplayYear]);
 
+  const ariaLabel = useMemo(() => {
+    if (!selected.length || !data.length) return `${datasetLabel}: no countries selected.`;
+    const regionNames = selected.map(dn).join(", ");
+    if (!leader) return `${datasetLabel} for ${regionNames}. Forecast with 95% confidence intervals through 2030.`;
+    return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through 2030.`;
+  }, [datasetLabel, selected, leader, statDisplayYear, data]);
+
   const { netLargestImporter, netLargestExporter, netBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
     const historical = data.filter((d) => d.Type === "Historical" && selected.includes(d.Country) && d.Year <= statDisplayYear);
     const importerRows = historical.filter((d) => d.value < 0);
@@ -321,7 +328,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       )}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line chart of oil import forecasts by country with 95% CI bands" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
@@ -335,7 +342,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             </div>
             {previewTooltip.entries.map(({ country, value, color }) => (
               <div key={country} className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                 <span className="text-xs text-slate-700 flex-1">{dn(country)}</span>
                 <span className="text-xs font-mono font-semibold text-slate-900">
                   {Math.round(value).toLocaleString()}<span className="text-slate-400 font-normal ml-0.5">KBD</span>
@@ -363,7 +370,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
               <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
                 {pinned.entries.map(({ country, value, color }) => (
                   <div key={country} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                    <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span className="text-sm text-slate-700 flex-1">{dn(country)}</span>
                     <span className="text-sm font-mono font-semibold text-slate-900">
                       {Math.round(value).toLocaleString()}<span className="text-xs font-normal text-slate-400 ml-1">KBD</span>

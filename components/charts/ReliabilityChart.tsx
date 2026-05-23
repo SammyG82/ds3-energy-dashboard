@@ -40,6 +40,12 @@ export default function ReliabilityChart({ data }: Props) {
     return Math.round(data.reduce((s, d) => s + d.saidi * (d.avg_customers ?? 1), 0) / totalCustomers);
   }, [data]);
 
+  const ariaLabel = useMemo(() => {
+    if (!sorted.length) return "Power reliability by US state: no data available.";
+    const top = sorted[sorted.length - 1];
+    return `Power reliability (SAIDI) by US state: national average ${natAvgSaidi} minutes of outage per year. ${STATE_NAMES[top.state] ?? top.state} has the longest outages at ${Math.round(top.saidi)} minutes per year.`;
+  }, [sorted, natAvgSaidi]);
+
   useEffect(() => {
     setPinned(null);
     setPinnedPos(null);
@@ -149,11 +155,12 @@ export default function ReliabilityChart({ data }: Props) {
           ))}
         </div>
         <button
+          type="button"
           onClick={() => setShowInfo((v) => !v)}
           title="Why these thresholds?"
           aria-label="Why these thresholds?"
           aria-expanded={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
@@ -182,7 +189,7 @@ export default function ReliabilityChart({ data }: Props) {
       )}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Horizontal bar chart of grid reliability (SAIDI) by US state" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {pinned && pinnedPos && r && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm z-10"

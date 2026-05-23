@@ -35,11 +35,12 @@ export default function MethodologySection({ items, cols = 3 }: Props) {
                 <p className="text-xs font-mono uppercase tracking-widest text-teal-600">{label}</p>
                 {plain && (
                   <button
+                    type="button"
                     onClick={() => setOpenPlain(isOpen ? null : label)}
                     title="Plain-English explanation"
                     aria-label="Plain-English explanation"
                     aria-expanded={isOpen}
-                    className={`w-5 h-5 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+                    className={`w-5 h-5 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
                       isOpen
                         ? "bg-teal-600 text-white border-teal-600"
                         : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"

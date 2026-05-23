@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { TargetRow } from "@/lib/data";
 import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
@@ -23,6 +23,12 @@ export default function CapacityChart({ data }: Props) {
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [pinnedPos, setPinnedPos] = useState<{ x: number; y: number } | null>(null);
+
+  const ariaLabel = useMemo(() => {
+    if (!data.length) return "Renewable capacity targets: no data available.";
+    const top = data[0];
+    return `2030 renewable capacity targets: ${top.country_name} leads with ${top.capacity_target_gw} GW. Showing top ${data.length} countries.`;
+  }, [data]);
 
   useEffect(() => {
     setPinned(null);
@@ -126,7 +132,7 @@ export default function CapacityChart({ data }: Props) {
   return (
     <div className="flex flex-col gap-4">
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Bar chart of top 15 countries by 2030 renewable capacity target" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {pinned && pinnedPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm z-10"

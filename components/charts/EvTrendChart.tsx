@@ -155,15 +155,28 @@ export default function EvTrendChart({ data }: Props) {
   }, [countryData, forecastBoundary, containerWidth]);
 
   const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);
-  const peak = historicalRows.length > 0
-    ? historicalRows.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, historicalRows[0])
-    : null;
-  const latest = historicalRows[historicalRows.length - 1] ?? null;
-  const first = historicalRows.find((d) => d.ev_sales > 0) ?? null;
-  const cagr = first && latest && latest.year > first.year
-    ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
-    : null;
-  const forecast2030 = countryData.find((d) => d.year === 2030);
+
+  const { peak, latest, cagr, forecast2030 } = useMemo(() => {
+    const peak = historicalRows.length > 0
+      ? historicalRows.reduce((best, d) => d.ev_sales > best.ev_sales ? d : best, historicalRows[0])
+      : null;
+    const latest = historicalRows[historicalRows.length - 1] ?? null;
+    const first = historicalRows.find((d) => d.ev_sales > 0) ?? null;
+    const cagr = first && latest && latest.year > first.year
+      ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
+      : null;
+    const forecast2030 = countryData.find((d) => d.year === 2030);
+    return { peak, latest, cagr, forecast2030 };
+  }, [historicalRows, countryData]);
+
+  const ariaLabel = useMemo(() => {
+    if (!latest) return `${dn(country)} EV sales trend: no data available.`;
+    const parts: string[] = [`${dn(country)} EV sales trend: ${fmtEvSales(latest.ev_sales)} vehicles in ${latest.year}`];
+    if (cagr) parts.push(`${cagr}% annual growth since first sale`);
+    if (peak) parts.push(`peak year ${peak.year}`);
+    if (forecast2030) parts.push(`2030 forecast: ${fmtEvSales(forecast2030.ev_sales)}`);
+    return parts.join(", ") + ".";
+  }, [country, latest, cagr, peak, forecast2030]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -206,7 +219,7 @@ export default function EvTrendChart({ data }: Props) {
       </div>
 
       <div ref={containerRef} className="w-full">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Line chart of EV sales over time with IEA STEPS projection" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
       </div>
 
       <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">

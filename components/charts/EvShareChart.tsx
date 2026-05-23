@@ -156,6 +156,11 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
   const leader = filtered[0];
 
+  const ariaLabel = useMemo(() => {
+    if (!leader) return "EV sales rankings: no data available.";
+    return `EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} combined: ${fmtEvSales(total)}.`;
+  }, [year, leader, topN, total]);
+
   const yearSlider = years.length > 0 ? (
     <div className="flex items-center gap-3">
       <span className="text-xs font-mono uppercase tracking-widest text-slate-400 whitespace-nowrap">Year</span>
@@ -200,7 +205,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       {preview && yearSlider}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Horizontal bar chart of top EV sales countries" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {tooltip && tooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-45 shadow-sm"

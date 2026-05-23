@@ -155,7 +155,7 @@ export default function OilExplorerPage() {
                 key={d.id}
                 onClick={() => setDataset(d.id)}
                 aria-pressed={dataset === d.id}
-                className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors ${
+                className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
                   dataset === d.id
                     ? "bg-slate-900 text-white border-slate-900"
                     : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"

@@ -68,6 +68,21 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
 
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
+  const ariaLabel = useMemo(() => {
+    if (!selected.length || !data.length) return "EV sales forecast: no regions selected.";
+    const histYear = forecastBoundary - 1;
+    const leaderEntry = selected
+      .map((r) => {
+        const row = data.find((d) => d.region_country === r && d.year === histYear);
+        return row ? { region: r, value: row.ev_sales } : null;
+      })
+      .filter((e): e is { region: string; value: number } => e !== null)
+      .sort((a, b) => b.value - a.value)[0];
+    const regionNames = selected.map(dn).join(", ");
+    if (!leaderEntry) return `EV sales forecast for ${regionNames}. Data from 2010, projected to 2035.`;
+    return `EV sales forecast for ${regionNames}: ${dn(leaderEntry.region)} leads with ${fmtEvSales(leaderEntry.value)} vehicles in ${histYear}. Projected through 2035.`;
+  }, [data, selected, forecastBoundary]);
+
   useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
   useEffect(() => { onSelectionChange?.(selected); }, [selected, onSelectionChange]);
   useEffect(() => { setPinned(null); }, [selected, containerWidth]);
@@ -213,7 +228,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
       )}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label="Multi-line chart of IEA STEPS EV sales projections by region" />
+        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
@@ -227,7 +242,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
             </div>
             {previewTooltip.entries.map(({ region, value, color }) => (
               <div key={region} className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
                 <span className="text-xs text-slate-700 flex-1">{dn(region)}</span>
                 <span className="text-xs font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
               </div>
@@ -249,7 +264,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
               <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
                 {pinned.entries.map(({ region, value, color }) => (
                   <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                    <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
                     <span className="text-sm font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
                   </div>
