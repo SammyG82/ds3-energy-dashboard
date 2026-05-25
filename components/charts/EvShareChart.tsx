@@ -5,6 +5,8 @@ import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, COUNTRY_COLORS, dn, AGGREGATES } from "@/lib/data";
 import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import ForecastBadge from "@/components/ui/ForecastBadge";
+import StatCard from "@/components/ui/StatCard";
 
 interface Props {
   data: EvRow[];
@@ -55,7 +57,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
   const forecastBoundary = useMemo(
-    () => data.find((d) => d.type === "Forecast")?.year ?? 2025,
+    () => data.find((d) => d.type === "Forecast")?.year ?? Infinity,
     [data]
   );
 
@@ -152,7 +154,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .attr("dx", -6)
       .attr("font-size", preview ? "11px" : "12px")
       .attr("fill", "#475569");
-  }, [filtered, preview, containerWidth]);
+  }, [filtered, preview, containerWidth, total]);
 
   const leader = filtered[0];
 
@@ -160,6 +162,8 @@ export default function EvShareChart({ data, preview = false }: Props) {
     if (!leader) return "EV sales rankings: no data available.";
     return `EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} combined: ${fmtEvSales(total)}.`;
   }, [year, leader, topN, total]);
+
+  const isProjected = year >= forecastBoundary;
 
   const yearSlider = years.length > 0 ? (
     <div className="flex items-center gap-3">
@@ -171,13 +175,11 @@ export default function EvShareChart({ data, preview = false }: Props) {
         step="1"
         value={year}
         onChange={(e) => setYear(Number(e.target.value))}
-        className="flex-1 accent-blue-600"
+        className="flex-1 accent-blue-600 focus:outline-none focus:ring-2 focus:ring-slate-500"
         aria-label="Select year"
       />
       <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
-      <span className={`text-xs px-2 py-0.5 rounded font-mono whitespace-nowrap ${year >= forecastBoundary ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-        {year >= forecastBoundary ? "Projected forecast" : "Historical data"}
-      </span>
+      <ForecastBadge isForecast={isProjected} />
     </div>
   ) : null;
 
@@ -186,20 +188,9 @@ export default function EvShareChart({ data, preview = false }: Props) {
       {!preview && yearSlider}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Total Sales of Top {topN} Countries</p>
-          <p className="text-lg font-bold text-blue-600">{fmtEvSales(total)}</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Leader</p>
-          <p className="text-lg font-bold text-teal-600">{leader ? dn(leader.region_country) : "—"}</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{year >= forecastBoundary ? "Projected " : ""}Leader Share of Top {topN} Countries</p>
-          <p className="text-lg font-bold text-amber-600">
-            {leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"}
-          </p>
-        </div>
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Total Sales of Top ${topN}`} value={fmtEvSales(total)} accent="blue" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader`} value={leader ? dn(leader.region_country) : "—"} accent="teal" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" />
       </div>
 
       {preview && yearSlider}
@@ -208,7 +199,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {tooltip && tooltipPos && (
           <div
-            className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-45 shadow-sm"
+            className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm"
             style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >
             <div className="flex items-center justify-between gap-3">

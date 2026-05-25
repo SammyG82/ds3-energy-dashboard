@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import MethodologySection from "@/components/ui/MethodologySection";
@@ -8,15 +7,13 @@ import { fetchEvSales } from "@/lib/data";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
+import { useDataFetch } from "@/lib/ui-utils";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvTrendChart = dynamic(() => import("@/components/charts/EvTrendChart"), { ssr: false });
 
 export default function EvSharePage() {
-  const [data, setData] = useState<EvRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => { fetchEvSales().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
+  const { data, error } = useDataFetch<EvRow[]>(fetchEvSales, []);
 
   return (
     <>

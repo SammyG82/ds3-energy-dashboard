@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -9,14 +9,12 @@ import { fetchTargets } from "@/lib/data";
 import type { TargetRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
+import { useDataFetch } from "@/lib/ui-utils";
 
 const CapacityChart = dynamic(() => import("@/components/charts/CapacityChart"), { ssr: false });
 
 export default function GlobalTargetsPage() {
-  const [data, setData] = useState<TargetRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => { fetchTargets().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
+  const { data, error } = useDataFetch<TargetRow[]>(fetchTargets, []);
 
   const top15 = useMemo(
     () => [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw).slice(0, 15),
@@ -39,8 +37,8 @@ export default function GlobalTargetsPage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <StatCard label="Shown" value={top15.length ? top15.length.toString() : "—"} accent="blue" />
-          <StatCard label="Total Target" value={top15.length ? totalGW.toFixed(0) + " GW" : "—"} accent="teal" />
+          <StatCard label="Countries Shown" value={top15.length ? `${top15.length} of ${data.length}` : "—"} accent="blue" />
+          <StatCard label="Top 15 Total" value={top15.length ? totalGW.toFixed(0) + " GW" : "—"} accent="teal" />
           <StatCard label="Highest Target" value={top ? top.country_name : "—"} accent="amber" />
           <StatCard label="Target Year" value="2030" accent="blue" />
         </div>

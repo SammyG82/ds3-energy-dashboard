@@ -5,7 +5,10 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines } from "@/lib/ui-utils";
+import ForecastBadge from "@/components/ui/ForecastBadge";
+import StatCard from "@/components/ui/StatCard";
+import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 
 const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
 const dn = (c: string) => OIL_DISPLAY[c] ?? c;
@@ -13,7 +16,7 @@ const dn = (c: string) => OIL_DISPLAY[c] ?? c;
 interface Props {
   data: OilRow[];
   preview?: boolean;
-  datasetLabel?: string;
+  datasetLabel?: "Oil Imports (KBD)" | "Net Trade (KBD)" | "Oil Exports (KBD)";
   chartPresets?: PresetItem[];
   statYear?: number;
 }
@@ -26,26 +29,6 @@ interface Pinned {
 
 const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 
-const OIL_PRESETS: PresetItem[] = [
-  {
-    label: "Top 5 Importers",
-    description: "The five largest end-consumer oil importers",
-    detail: "China, India, USA, Japan, and South Korea are the five largest oil importers by domestic consumption. Singapore and the Netherlands import more by volume but are re-export hubs — their figures don't reflect domestic demand, so they're excluded here.",
-    regions: ["China", "India", "USA", "Japan", "Korea"],
-  },
-  {
-    label: "Europe",
-    description: "European nations in the dataset",
-    detail: "France, Germany, the Netherlands, and Spain — the four European countries in the IEA oil dataset. All have active EV markets and significant oil import dependency.",
-    regions: ["France", "Germany", "Netherlands", "Spain"],
-  },
-  {
-    label: "All Countries",
-    description: "All 10 major oil importing nations",
-    detail: "All 10 countries in the dataset: China, India, USA, Japan, South Korea, France, Germany, Netherlands, Singapore, and Spain. Together they account for the majority of global oil import demand.",
-    regions: null,
-  },
-];
 
 export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -69,6 +52,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     () => preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries
   );
 
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+
   useEffect(() => {
     setSelected(preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries);
   }, [allCountries, preview]);
@@ -79,15 +64,17 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     setPreviewTooltipPos(null);
   }, [data, selected, containerWidth]);
 
-  const latestHistYear = forecastBoundary !== undefined ? forecastBoundary - 1 : 2023;
+  const latestHistYear = forecastBoundary !== undefined
+    ? forecastBoundary - 1
+    : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
   const statDisplayYear = statYear ?? latestHistYear;
 
   const { latestTotal, leader } = useMemo(() => {
-    const latest = data.filter((d) => d.Year === statDisplayYear && selected.includes(d.Country));
+    const latest = data.filter((d) => d.Year === statDisplayYear && selectedSet.has(d.Country));
     const total = latest.reduce((s, d) => s + d.value, 0);
     const top = [...latest].sort((a, b) => b.value - a.value)[0];
     return { latestTotal: total, leader: top };
-  }, [data, selected, statDisplayYear]);
+  }, [data, selectedSet, statDisplayYear]);
 
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return `${datasetLabel}: no countries selected.`;
@@ -97,7 +84,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
   }, [datasetLabel, selected, leader, statDisplayYear, data]);
 
   const { netLargestImporter, netLargestExporter, netBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
-    const historical = data.filter((d) => d.Type === "Historical" && selected.includes(d.Country) && d.Year <= statDisplayYear);
+    const historical = data.filter((d) => d.Type === "Historical" && selectedSet.has(d.Country) && d.Year <= statDisplayYear);
     const importerRows = historical.filter((d) => d.value < 0);
     const exporterRows = historical.filter((d) => d.value > 0);
     const maxImporterYear = importerRows.length > 0 ? Math.max(...importerRows.map((d) => d.Year)) : statDisplayYear;
@@ -108,22 +95,17 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     const deficit = Math.abs(importerRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0));
     const surplus = exporterRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0);
     return { netLargestImporter: topImporter, netLargestExporter: topExporter, netBaseYear: baseYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
-  }, [data, selected, statDisplayYear]);
+  }, [data, selectedSet, statDisplayYear]);
 
-  const toggle = (c: string) =>
-    setSelected((prev) =>
-      prev.includes(c)
-        ? prev.length > 1 ? prev.filter((x) => x !== c) : prev
-        : [...prev, c]
-    );
+  const toggle = (c: string) => setSelected((prev) => toggleSelection(prev, c));
 
   const displayYear = pinned ? pinned.year : statDisplayYear;
-  const displayIsForecast = pinned?.isForecast ?? false;
+  const displayIsForecast = pinned?.isForecast ?? (forecastBoundary !== undefined && statDisplayYear >= forecastBoundary);
   const displayTotal = pinned ? pinned.entries.reduce((s, e) => s + e.value, 0) : latestTotal;
   const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null);
   const netPinnedLast = pinned?.entries.at(-1) ?? null;
   const netPinnedFirst = pinned?.entries[0] ?? null;
-  const hasImporters = (netLargestImporter?.Year ?? 0) >= (netLargestExporter?.Year ?? 0);
+  const hasImporters = staticNetDeficit >= staticNetSurplus;
   const displayNetImporter = pinned
     ? (netPinnedLast && netPinnedLast.value < 0 ? netPinnedLast.country : null)
     : (netLargestImporter?.Country ?? null);
@@ -144,8 +126,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
-    const activeCountries = allCountries.filter((c) => selected.includes(c));
-    const activeData = data.filter((d) => selected.includes(d.Country));
+    const activeCountries = allCountries.filter((c) => selectedSet.has(c));
+    const activeData = data.filter((d) => selectedSet.has(d.Country));
 
     const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 60 };
@@ -164,12 +146,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
     const yScaleMin = Math.min(0, d3.min(activeData, (d) => (d.ciLow ?? d.value) * 1.05) ?? 0);
     const y = d3.scaleLinear().domain([yScaleMin, yMax]).nice().range([height, 0]);
 
-    g.selectAll(".grid-h")
-      .data(y.ticks(5))
-      .enter().append("line")
-      .attr("x1", 0).attr("x2", width)
-      .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    drawHorizontalGridLines(g, y, width);
 
     g.append("line")
       .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
@@ -182,7 +159,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       .attr("fill", "#94a3b8").text("Forecast →");
 
     activeCountries.forEach((country) => {
-      const rows = data.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
+      const rows = activeData.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
       const color = COUNTRY_COLORS[country] ?? "#64748b";
 
       const history = rows.filter((d) => d.Year <= forecastBoundary);
@@ -226,6 +203,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
+    const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
+
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
@@ -237,7 +216,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
         const isForecast = year >= forecastBoundary;
         const entries = activeCountries
           .flatMap((country) => {
-            const row = data.find((d) => d.Country === country && d.Year === year);
+            const row = dataIndex.get(`${country}|${year}`);
             if (!row) return [];
             return [{ country, value: row.value, color: COUNTRY_COLORS[country] ?? "#64748b" }];
           })
@@ -257,7 +236,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selected, preview, forecastBoundary, containerWidth, allCountries]);
+  }, [data, selectedSet, preview, forecastBoundary, containerWidth, allCountries]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -265,53 +244,30 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
         <>
           {datasetLabel === "Oil Imports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}{displayYear} Total</p>
-                <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}Largest Importer</p>
-                <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
-              </div>
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Importer`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" />
             </div>
           )}
 
           {datasetLabel === "Net Trade (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
-                  {displayIsForecast ? "Projected " : ""}{netDisplayYear} {hasImporters ? "Import Deficit" : "Export Surplus"}
-                </p>
-                <p className="text-lg font-bold text-blue-600">
-                  {hasImporters
-                    ? (displayNetDeficit > 0 ? Math.round(displayNetDeficit).toLocaleString() : "—")
-                    : (displayNetSurplus > 0 ? Math.round(displayNetSurplus).toLocaleString() : "—")}
-                  {((hasImporters && displayNetDeficit > 0) || (!hasImporters && displayNetSurplus > 0)) && (
-                    <span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
-                  )}
-                </p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">
-                  {displayIsForecast ? "Projected " : ""}{hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}
-                </p>
-                <p className="text-lg font-bold text-teal-600">
-                  {hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
-                </p>
-              </div>
+              <StatCard size="xl"
+                label={`${displayIsForecast ? "Projected " : ""}${netDisplayYear} ${hasImporters ? "Import Deficit" : "Export Surplus"}`}
+                value={hasImporters
+                  ? (displayNetDeficit > 0 ? `${Math.round(displayNetDeficit).toLocaleString()} KBD` : "—")
+                  : (displayNetSurplus > 0 ? `${Math.round(displayNetSurplus).toLocaleString()} KBD` : "—")}
+                accent="blue" />
+              <StatCard size="xl"
+                label={`${displayIsForecast ? "Projected " : ""}${hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}`}
+                value={hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
+                accent="teal" />
             </div>
           )}
 
           {datasetLabel === "Oil Exports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}{displayYear} Total</p>
-                <p className="text-lg font-bold text-blue-600">{Math.round(displayTotal).toLocaleString()} <span className="text-xs font-normal text-slate-400">KBD</span></p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-lg p-3">
-                <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{displayIsForecast ? "Projected " : ""}Largest Exporter</p>
-                <p className="text-lg font-bold text-teal-600">{displayLeader ? dn(displayLeader) : "—"}</p>
-              </div>
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Exporter`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" />
             </div>
           )}
 
@@ -322,7 +278,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allCountries.slice(0, 1))}
             colorMap={COUNTRY_COLORS}
             displayNames={OIL_DISPLAY}
-            presets={chartPresets ?? OIL_PRESETS}
+            presets={chartPresets ?? OIL_IMPORT_PRESETS}
           />
         </>
       )}
@@ -336,9 +292,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           >
             <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">
               <p className="text-xs font-mono font-bold text-slate-500">{previewTooltip.year}</p>
-              <span className={`text-xs px-1.5 py-0.5 rounded font-mono ${previewTooltip.isForecast ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                {previewTooltip.isForecast ? "Projected forecast" : "Historical data"}
-              </span>
+              <ForecastBadge isForecast={previewTooltip.isForecast} />
             </div>
             {previewTooltip.entries.map(({ country, value, color }) => (
               <div key={country} className="flex items-center gap-2">
@@ -361,13 +315,11 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
               <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-1.5 py-0.5 rounded font-mono ${pinned.isForecast ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                    {pinned.isForecast ? "Projected forecast" : "Historical data"}
-                  </span>
+                  <ForecastBadge isForecast={pinned.isForecast} />
                   <span className="text-xs text-slate-400">Thousands of barrels per day</span>
                 </div>
               </div>
-              <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
+              <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
                 {pinned.entries.map(({ country, value, color }) => (
                   <div key={country} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
-import { useContainerSize, STATE_NAMES } from "@/lib/ui-utils";
+import { useContainerSize, STATE_NAMES, drawHorizontalGridLines } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
@@ -21,12 +21,12 @@ interface Pinned {
 export default function BurdenVsPriceChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth } = useContainerSize(containerRef);
+  const { width: containerWidth, height: _containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
 
   const ariaLabel = useMemo(() => {
     if (!data.length) return "Energy burden vs electricity price: no data available.";
-    const top = [...data].sort((a, b) => b.energy_burden_pct - a.energy_burden_pct)[0];
+    const top = data.reduce((best, d) => d.energy_burden_pct > best.energy_burden_pct ? d : best, data[0]);
     return `Energy burden vs electricity price for ${data.length} US states. ${STATE_NAMES[top.state] ?? top.state} has the highest burden at ${top.energy_burden_pct.toFixed(2)}% of household income.`;
   }, [data]);
 
@@ -65,10 +65,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
       .domain([0, d3.max(data, (d) => d.avg_customers ?? 0) ?? 1])
       .range([5, 22]);
 
-    g.selectAll(".grid-h").data(y.ticks(5)).enter()
-      .append("line").attr("x1", 0).attr("x2", width)
-      .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    drawHorizontalGridLines(g, y, width);
 
     g.selectAll(".grid-v").data(x.ticks(5)).enter()
       .append("line").attr("x1", (d) => x(d)).attr("x2", (d) => x(d))
@@ -177,7 +174,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
             </p>
           </div>
         ) : (
-          <p className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
+          <p aria-hidden="true" className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
             Hover over a state to see its full affordability profile
           </p>
         )}

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { TargetRow } from "@/lib/data";
-import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, drawHorizontalGridLines } from "@/lib/ui-utils";
 
 interface Props {
   data: TargetRow[];
@@ -50,22 +50,21 @@ export default function CapacityChart({ data }: Props) {
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const sorted = [...data].sort((a, b) => b.capacity_target_gw - a.capacity_target_gw);
+
     const x = d3.scaleBand()
-      .domain(data.map((d) => d.country_code))
+      .domain(sorted.map((d) => d.country_code))
       .range([0, width])
       .padding(0.3);
 
     const y = d3.scaleLinear()
-      .domain([0, d3.max(data, (d) => d.capacity_target_gw) ?? 1])
+      .domain([0, d3.max(sorted, (d) => d.capacity_target_gw) ?? 1])
       .nice().range([height, 0]);
 
-    g.selectAll(".grid-h").data(y.ticks(5)).enter()
-      .append("line").attr("x1", 0).attr("x2", width)
-      .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    drawHorizontalGridLines(g, y, width);
 
     const barsSel = g.selectAll<SVGRectElement, TargetRow>(".bar")
-      .data(data)
+      .data(sorted)
       .enter()
       .append("rect")
       .attr("class", "bar")
@@ -81,7 +80,7 @@ export default function CapacityChart({ data }: Props) {
       .on("mouseover", function (event, d) {
         barsSel.attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", "#14532d").attr("stroke-width", 1.5);
-        const rank = data.findIndex((r) => r.country_code === d.country_code) + 1;
+        const rank = sorted.findIndex((r) => r.country_code === d.country_code) + 1;
         setPinned({ countryName: d.country_name, countryCode: d.country_code, gw: d.capacity_target_gw, sharePct: d.share_target_pct, rank });
         const [cx, cy] = d3.pointer(event, containerRef.current);
         setPinnedPos({ x: cx, y: cy });
@@ -102,7 +101,7 @@ export default function CapacityChart({ data }: Props) {
       .attr("height", (d) => height - y(d.capacity_target_gw));
 
     g.selectAll(".val-label")
-      .data(data)
+      .data(sorted)
       .enter()
       .append("text")
       .attr("class", "val-label")

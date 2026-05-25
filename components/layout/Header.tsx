@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between gap-4 py-3">
-        <Link href="/" className="font-bold text-base tracking-tight whitespace-nowrap">
+        <Link href="/" className="font-bold text-base tracking-tight whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-slate-500 rounded">
           <span className="text-amber-600">DS3</span>{" "}
           <span className="text-slate-900">Energy Dashboard</span>
         </Link>
@@ -34,7 +34,7 @@ export default function Header() {
                 key={href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
+                className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                   active
                     ? "border-amber-400/50 bg-amber-50 text-amber-700"
                     : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-200"

@@ -7,6 +7,7 @@ import MethodologySection from "@/components/ui/MethodologySection";
 import { fetchOilForecast, fetchNetTrade, fetchOilExports } from "@/lib/data";
 import type { OilRow } from "@/lib/data";
 import type { PresetItem } from "@/components/ui/RegionPicker";
+import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
@@ -15,26 +16,7 @@ const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastCh
 type Dataset = "imports" | "net_trade" | "exports";
 
 const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
-  imports: [
-    {
-      label: "Top 5 Importers",
-      description: "The five largest end-consumer oil importers",
-      detail: "China, India, USA, Japan, and South Korea are the five largest oil importers by domestic consumption. Singapore and the Netherlands import more by volume but are re-export hubs — their figures don't reflect domestic demand.",
-      regions: ["China", "India", "USA", "Japan", "Korea"],
-    },
-    {
-      label: "Asia Pacific",
-      description: "Major oil importers in the Asia-Pacific region",
-      detail: "China, India, Japan, South Korea, and Singapore account for the majority of Asia-Pacific oil import demand. This region is where EV adoption growth is most consequential for global oil markets.",
-      regions: ["China", "India", "Japan", "Korea", "Singapore"],
-    },
-    {
-      label: "All Countries",
-      description: "All 10 countries in the imports dataset",
-      detail: "All 10 major oil importing nations tracked in the IEA dataset.",
-      regions: null,
-    },
-  ],
+  imports: OIL_IMPORT_PRESETS,
   net_trade: [
     {
       label: "Top 5 Net Importers",
@@ -101,7 +83,7 @@ const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
   ],
 };
 
-const DATASETS: { id: Dataset; label: string; description: string; chartLabel: string }[] = [
+const DATASETS: { id: Dataset; label: string; description: string; chartLabel: "Oil Imports (KBD)" | "Net Trade (KBD)" | "Oil Exports (KBD)" }[] = [
   { id: "imports", label: "Imports", description: "Total oil import volumes (KBD)", chartLabel: "Oil Imports (KBD)" },
   { id: "net_trade", label: "Net Trade", description: "Imports minus exports — negative = net exporter (KBD)", chartLabel: "Net Trade (KBD)" },
   { id: "exports", label: "Exports", description: "Total oil export volumes (KBD)", chartLabel: "Oil Exports (KBD)" },
@@ -117,19 +99,23 @@ export default function OilExplorerPage() {
   });
 
   useEffect(() => {
-    fetchOilForecast().then(setImports).catch((err) => { console.error(err); setErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
-    fetchNetTrade().then(setNetTrade).catch((err) => { console.error(err); setErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
-    fetchOilExports().then(setExportsData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
+    fetchOilForecast().then(setImports).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
+    fetchNetTrade().then(setNetTrade).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
+    fetchOilExports().then(setExportsData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
   }, []);
 
   const active = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
-  const activeMeta = DATASETS.find((d) => d.id === dataset)!;
+  const activeMeta = DATASETS.find((d) => d.id === dataset) ?? DATASETS[0];
   const activeError = errors[dataset];
 
   const sharedStatYear = useMemo(() => {
-    const boundary = imports.find((d) => d.Type === "Forecast")?.Year;
+    const boundary = (
+      imports.find((d) => d.Type === "Forecast") ??
+      netTrade.find((d) => d.Type === "Forecast") ??
+      exportsData.find((d) => d.Type === "Forecast")
+    )?.Year;
     return boundary !== undefined ? boundary - 1 : undefined;
-  }, [imports]);
+  }, [imports, netTrade, exportsData]);
 
   return (
     <>
@@ -155,7 +141,7 @@ export default function OilExplorerPage() {
                 key={d.id}
                 onClick={() => setDataset(d.id)}
                 aria-pressed={dataset === d.id}
-                className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+                className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                   dataset === d.id
                     ? "bg-slate-900 text-white border-slate-900"
                     : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
@@ -170,7 +156,7 @@ export default function OilExplorerPage() {
 
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
           {active.length > 0 ? (
-            <OilForecastChart data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} />
+            <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} />
           ) : activeError ? (
             <ErrorMessage message={activeError} />
           ) : (

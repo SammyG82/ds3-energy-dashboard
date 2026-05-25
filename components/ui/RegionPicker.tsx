@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { TOP_5_MARKETS } from "@/lib/ev-presets";
 
 const EUROPE = [
   "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
@@ -22,7 +23,7 @@ const PRESETS: PresetItem[] = [
     label: "Top 5 Markets",
     description: "The five largest EV markets by total sales volume",
     detail: "China, USA, Germany, France, and the United Kingdom were the five largest EV markets in 2023 by total vehicles sold. China alone accounts for over half of all global EV sales.",
-    regions: ["China", "USA", "Germany", "France", "United Kingdom"],
+    regions: TOP_5_MARKETS,
   },
   {
     label: "EV Pioneers",
@@ -61,7 +62,7 @@ interface Props {
 }
 
 export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS }: Props) {
-  const dn = (r: string) => displayNames[r] ?? r;
+  const dn = useCallback((r: string) => displayNames[r] ?? r, [displayNames]);
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [query, setQuery] = useState("");
@@ -121,7 +122,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                 onSelectGroup(regions);
                 setShowCustom(false);
               }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
                   : "bg-white text-slate-600 border-slate-200 hover:border-teal-400 hover:text-teal-700"
@@ -138,7 +139,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           onClick={() => setShowCustom((v) => !v)}
           aria-label="Select custom regions"
           aria-expanded={showCustom}
-          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
               : "bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600"
@@ -153,7 +154,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           title="Why these presets?"
           aria-label="Why these presets?"
           aria-expanded={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
@@ -184,7 +185,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             onKeyDown={(e) => { if (e.key === "Escape") { setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search regions"
-            className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-300"
+            className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
           />
 
           <div
@@ -197,13 +198,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className="flex items-center gap-2.5 px-3 py-1.5 cursor-pointer hover:bg-slate-50 select-none"
+                  className="flex items-center gap-2.5 px-3 py-1.5 min-h-[44px] cursor-pointer hover:bg-slate-50 select-none"
                 >
                   <input
                     type="checkbox"
                     checked={selectedSet.has(region)}
                     onChange={() => onToggle(region)}
-                    className="accent-teal-600 w-3.5 h-3.5 shrink-0"
+                    className="accent-teal-600 w-3.5 h-3.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-500"
                   />
                   <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
                   <span

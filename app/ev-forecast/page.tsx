@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -8,19 +8,21 @@ import { fetchEvData, fmtEvSales, dn, AGGREGATES } from "@/lib/data";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
+import { useDataFetch } from "@/lib/ui-utils";
+import { TOP_5_MARKETS } from "@/lib/ev-presets";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
 
 export default function EvForecastPage() {
-  const [data, setData] = useState<EvRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error } = useDataFetch<EvRow[]>(fetchEvData, []);
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
-  const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
-
-  useEffect(() => { fetchEvData().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
+  const [selectedRegions, setSelectedRegions] = useState<string[]>(TOP_5_MARKETS);
 
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
-  const forecastBoundary = useMemo(() => data.find((d) => d.type === "Forecast")?.year ?? 2025, [data]);
+  const forecastBoundary = useMemo(() => {
+    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return years.length > 0 ? Math.min(...years) : 2025;
+  }, [data]);
 
   const effectiveYear = useMemo(() => {
     if (hoveredYear !== null) return hoveredYear;

@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
-import { tooltipStyle, useContainerSize, STATE_NAMES } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, STATE_NAMES, thresholdRating } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
+  natAvgSaidi?: number;
 }
 
 interface Pinned {
@@ -15,13 +16,9 @@ interface Pinned {
   saifi: number;
 }
 
-function rating(saidi: number) {
-  if (saidi < 100) return { label: "Good", color: "#16a34a", bg: "bg-green-100", text: "text-green-700" };
-  if (saidi < 200) return { label: "Fair", color: "#d97706", bg: "bg-amber-100", text: "text-amber-700" };
-  return { label: "Poor", color: "#dc2626", bg: "bg-red-100", text: "text-red-700" };
-}
+const rating = (saidi: number) => thresholdRating(saidi, [100, 200], ["Good", "Fair", "Poor"]);
 
-export default function ReliabilityChart({ data }: Props) {
+export default function ReliabilityChart({ data, natAvgSaidi: natAvgSaidiProp }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -35,10 +32,11 @@ export default function ReliabilityChart({ data }: Props) {
   );
 
   const natAvgSaidi = useMemo(() => {
+    if (natAvgSaidiProp !== undefined) return Math.round(natAvgSaidiProp);
     if (!data.length) return 0;
     const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
     return Math.round(data.reduce((s, d) => s + d.saidi * (d.avg_customers ?? 1), 0) / totalCustomers);
-  }, [data]);
+  }, [data, natAvgSaidiProp]);
 
   const ariaLabel = useMemo(() => {
     if (!sorted.length) return "Power reliability by US state: no data available.";
@@ -160,7 +158,7 @@ export default function ReliabilityChart({ data }: Props) {
           title="Why these thresholds?"
           aria-label="Why these thresholds?"
           aria-expanded={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
@@ -212,7 +210,7 @@ export default function ReliabilityChart({ data }: Props) {
       </div>
 
       <p className="text-xs text-slate-400 font-mono">
-        SAIDI = how long the average customer loses power per year &nbsp;·&nbsp; National average: {natAvgSaidi} min/year{data.length > sorted.length ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
+        SAIDI = how long the average customer loses power per year &nbsp;·&nbsp; National average: {natAvgSaidi} min/year{data.length > 40 ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>
   );

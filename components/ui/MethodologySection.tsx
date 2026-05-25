@@ -40,7 +40,7 @@ export default function MethodologySection({ items, cols = 3 }: Props) {
                     title="Plain-English explanation"
                     aria-label="Plain-English explanation"
                     aria-expanded={isOpen}
-                    className={`w-5 h-5 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+                    className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                       isOpen
                         ? "bg-teal-600 text-white border-teal-600"
                         : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"

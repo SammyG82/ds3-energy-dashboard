@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
-import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
+import ForecastBadge from "@/components/ui/ForecastBadge";
+import { TOP_5_MARKETS } from "@/lib/ev-presets";
 
 interface Props {
   data: EvRow[];
@@ -27,14 +29,13 @@ const REGION_COLORS = [
   "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
 ];
 
-const DEFAULT_FORECAST_BOUNDARY = 2025;
-const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
-
 export default function EvForecastChart({ data, preview = false, onYearChange, onSelectionChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const onYearChangeRef = useRef(onYearChange);
   useEffect(() => { onYearChangeRef.current = onYearChange; }, [onYearChange]);
+  const onSelectionChangeRef = useRef(onSelectionChange);
+  useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<PinnedState | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<PinnedState | null>(null);
@@ -61,16 +62,17 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
     return top5.length > 0 ? top5 : allRegions.slice(0, 5);
   }, [allRegions, preview]);
 
-  const forecastBoundary = useMemo(
-    () => data.find((d) => d.type === "Forecast")?.year ?? DEFAULT_FORECAST_BOUNDARY,
-    [data]
-  );
+  const forecastBoundary = useMemo(() => {
+    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return years.length > 0 ? Math.min(...years) : Infinity;
+  }, [data]);
 
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return "EV sales forecast: no regions selected.";
-    const histYear = forecastBoundary - 1;
+    const histYear = isFinite(forecastBoundary) ? forecastBoundary - 1 : null;
+    if (histYear === null) return `EV sales forecast for ${selected.map(dn).join(", ")}. Data from 2010, projected to 2035.`;
     const leaderEntry = selected
       .map((r) => {
         const row = data.find((d) => d.region_country === r && d.year === histYear);
@@ -83,8 +85,18 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
     return `EV sales forecast for ${regionNames}: ${dn(leaderEntry.region)} leads with ${fmtEvSales(leaderEntry.value)} vehicles in ${histYear}. Projected through 2035.`;
   }, [data, selected, forecastBoundary]);
 
-  useEffect(() => { setSelected(defaultRegions); }, [defaultRegions]);
-  useEffect(() => { onSelectionChange?.(selected); }, [selected, onSelectionChange]);
+  const regionData = useMemo(
+    () => selected.map((r) => ({
+      region: r,
+      values: data.filter((d) => d.region_country === r).sort((a, b) => a.year - b.year),
+    })),
+    [data, selected]
+  );
+
+  useEffect(() => {
+    setSelected(defaultRegions);
+    onSelectionChangeRef.current?.(defaultRegions);
+  }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected, containerWidth]);
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, containerWidth]);
 
@@ -103,11 +115,6 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const regionData = selected.map((r) => ({
-      region: r,
-      values: data.filter((d) => d.region_country === r).sort((a, b) => a.year - b.year),
-    }));
-
     const x = d3.scaleLinear()
       .domain(d3.extent(data, (d) => d.year) as [number, number])
       .range([0, width]);
@@ -117,23 +124,20 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
       .nice()
       .range([height, 0]);
 
-    g.selectAll(".grid-h")
-      .data(y.ticks(5))
-      .enter().append("line")
-      .attr("x1", 0).attr("x2", width)
-      .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    drawHorizontalGridLines(g, y, width);
 
-    g.append("line")
-      .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
+    if (isFinite(forecastBoundary)) {
+      g.append("line")
+        .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
+        .attr("y1", 0).attr("y2", height)
+        .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
 
-    g.append("text")
-      .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-      .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
-      .attr("fill", "#94a3b8")
-      .text("Forecast →");
+      g.append("text")
+        .attr("x", x(forecastBoundary) + 4).attr("y", 12)
+        .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
+        .attr("fill", "#94a3b8")
+        .text("Forecast →");
+    }
 
     const line = d3.line<EvRow>()
       .x((d) => x(d.year))
@@ -203,7 +207,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           onYearChangeRef.current?.(null);
         }
       });
-  }, [data, selected, preview, colorMap, forecastBoundary, containerWidth]);
+  }, [regionData, data, preview, colorMap, forecastBoundary, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -214,13 +218,17 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
             options={allRegions}
             selected={selected}
             onToggle={(r) =>
-              setSelected((prev) =>
-                prev.includes(r)
-                  ? prev.length > 1 ? prev.filter((x) => x !== r) : prev
-                  : [...prev, r]
-              )
+              setSelected((prev) => {
+                const next = toggleSelection(prev, r);
+                onSelectionChangeRef.current?.(next);
+                return next;
+              })
             }
-            onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allRegions.slice(0, 1))}
+            onSelectGroup={(regions) => {
+              const next = regions.length > 0 ? regions : allRegions.slice(0, 1);
+              setSelected(next);
+              onSelectionChangeRef.current?.(next);
+            }}
             colorMap={colorMap}
             displayNames={EV_DISPLAY_NAMES}
           />
@@ -236,9 +244,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           >
             <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">
               <p className="text-xs font-mono font-bold text-slate-500">{previewTooltip.year}</p>
-              <span className={`text-xs px-1.5 py-0.5 rounded font-mono ${previewTooltip.year >= forecastBoundary ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                {previewTooltip.year >= forecastBoundary ? "Projected forecast" : "Historical data"}
-              </span>
+              <ForecastBadge isForecast={previewTooltip.year >= forecastBoundary} />
             </div>
             {previewTooltip.entries.map(({ region, value, color }) => (
               <div key={region} className="flex items-center gap-2">
@@ -257,11 +263,9 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
             <>
               <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
-                <span className={`text-xs px-2 py-0.5 rounded font-mono ${pinned.year >= forecastBoundary ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                  {pinned.year >= forecastBoundary ? "Projected forecast" : "Historical data"}
-                </span>
+                <ForecastBadge isForecast={pinned.year >= forecastBoundary} />
               </div>
-              <div className="overflow-y-auto" style={{ maxHeight: 220 }}>
+              <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
                 {pinned.entries.map(({ region, value, color }) => (
                   <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />

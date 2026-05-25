@@ -82,7 +82,7 @@ const methodology = [
   },
   {
     label: "EV Adoption Projection",
-    body: "IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024. Historical rows use the 'Historical' category; projections use 'Projection-STEPS'. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.",
+    body: "IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024. Historical rows use the 'Actual' type; projections use 'Projection-STEPS'. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.",
   },
   {
     label: "GDP Impact Estimate",
@@ -151,7 +151,7 @@ export default function DatasetsPage() {
 
         {/* Attribution */}
         <section className="bg-amber-50 border border-amber-200 rounded-xl p-6">
-          <h3 className="font-bold text-amber-800 mb-2">Data Attribution</h3>
+          <h2 className="font-bold text-amber-800 mb-2">Data Attribution</h2>
           <p className="text-sm text-amber-700 leading-relaxed">
             Oil and EV data is sourced from the{" "}
             <strong>International Energy Agency (IEA)</strong>. All IEA data is subject to their{" "}

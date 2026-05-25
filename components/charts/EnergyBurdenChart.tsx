@@ -3,10 +3,11 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EnergyAccessRow } from "@/lib/data";
-import { tooltipStyle, useContainerSize, STATE_NAMES } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, STATE_NAMES, thresholdRating } from "@/lib/ui-utils";
 
 interface Props {
   data: EnergyAccessRow[];
+  natAvgBurden?: number;
 }
 
 interface Pinned {
@@ -16,13 +17,9 @@ interface Pinned {
   annualBill: number | null;
 }
 
-function burdenRating(b: number) {
-  if (b < 2.0) return { label: "Low burden", color: "#16a34a", bg: "bg-green-100", text: "text-green-700" };
-  if (b < 2.5) return { label: "Moderate burden", color: "#d97706", bg: "bg-amber-100", text: "text-amber-700" };
-  return { label: "High burden", color: "#dc2626", bg: "bg-red-100", text: "text-red-700" };
-}
+const burdenRating = (b: number) => thresholdRating(b, [2.0, 2.5], ["Low burden", "Moderate burden", "High burden"]);
 
-export default function EnergyBurdenChart({ data }: Props) {
+export default function EnergyBurdenChart({ data, natAvgBurden: natAvgBurdenProp }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -36,10 +33,11 @@ export default function EnergyBurdenChart({ data }: Props) {
   );
 
   const natAvgBurden = useMemo(() => {
+    if (natAvgBurdenProp !== undefined) return +(natAvgBurdenProp.toFixed(2));
     if (!data.length) return 0;
     const totalCustomers = data.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
     return +(data.reduce((s, d) => s + d.energy_burden_pct * (d.avg_customers ?? 1), 0) / totalCustomers).toFixed(2);
-  }, [data]);
+  }, [data, natAvgBurdenProp]);
 
   const ariaLabel = useMemo(() => {
     if (!sorted.length) return "Energy burden by US state: no data available.";
@@ -161,7 +159,7 @@ export default function EnergyBurdenChart({ data }: Props) {
           title="Why these thresholds?"
           aria-label="Why these thresholds?"
           aria-expanded={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-teal-300 ${
+          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
@@ -219,7 +217,7 @@ export default function EnergyBurdenChart({ data }: Props) {
       </div>
 
       <p className="text-xs text-slate-400 font-mono">
-        Energy burden = electricity costs as a share of household income &nbsp;·&nbsp; National average: {natAvgBurden}%{data.length > sorted.length ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
+        Energy burden = electricity costs as a share of household income &nbsp;·&nbsp; National average: {natAvgBurden}%{data.length > 40 ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>
   );

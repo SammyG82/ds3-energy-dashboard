@@ -4,7 +4,9 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines } from "@/lib/ui-utils";
+import ForecastBadge from "@/components/ui/ForecastBadge";
+import StatCard from "@/components/ui/StatCard";
 
 interface Props {
   data: EvRow[];
@@ -16,8 +18,6 @@ interface Pinned {
   yoy: number | null;
   isForecast: boolean;
 }
-
-const DEFAULT_FORECAST_BOUNDARY = 2025;
 
 export default function EvTrendChart({ data }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -44,7 +44,7 @@ export default function EvTrendChart({ data }: Props) {
   );
 
   const forecastBoundary = useMemo(
-    () => countryData.find((d) => d.type === "Forecast")?.year ?? DEFAULT_FORECAST_BOUNDARY,
+    () => countryData.find((d) => d.type === "Forecast")?.year ?? Infinity,
     [countryData]
   );
 
@@ -75,12 +75,7 @@ export default function EvTrendChart({ data }: Props) {
       .nice()
       .range([height, 0]);
 
-    g.selectAll(".grid-h")
-      .data(y.ticks(5))
-      .enter().append("line")
-      .attr("x1", 0).attr("x2", width)
-      .attr("y1", (d) => y(d)).attr("y2", (d) => y(d))
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    drawHorizontalGridLines(g, y, width);
 
     if (forecast.length > 0) {
       g.append("line")
@@ -133,6 +128,8 @@ export default function EvTrendChart({ data }: Props) {
       .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
+    const byYear = new Map(countryData.map((d) => [d.year, d]));
+
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
@@ -141,8 +138,8 @@ export default function EvTrendChart({ data }: Props) {
         const [xMin, xMax] = x.domain();
         const year = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
         crosshair.style("visibility", "visible").attr("x1", x(year)).attr("x2", x(year));
-        const currentRow = countryData.find((d) => d.year === year);
-        const prevRow = countryData.find((d) => d.year === year - 1);
+        const currentRow = byYear.get(year);
+        const prevRow = byYear.get(year - 1);
         const sales = currentRow?.ev_sales ?? 0;
         const yoy = currentRow && prevRow && prevRow.ev_sales > 0
           ? ((sales - prevRow.ev_sales) / prevRow.ev_sales) * 100
@@ -165,7 +162,8 @@ export default function EvTrendChart({ data }: Props) {
     const cagr = first && latest && latest.year > first.year
       ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
       : null;
-    const forecast2030 = countryData.find((d) => d.year === 2030);
+    const candidates2030 = countryData.filter((d) => d.year === 2030);
+    const forecast2030 = candidates2030.find((d) => d.type === "Forecast") ?? candidates2030[0] ?? null;
     return { peak, latest, cagr, forecast2030 };
   }, [historicalRows, countryData]);
 
@@ -186,7 +184,7 @@ export default function EvTrendChart({ data }: Props) {
           id="trend-country-select"
           value={country}
           onChange={(e) => setCountry(e.target.value)}
-          className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-300"
+          className="text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-500"
         >
           {countries.map((c) => (
             <option key={c} value={c}>{dn(c)}</option>
@@ -195,27 +193,10 @@ export default function EvTrendChart({ data }: Props) {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">{latest?.year ?? "—"} Sales</p>
-          <p className="text-lg font-bold text-teal-600">
-            {latest ? fmtEvSales(latest.ev_sales) : "—"}
-          </p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Peak Year</p>
-          <p className="text-lg font-bold text-blue-600">{peak ? peak.year : "—"}</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Annual Growth Rate</p>
-          <p className="text-lg font-bold text-amber-600">{cagr ? `${cagr}%` : "—"}</p>
-          <p className="text-xs text-slate-400">since first sale</p>
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-3">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">2030 Forecast</p>
-          <p className="text-lg font-bold text-teal-600">
-            {forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"}
-          </p>
-        </div>
+        <StatCard size="xl" label={`${latest?.year ?? "—"} Sales`} value={latest ? fmtEvSales(latest.ev_sales) : "—"} accent="teal" />
+        <StatCard size="xl" label="Peak Year" value={peak ? String(peak.year) : "—"} accent="blue" />
+        <StatCard size="xl" label="Annual Growth Rate" value={cagr ? `${cagr}%` : "—"} sub="since first sale" accent="amber" />
+        <StatCard size="xl" label="2030 Forecast" value={forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"} accent="teal" />
       </div>
 
       <div ref={containerRef} className="w-full">
@@ -227,9 +208,7 @@ export default function EvTrendChart({ data }: Props) {
           <div className="px-4 py-3 flex flex-col gap-1">
             <div className="flex items-center justify-between">
               <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
-              <span className={`text-xs px-2 py-0.5 rounded font-mono ${pinned.isForecast ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
-                {pinned.isForecast ? "Projected forecast" : "Historical data"}
-              </span>
+              <ForecastBadge isForecast={pinned.isForecast} />
             </div>
             <p className="text-xl font-bold text-teal-600 mt-1">
               {fmtEvSales(pinned.sales)} <span className="text-sm font-normal text-slate-500">electric vehicles sold</span>

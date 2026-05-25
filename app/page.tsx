@@ -47,9 +47,9 @@ export default function LandingPage() {
   });
 
   useEffect(() => {
-    fetchEvSales().then(setEvSales).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
-    fetchEvData().then(setEvData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
-    fetchOilForecast().then(setOilData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
+    fetchEvSales().then(setEvSales).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
+    fetchEvData().then(setEvData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
+    fetchOilForecast().then(setOilData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
   }, []);
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -9,15 +9,13 @@ import { fetchEnergyAccess } from "@/lib/data";
 import type { EnergyAccessRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
+import { useDataFetch } from "@/lib/ui-utils";
 
 const ReliabilityChart = dynamic(() => import("@/components/charts/ReliabilityChart"), { ssr: false });
 const EnergyBurdenChart = dynamic(() => import("@/components/charts/EnergyBurdenChart"), { ssr: false });
 
 export default function EnergyAccessPage() {
-  const [data, setData] = useState<EnergyAccessRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => { fetchEnergyAccess().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
+  const { data, error } = useDataFetch<EnergyAccessRow[]>(fetchEnergyAccess, []);
 
   const totalCustomers = useMemo(
     () => data.reduce((s, d) => s + (d.avg_customers ?? 1), 0),
@@ -59,7 +57,7 @@ export default function EnergyAccessPage() {
           <h2 className="text-lg font-bold text-slate-900 mb-1">Grid Reliability (SAIDI)</h2>
           <p className="text-sm text-slate-500 mb-4">Minutes of outage per customer per year</p>
           {data.length > 0 ? (
-            <ReliabilityChart data={data} />
+            <ReliabilityChart data={data} natAvgSaidi={avgSaidi} />
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (
@@ -71,7 +69,7 @@ export default function EnergyAccessPage() {
           <h2 className="text-lg font-bold text-slate-900 mb-1">Energy Burden by State</h2>
           <p className="text-sm text-slate-500 mb-4">Annual electricity bill as % of household income</p>
           {data.length > 0 ? (
-            <EnergyBurdenChart data={data} />
+            <EnergyBurdenChart data={data} natAvgBurden={avgBurden} />
           ) : error ? (
             <ErrorMessage message={error} />
           ) : (

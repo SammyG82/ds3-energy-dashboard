@@ -13,13 +13,13 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub repository (opens in new tab)"
-            className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors"
+            className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 rounded"
           >
             GitHub
           </a>
           <Link
             href="/datasets/"
-            className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors"
+            className="text-xs text-slate-400 hover:text-slate-700 font-mono uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 rounded"
           >
             Datasets
           </Link>

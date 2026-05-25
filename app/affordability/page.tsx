@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -9,15 +9,12 @@ import { fetchEnergyAccess } from "@/lib/data";
 import type { EnergyAccessRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
-import { STATE_NAMES } from "@/lib/ui-utils";
+import { STATE_NAMES, useDataFetch } from "@/lib/ui-utils";
 
 const BurdenVsPriceChart = dynamic(() => import("@/components/charts/BurdenVsPriceChart"), { ssr: false });
 
 export default function AffordabilityPage() {
-  const [data, setData] = useState<EnergyAccessRow[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => { fetchEnergyAccess().then(setData).catch((err) => { console.error(err); setError("Failed to load data."); }); }, []);
+  const { data, error } = useDataFetch<EnergyAccessRow[]>(fetchEnergyAccess, []);
 
   const filtered = useMemo(
     () => data.filter((d) => d.energy_burden_pct > 0 && d.avg_price_cents_kwh > 0),
@@ -30,9 +27,11 @@ export default function AffordabilityPage() {
   );
 
   const avgAnnualBill = useMemo(() => {
-    if (!filtered.length) return null;
-    return filtered.reduce((s, d) => s + (d.est_annual_bill ?? 0) * (d.avg_customers ?? 1), 0) / totalCustomers;
-  }, [filtered, totalCustomers]);
+    const withBill = filtered.filter((d): d is EnergyAccessRow & { est_annual_bill: number } => d.est_annual_bill !== null);
+    if (!withBill.length) return null;
+    const billCustomers = withBill.reduce((s, d) => s + (d.avg_customers ?? 1), 0);
+    return withBill.reduce((s, d) => s + d.est_annual_bill * (d.avg_customers ?? 1), 0) / billCustomers;
+  }, [filtered]);
 
   const avgBurden = useMemo(() => {
     if (!filtered.length) return null;
@@ -64,7 +63,7 @@ export default function AffordabilityPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <StatCard label="Avg Annual Bill" value={avgAnnualBill !== null ? `$${Math.round(avgAnnualBill).toLocaleString()}` : "—"} accent="amber" />
-          <StatCard label="States Above Avg Burden" value={aboveAvgBurdenCount > 0 ? `${aboveAvgBurdenCount} of ${filtered.length}` : "—"} accent="teal" />
+          <StatCard label="States Above Avg Burden" value={avgBurden !== null ? `${aboveAvgBurdenCount} of ${filtered.length}` : "—"} accent="teal" />
           <StatCard label="Highest Burden State" value={highestBurdenState ? `${STATE_NAMES[highestBurdenState.state] ?? highestBurdenState.state} (${highestBurdenState.energy_burden_pct.toFixed(1)}%)` : "—"} accent="blue" />
         </div>
         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">

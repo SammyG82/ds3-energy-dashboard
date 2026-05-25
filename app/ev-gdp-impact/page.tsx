@@ -20,9 +20,9 @@ export default function EvGdpImpactPage() {
   });
 
   useEffect(() => {
-    fetchEvData().then(setEvData).catch((err) => { console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
-    fetchGdpMeta().then(setGdpMeta).catch((err) => { console.error(err); setErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
-    fetchOilPrices().then(setOilPrices).catch((err) => { console.error(err); setErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
+    fetchEvData().then(setEvData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
+    fetchGdpMeta().then(setGdpMeta).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
+    fetchOilPrices().then(setOilPrices).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
   }, []);
 
   const ready = evData.length > 0 && gdpMeta.length > 0;
@@ -42,7 +42,14 @@ export default function EvGdpImpactPage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
         {ready ? (
-          <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} />
+          <>
+            {errors.oilPrices && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+                <ErrorMessage message={errors.oilPrices} />
+              </div>
+            )}
+            <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} />
+          </>
         ) : anyError ? (
           <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-2">
             {errors.evData && <ErrorMessage message={errors.evData} />}
@@ -66,7 +73,7 @@ export default function EvGdpImpactPage() {
           },
           {
             label: "Cost Savings & GDP %",
-            body: "Displaced barrels are multiplied by a country-specific cost per barrel (a Brent/WTI-calibrated estimate from FRED price data) to get the savings in billion USD. That figure is then divided by the country's 2023 nominal GDP (World Bank) to produce the percentage shown.",
+            body: "Displaced barrels are multiplied by the selected Brent or WTI crude oil price (sourced from FRED for historical years, or the custom slider beyond 2024) to get the savings in billion USD. That figure is then divided by the country's 2023 nominal GDP (World Bank) to produce the percentage shown.",
           },
           {
             label: "Adoption Rate Slider",

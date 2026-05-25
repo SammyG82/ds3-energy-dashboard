@@ -4,7 +4,7 @@ const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "
 
 // d3.csv returns "" for empty cells (not null/undefined), so both checks are required
 function parseCI(value: string | undefined): number | null {
-  if (value == null || value === "") return null;
+  if (value === undefined || value === "" || value.trim() === "") return null;
   const n = +value;
   return Number.isFinite(n) ? n : null;
 }
@@ -56,6 +56,7 @@ export const EV_DISPLAY_NAMES: Record<string, string> = {
 
 export const dn = (r: string): string => EV_DISPLAY_NAMES[r] ?? r;
 
+// Raw region keys only — do not call AGGREGATES.has(dn(r))
 export const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
 
 export const COUNTRY_COLORS: Record<string, string> = {
@@ -95,25 +96,29 @@ export function fmtEvSales(v: number): string {
 
 export async function fetchEvSales(): Promise<EvRow[]> {
   const raw = await d3.csv(`${BASE}/data/ev_sales.csv`);
-  return raw.map(normalizeEvRow);
+  return raw.map(normalizeEvRow).filter((r) => r.region_country !== "" && r.year > 0);
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
-  const raw = await d3.json<EvRow[]>(`${BASE}/data/ev_data.json`);
+  const raw = await d3.json<unknown[]>(`${BASE}/data/ev_data.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
-  return raw.map(normalizeEvRow);
+  return (raw as Parameters<typeof normalizeEvRow>[0][])
+    .map(normalizeEvRow)
+    .filter((r) => r.region_country !== "" && r.year > 0);
 }
 
 export async function fetchOilForecast(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/oil_forecast.csv`);
-  return raw.map((d) => ({
-    Country: normalizeOilCountry(d.Country),
-    Year: +(d.Year ?? 0),
-    Type: d.Type ?? "",
-    value: +(d["Oil Imports (KBD)"] ?? 0),
-    ciLow: parseCI(d["CI Low (KBD)"]),
-    ciHigh: parseCI(d["CI High (KBD)"]),
-  }));
+  return raw
+    .map((d) => ({
+      Country: normalizeOilCountry(d.Country),
+      Year: +(d.Year ?? 0),
+      Type: d.Type ?? "",
+      value: +(d["Oil Imports (KBD)"] ?? 0),
+      ciLow: parseCI(d["CI Low (KBD)"]),
+      ciHigh: parseCI(d["CI High (KBD)"]),
+    }))
+    .filter((row) => row.Year > 1900 && row.Country !== "");
 }
 
 export interface EnergyAccessRow {
@@ -142,12 +147,12 @@ export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
     // data is downloaded and the pipeline re-run, change to 2025 and verify SAIDI is non-null.
     .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US" && d.state !== "DC")
     .map((d) => ({
-      state: d.state,
+      state: d.state ?? "",
       year: +d.year,
-      saidi: +(d.saidi ?? 0),
-      saifi: +(d.saifi ?? 0),
-      energy_burden_pct: +(d.energy_burden_pct ?? 0),
-      avg_price_cents_kwh: +(d.avg_price_cents_kwh ?? 0),
+      saidi: parseCI(d.saidi) ?? 0,
+      saifi: parseCI(d.saifi) ?? 0,
+      energy_burden_pct: parseCI(d.energy_burden_pct) ?? 0,
+      avg_price_cents_kwh: parseCI(d.avg_price_cents_kwh) ?? 0,
       est_annual_bill: parseCI(d.est_annual_bill),
       median_income_2024: parseCI(d.median_income_2024),
       avg_customers: parseCI(d.avg_customers),
@@ -184,24 +189,38 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
       ciLow: parseCI(d["Net_CI_Low"]),
       ciHigh: parseCI(d["Net_CI_High"]),
     }))
-    .filter((row) => !(row.value === 0 && row.Type === "Historical"));
+    .filter((row) => row.Country !== "" && row.Year > 1900 && !(row.value === 0 && row.Type === "Historical"));
 }
 
 export async function fetchOilExports(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/exports.csv`);
-  return raw.map((d) => ({
-    Country: normalizeOilCountry(d.Country),
-    Year: +(d.Year ?? 0),
-    Type: d.Type ?? "",
-    value: +(d["Value"] ?? 0),
-    ciLow: parseCI(d["Lower_CI"]),
-    ciHigh: parseCI(d["Upper_CI"]),
-  }));
+  return raw
+    .map((d) => ({
+      Country: normalizeOilCountry(d.Country),
+      Year: +(d.Year ?? 0),
+      Type: d.Type ?? "",
+      value: +(d["Value"] ?? 0),
+      ciLow: parseCI(d["Lower_CI"]),
+      ciHigh: parseCI(d["Upper_CI"]),
+    }))
+    .filter((row) => row.Year > 1900 && row.Country !== "");
 }
 
 export async function fetchGdpMeta(): Promise<GdpMeta[]> {
   const raw = await d3.json<GdpMeta[]>(`${BASE}/data/gdp_country_meta.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid GDP metadata");
+  if (raw.length > 0) {
+    const first = raw[0];
+    if (
+      typeof first.country !== "string" ||
+      typeof first.region !== "string" ||
+      typeof first.gdp !== "number" ||
+      typeof first.oilImports !== "number" ||
+      typeof first.costPerBarrel !== "number"
+    ) {
+      throw new Error("Invalid GDP metadata shape");
+    }
+  }
   return raw;
 }
 
@@ -216,5 +235,6 @@ export interface OilPriceRow {
 export async function fetchOilPrices(): Promise<OilPriceRow[]> {
   const raw = await d3.json<OilPriceRow[]>(`${BASE}/data/oil_prices.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid oil price data");
+  if (raw.length > 0 && typeof raw[0].year !== "number") throw new Error("Invalid oil price data shape");
   return raw;
 }
