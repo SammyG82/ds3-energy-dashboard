@@ -137,11 +137,12 @@ export default function EvTrendChart({ data }: Props) {
         const [mx] = d3.pointer(event);
         const [xMin, xMax] = x.domain();
         const year = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
-        crosshair.style("visibility", "visible").attr("x1", x(year)).attr("x2", x(year));
         const currentRow = byYear.get(year);
+        if (!currentRow) { crosshair.style("visibility", "hidden"); setPinned(null); return; }
+        crosshair.style("visibility", "visible").attr("x1", x(year)).attr("x2", x(year));
         const prevRow = byYear.get(year - 1);
-        const sales = currentRow?.ev_sales ?? 0;
-        const yoy = currentRow && prevRow && prevRow.ev_sales > 0
+        const sales = currentRow.ev_sales;
+        const yoy = prevRow && prevRow.ev_sales > 0
           ? ((sales - prevRow.ev_sales) / prevRow.ev_sales) * 100
           : null;
         setPinned({ year, sales, yoy, isForecast: year >= forecastBoundary });

@@ -189,6 +189,13 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           .filter((e) => e.value > 0)
           .sort((a, b) => b.value - a.value);
 
+        if (!entries.length) {
+          crosshair.style("visibility", "hidden");
+          if (preview) { setPreviewTooltip(null); setPreviewTooltipPos(null); }
+          else { setPinned(null); onYearChangeRef.current?.(null); }
+          return;
+        }
+
         if (preview) {
           const [cmx, cmy] = d3.pointer(event, containerRef.current);
           setPreviewTooltip({ year, entries });

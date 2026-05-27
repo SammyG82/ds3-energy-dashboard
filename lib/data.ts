@@ -87,10 +87,7 @@ export const COUNTRY_COLORS: Record<string, string> = {
 
 export function fmtEvSales(v: number): string {
   if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`;
-  if (v >= 1_000) {
-    const k = Math.round(v / 1_000);
-    return k >= 1_000 ? `${(k / 1_000).toFixed(1)}M` : `${k}k`;
-  }
+  if (v >= 1_000) return `${Math.round(v / 1_000)}k`;
   return `${Math.round(v)}`;
 }
 
@@ -145,7 +142,8 @@ export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
   return raw
     // Hardcoded to 2024: SAIDI is only available for that year. When 2025 EIA reliability
     // data is downloaded and the pipeline re-run, change to 2025 and verify SAIDI is non-null.
-    .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US" && d.state !== "DC")
+    .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US" && d.state !== "DC"
+      && d.saidi !== "" && d.energy_burden_pct !== "" && d.avg_price_cents_kwh !== "")
     .map((d) => ({
       state: d.state ?? "",
       year: +d.year,
