@@ -10,7 +10,7 @@ export default function Footer() {
     <footer className={`border-t transition-colors duration-300 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex flex-wrap justify-between items-center gap-4">
         <p className={`text-xs font-medium ${isDark ? "text-white/40" : "text-slate-400"}`}>
-          © {new Date().getFullYear()} DS3 Energy Dashboard · Data: IEA · EIA · Ember
+          © {new Date().getFullYear()} DS3 Energy Dashboard · Data: IEA
         </p>
         <nav className="flex gap-5" aria-label="Footer links">
           <a
