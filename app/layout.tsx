@@ -5,6 +5,7 @@ import "./globals.css";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { ThemeProvider } from "@/lib/theme-context";
+import PageInit from "@/components/ui/PageInit";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,7 +19,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: 'history.scrollRestoration = "manual"; document.documentElement.classList.add("page-loading");' }} />
+        <script dangerouslySetInnerHTML={{ __html: 'history.scrollRestoration="manual";document.documentElement.classList.add("page-loading");var s=document.createElement("style");s.textContent="html.page-loading header{opacity:0}";document.head.appendChild(s);' }} />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col bg-slate-50 text-slate-900 overscroll-none`}>
         <a
@@ -28,6 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <ThemeProvider>
+          <PageInit />
           <Header />
           <main id="main-content" className="flex-1 pt-[72px]">{children}</main>
           <Footer />

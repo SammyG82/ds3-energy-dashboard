@@ -59,9 +59,10 @@ interface Props {
   colorMap: Record<string, string>;
   displayNames?: Record<string, string>;
   presets?: PresetItem[];
+  isDark?: boolean;
 }
 
-export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS }: Props) {
+export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS, isDark = false }: Props) {
   const dn = useCallback((r: string) => displayNames[r] ?? r, [displayNames]);
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -125,7 +126,9 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
-                  : "bg-white text-slate-600 border-slate-200 hover:border-teal-400 hover:text-teal-700"
+                  : isDark
+                    ? "bg-slate-800 text-slate-300 border-white/10 hover:border-teal-400 hover:text-teal-400"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-teal-400 hover:text-teal-700"
               }`}
             >
               {preset.label}
@@ -142,7 +145,9 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
-              : "bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600"
+              : isDark
+                ? "bg-slate-800 text-slate-400 border-white/10 hover:border-slate-400 hover:text-slate-300"
+                : "bg-white text-slate-400 border-slate-200 hover:border-slate-400 hover:text-slate-600"
           }`}
         >
           Custom…
@@ -157,7 +162,9 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
-              : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
+              : isDark
+                ? "bg-slate-800 text-slate-400 border-white/10 hover:border-teal-400 hover:text-teal-400"
+                : "bg-white text-slate-400 border-slate-300 hover:border-teal-400 hover:text-teal-600"
           }`}
         >
           ?
@@ -165,12 +172,12 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col gap-3">
+        <div className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
           <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>
-              <p className="text-sm font-semibold text-slate-700 mb-0.5">{label}</p>
-              <p className="text-sm text-slate-500 leading-relaxed">{detail}</p>
+              <p className={`text-sm font-semibold mb-0.5 ${isDark ? "text-white" : "text-slate-700"}`}>{label}</p>
+              <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-slate-500"}`}>{detail}</p>
             </div>
           ))}
         </div>
@@ -185,11 +192,11 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             onKeyDown={(e) => { if (e.key === "Escape") { setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search regions"
-            className="w-full pl-3 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-500"
+            className={`w-full pl-3 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
           />
 
           <div
-            className="border border-slate-200 rounded-lg overflow-y-auto bg-white"
+            className={`border rounded-lg overflow-y-auto ${isDark ? "border-white/10 bg-slate-800" : "border-slate-200 bg-white"}`}
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
           >
             {filtered.length === 0 ? (
@@ -198,7 +205,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className="flex items-center gap-2.5 px-3 py-1.5 min-h-[44px] cursor-pointer hover:bg-slate-50 select-none"
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-[44px] cursor-pointer select-none ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
                 >
                   <input
                     type="checkbox"
@@ -206,7 +213,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                     onChange={() => onToggle(region)}
                     className="accent-teal-600 w-3.5 h-3.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-500"
                   />
-                  <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
+                  <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
                   <span
                     aria-hidden="true"
                     className="w-2.5 h-2.5 rounded-full shrink-0"

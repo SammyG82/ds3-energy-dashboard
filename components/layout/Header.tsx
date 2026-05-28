@@ -9,7 +9,6 @@ import { BASE } from "@/lib/data";
 
 const nav = [
   { label: "Dashboard",      href: "/" },
-  { label: "EV Share",       href: "/ev-share/" },
   { label: "EV Forecast",    href: "/ev-forecast/" },
   { label: "Oil Explorer",   href: "/oil-explorer/" },
   { label: "EV GDP Impact",  href: "/ev-gdp-impact/" },

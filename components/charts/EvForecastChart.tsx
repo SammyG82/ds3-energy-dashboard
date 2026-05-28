@@ -158,20 +158,18 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
     });
 
-    if (preview) {
-      const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
-      regionData.forEach(({ region, values }) => {
-        const color = colorMap[region];
-        tickYears.forEach((yr) => {
-          const row = values.find((d) => d.year === yr);
-          if (!row) return;
-          g.append("circle")
-            .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
-            .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
-            .style("pointer-events", "none");
-        });
+    const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
+    regionData.forEach(({ region, values }) => {
+      const color = colorMap[region];
+      tickYears.forEach((yr) => {
+        const row = values.find((d) => d.year === yr);
+        if (!row) return;
+        g.append("circle")
+          .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
+          .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+          .style("pointer-events", "none");
       });
-    }
+    });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
@@ -254,6 +252,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
             }}
             colorMap={colorMap}
             displayNames={EV_DISPLAY_NAMES}
+            isDark={isDark}
           />
         </div>
       )}
@@ -277,18 +276,18 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
-            className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
+            className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-800 border-white/10" : "bg-white border-slate-200"}`}
             style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150)}
           >
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">
-              <p className="text-xs font-mono font-bold text-slate-500">{previewTooltip.year}</p>
+            <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
+              <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
               <ForecastBadge isForecast={previewTooltip.year >= forecastBoundary} />
             </div>
             {previewTooltip.entries.map(({ region, value, color }) => (
               <div key={region} className="flex items-center gap-2">
                 <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-xs text-slate-700 flex-1">{dn(region)}</span>
-                <span className="text-xs font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
+                <span className={`text-xs flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
+                <span className={`text-xs font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{fmtEvSales(value)}</span>
               </div>
             ))}
           </div>
@@ -296,19 +295,19 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       </div>
 
       {!preview && (
-        <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+        <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-slate-800" : "border-slate-200 bg-white"}`}>
           {pinned ? (
             <>
-              <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
+              <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
                 <ForecastBadge isForecast={pinned.year >= forecastBoundary} />
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
                 {pinned.entries.map(({ region, value, color }) => (
-                  <div key={region} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
+                  <div key={region} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-sm text-slate-700 flex-1">{dn(region)}</span>
-                    <span className="text-sm font-mono font-semibold text-slate-900">{fmtEvSales(value)}</span>
+                    <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
+                    <span className={`text-sm font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{fmtEvSales(value)}</span>
                   </div>
                 ))}
               </div>

@@ -154,7 +154,7 @@ export default function OilExplorerPage() {
           <p className="text-xs text-slate-400">{activeMeta.description}</p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+        <div id="oil-import-forecasts" className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm scroll-mt-24">
           {active.length > 0 ? (
             <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} />
           ) : activeError ? (

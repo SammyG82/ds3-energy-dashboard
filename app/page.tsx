@@ -61,7 +61,6 @@ export default function LandingPage() {
     const savedY = isReload ? Number(sessionStorage.getItem("scroll-y") || "0") : 0;
     if (isReload) sessionStorage.removeItem("scroll-y");
     if (savedY > 100) window.scrollTo(0, savedY);
-    document.documentElement.classList.remove("page-loading");
     if (savedY > 100) {
       requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
     }
@@ -72,6 +71,7 @@ export default function LandingPage() {
     window.addEventListener("beforeunload", saveY);
     return () => window.removeEventListener("beforeunload", saveY);
   }, []);
+
 
   return (
     <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
@@ -99,7 +99,7 @@ export default function LandingPage() {
       </section>
 
       {/* Heading + stats */}
-      <section className={`border-b transition-colors duration-300 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
+      <section className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
           <FadeIn>
             <h1 className={`text-4xl sm:text-5xl font-light tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -133,11 +133,10 @@ export default function LandingPage() {
           <div className={`rounded-2xl p-6 border min-h-[500px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>Explorer</p>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>EV Share by Country</h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top 10 EV sales countries — select a year</p>
               </div>
-              <Link href="/ev-share/" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-forecast/#ev-sales-by-country" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Explorer →
               </Link>
             </div>
@@ -155,14 +154,13 @@ export default function LandingPage() {
           <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>Forecast</p>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                   EV Sales Trajectory{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Markets)</span>
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>IEA STEPS projections through 2035</p>
               </div>
-              <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-forecast/#ev-sales-projections" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Forecast →
               </Link>
             </div>
@@ -180,14 +178,13 @@ export default function LandingPage() {
           <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>ARIMA Model</p>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                   Oil Import Forecasts{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Importers)</span>
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top importers with 95% CI bands through 2030</p>
               </div>
-              <Link href="/oil-explorer/" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/oil-explorer/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Explorer →
               </Link>
             </div>
