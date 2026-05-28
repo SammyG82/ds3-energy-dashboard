@@ -24,14 +24,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={`${inter.className} min-h-full flex flex-col bg-slate-50 text-slate-900 overscroll-none`}>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white px-4 py-2 text-sm font-semibold text-slate-900 rounded-lg border border-slate-300 z-[100]"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white px-4 py-2 text-sm font-semibold text-slate-900 rounded-lg border border-slate-300 z-100"
         >
           Skip to content
         </a>
         <ThemeProvider>
           <PageInit />
           <Header />
-          <main id="main-content" className="flex-1 pt-[72px]">{children}</main>
+          <main id="main-content" className="flex-1 pt-18">{children}</main>
           <Footer />
         </ThemeProvider>
       </body>

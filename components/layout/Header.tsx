@@ -61,9 +61,9 @@ export default function Header() {
               className="w-10 h-10 object-contain"
               style={isTransparent ? { mixBlendMode: "multiply" } : undefined}
             />
-            <span className={`text-3xl font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
-              DS<span className={isTransparent || isDark ? "text-white" : "text-cyan-500"}>3</span>
-              {" "}<span className="text-base font-light">Energy Dashboard</span>
+            <span className={`inline-flex items-center gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
+              <span className="text-3xl">DS<span className={isTransparent || isDark ? "text-white" : "text-cyan-500"}>3</span></span>
+              <span className="text-base">Energy Dashboard</span>
             </span>
           </Link>
 

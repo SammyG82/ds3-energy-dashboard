@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast, BASE } from "@/lib/data";
@@ -60,7 +60,7 @@ export default function LandingPage() {
   return (
     <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
       {/* Hero — full-viewport, pulled under fixed header */}
-      <section className="relative overflow-hidden min-h-screen -mt-[72px]">
+      <section className="relative overflow-hidden min-h-screen -mt-18">
         <img
           src={`${BASE}/images/hero-bg.webp`}
           alt="Electric vehicle on scenic coastal road with wind turbine"
@@ -69,8 +69,8 @@ export default function LandingPage() {
           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
         />
         {/* Gradient overlays — two layers cross-fading via opacity so the gradient animates smoothly */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[30%] via-white/40 via-[70%] to-white transition-opacity duration-300" style={{ opacity: isDark ? 0 : 1 }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 from-[30%] via-black/60 via-[70%] to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
+        <div className="absolute inset-0 bg-linear-to-b from-transparent from-30% via-white/40 via-70% to-white transition-opacity duration-300" style={{ opacity: isDark ? 0 : 1 }} />
+        <div className="absolute inset-0 bg-linear-to-b from-black/20 from-30% via-black/60 via-70% to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
         {/* Hero copy */}
         <div className="relative h-full flex flex-col items-start justify-center px-12 md:px-24 py-32 min-h-screen text-white">
           <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
@@ -114,7 +114,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-[500px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-6 border min-h-125 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>EV Share by Country</h2>
@@ -135,7 +135,7 @@ export default function LandingPage() {
         </FadeIn>
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-6 border min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
@@ -159,7 +159,7 @@ export default function LandingPage() {
         </FadeIn>
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-6 border min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>

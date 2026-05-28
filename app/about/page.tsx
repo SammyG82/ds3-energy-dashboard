@@ -1,6 +1,7 @@
 "use client";
 
 import { useTheme } from "@/lib/theme-context";
+import FadeIn from "@/components/ui/FadeIn";
 
 export default function AboutPage() {
   const { isDark } = useTheme();
@@ -8,45 +9,34 @@ export default function AboutPage() {
   return (
     <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
       <div className="max-w-4xl mx-auto px-6 sm:px-12 py-16">
-        <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>About</h1>
+        <FadeIn>
+          <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>About</h1>
+        </FadeIn>
 
         {/* The Project */}
-        <section className="mb-16">
+        <FadeIn><section className="mb-16">
           <h2 className="text-2xl font-semibold mb-6">The Project</h2>
           <p className={`text-lg leading-relaxed mb-8 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
             The central research question is whether rising EV adoption in non-oil-producing countries leads to measurable reductions in oil imports, and what the potential fiscal dividend of those savings might be.
           </p>
 
           <div className="space-y-4 mt-6">
-            <div className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-blue-500/10 border-blue-500/20" : "bg-blue-50 border-blue-200"}`}>
-              <h4 className={`font-semibold mb-2 ${isDark ? "text-blue-300" : "text-blue-900"}`}>EV Growth</h4>
-              <p className={`text-sm ${isDark ? "text-blue-200/70" : "text-blue-800/70"}`}>
-                Global EV stock have followed a predictable S-curve trajectory between 2015–2023, with diffusion driven primarily by price parity and the acceleration phase. This EV Share function sees further use in the forecast model to project this trajectory by country and regional forecasts to 2030.
-              </p>
-            </div>
-            <div className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-orange-500/10 border-orange-500/20" : "bg-orange-50 border-orange-200"}`}>
-              <h4 className={`font-semibold mb-2 ${isDark ? "text-orange-300" : "text-orange-900"}`}>Oil Import Pressure</h4>
-              <p className={`text-sm ${isDark ? "text-orange-200/70" : "text-orange-800/70"}`}>
-                Light vehicle transport is the primary consumer of goods-driven oil import demand. Estimates of transport fuel consumed by cars, EV penetration rates, per-vehicle efficiency, fuel costs, EV fuel costs and whether this shows up in country-level import data.
-              </p>
-            </div>
-            <div className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-purple-500/10 border-purple-500/20" : "bg-purple-50 border-purple-200"}`}>
-              <h4 className={`font-semibold mb-2 ${isDark ? "text-purple-300" : "text-purple-900"}`}>Infrastructure Dividend</h4>
-              <p className={`text-sm ${isDark ? "text-purple-200/70" : "text-purple-800/70"}`}>
-                Reduced oil imports free foreign exchange reserves. Conservative estimates of fuel and import displacement translate to billions of dollars in available public sector savings to invest in electricity grid and clean-transition infrastructure.
-              </p>
-            </div>
-            <div className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-teal-500/10 border-teal-500/20" : "bg-teal-50 border-teal-200"}`}>
-              <h4 className={`font-semibold mb-2 ${isDark ? "text-teal-300" : "text-teal-900"}`}>Caveats</h4>
-              <p className={`text-sm ${isDark ? "text-teal-200/70" : "text-teal-800/70"}`}>
-                Oil demand is shaped by auxiliary factors: rising car ownership, vehicle import fuel and should not be interpreted as absolute prediction. Analysis includes caveats: GDP growth and energy mix shifts not controlled for but not disregarded.
-              </p>
-            </div>
+            {[
+              { title: "EV Growth", body: "Global EV stock have followed a predictable S-curve trajectory between 2015–2023, with diffusion driven primarily by price parity and the acceleration phase. This EV Share function sees further use in the forecast model to project this trajectory by country and regional forecasts to 2030." },
+              { title: "Oil Import Pressure", body: "Light vehicle transport is the primary consumer of goods-driven oil import demand. Estimates of transport fuel consumed by cars, EV penetration rates, per-vehicle efficiency, fuel costs, EV fuel costs and whether this shows up in country-level import data." },
+              { title: "Infrastructure Dividend", body: "Reduced oil imports free foreign exchange reserves. Conservative estimates of fuel and import displacement translate to billions of dollars in available public sector savings to invest in electricity grid and clean-transition infrastructure." },
+              { title: "Caveats", body: "Oil demand is shaped by auxiliary factors: rising car ownership, vehicle import fuel and should not be interpreted as absolute prediction. Analysis includes caveats: GDP growth and energy mix shifts not controlled for but not disregarded." },
+            ].map(({ title, body }) => (
+              <div key={title} className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
+                <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h4>
+                <p className={`text-sm ${isDark ? "text-white/70" : "text-black/70"}`}>{body}</p>
+              </div>
+            ))}
           </div>
-        </section>
+        </section></FadeIn>
 
         {/* Key Variables */}
-        <section className="mb-16">
+        <FadeIn><section className="mb-16">
           <h2 className="text-2xl font-semibold mb-6">Key Variables</h2>
           <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
             The datasets were merged on a shared country × year key and filtered to exclude major oil-exporting nations. The table below lists the primary variables present in the merged analytical dataset after preprocessing. Derived columns are calculated from the two source datasets.
@@ -81,18 +71,16 @@ export default function AboutPage() {
                       <td className={`py-3 px-4 text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{row.desc}</td>
                       <td className={`py-3 px-4 text-sm ${isDark ? "text-white/70" : "text-black/60"}`}>{row.unit}</td>
                       <td className="py-3 px-4 text-xs">
-                        {row.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className={`inline-block px-2 py-1 rounded mr-1 ${
-                              tag === "OIL" ? "bg-orange-500/20 text-orange-400" :
-                              tag === "EV" ? "bg-teal-500/20 text-teal-400" :
-                              "bg-blue-500/20 text-blue-400"
-                            }`}
-                          >
-                            {tag}
-                          </span>
-                        ))}
+                        <div className="flex flex-col gap-1.5 items-start">
+                          {row.tags.map((tag) => (
+                            <span
+                              key={tag}
+                              className={`inline-block px-2 py-1 rounded ${isDark ? "bg-white/10 text-white/50" : "bg-black/5 text-black/40"}`}
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -100,10 +88,10 @@ export default function AboutPage() {
               </table>
             </div>
           </div>
-        </section>
+        </section></FadeIn>
 
         {/* Methodology */}
-        <section className="mb-16">
+        <FadeIn><section className="mb-16">
           <h2 className="text-2xl font-semibold mb-6">Methodology</h2>
 
           <div className="mb-8">
@@ -199,8 +187,7 @@ export default function AboutPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">🛢️</span>
+                <div className="mb-4">
                   <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>Oil Import / Export Dataset</h4>
                 </div>
                 <p className={`text-xs uppercase tracking-wide mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
@@ -224,8 +211,7 @@ export default function AboutPage() {
               </div>
 
               <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl">⚡</span>
+                <div className="mb-4">
                   <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>EV Sales & Market Growth Dataset</h4>
                 </div>
                 <p className={`text-xs uppercase tracking-wide mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
@@ -249,10 +235,10 @@ export default function AboutPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section></FadeIn>
 
         {/* Data Processing */}
-        <section className="mb-16">
+        <FadeIn><section className="mb-16">
           <h2 className="text-2xl font-semibold mb-6">Data Processing</h2>
           <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
             The following pipeline was applied to transform raw IEA data into the analytical dataset used throughout this project:
@@ -263,43 +249,43 @@ export default function AboutPage() {
               {[
                 {
                   num: "01",
-                  bgLight: "bg-blue-100",   bgDark: "bg-blue-500/20",
-                  textLight: "text-blue-700", textDark: "text-blue-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Import",
                   body: <>Raw IEA files were downloaded in CSV format. Column names were standardised to <span className="font-mono text-xs">snake_case</span> and country names were mapped to ISO 3166-1 alpha-3 codes to ensure a consistent join key across datasets.</>,
                 },
                 {
                   num: "02",
-                  bgLight: "bg-teal-100",   bgDark: "bg-teal-500/20",
-                  textLight: "text-teal-700", textDark: "text-teal-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Clean",
                   body: <>Rows with missing values in <span className="font-mono text-xs">oil_import</span>, <span className="font-mono text-xs">ev_sales</span>, or <span className="font-mono text-xs">year</span> were dropped. Outlier values (e.g., reporting artefacts) in crude data were capped to plausible thresholds based on domain expertise.</>,
                 },
                 {
                   num: "03",
-                  bgLight: "bg-purple-100",   bgDark: "bg-purple-500/20",
-                  textLight: "text-purple-700", textDark: "text-purple-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Filter",
                   body: <>Countries were classified as oil exporters if their average <span className="font-mono text-xs">net_oil_import</span> over 2015–2023 was negative (i.e. exports exceeded imports). These countries — such as Saudi Arabia, Russia, and Norway — were excluded from the core analysis to isolate the relationship between EV adoption and import dependency.</>,
                 },
                 {
                   num: "04",
-                  bgLight: "bg-orange-100",   bgDark: "bg-orange-500/20",
-                  textLight: "text-orange-700", textDark: "text-orange-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Merge",
                   body: <>The cleaned oil and EV datasets were joined on <span className="font-mono text-xs">(country_ISO3, year)</span>. An inner join was used, retaining only country-year observations present in both datasets. This ensured coverage to approximately 30 countries from 2010 onward.</>,
                 },
                 {
                   num: "05",
-                  bgLight: "bg-pink-100",   bgDark: "bg-pink-500/20",
-                  textLight: "text-pink-700", textDark: "text-pink-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Derive",
                   body: <>Calculated fields — <span className="font-mono text-xs">net_oil_import</span>, <span className="font-mono text-xs">oil_import_delta</span>, <span className="font-mono text-xs">ev_growth_rate</span>, and <span className="font-mono text-xs">estimated_savings</span> — were computed from the merged dataset. Savings estimates use reference Brent crude price data and the total oil-equivalent volume displaced applied to the barrels-per-day reduction attributable to the EV fleet.</>,
                 },
                 {
                   num: "06",
-                  bgLight: "bg-green-100",   bgDark: "bg-green-500/20",
-                  textLight: "text-green-700", textDark: "text-green-400",
+                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
+                  textLight: "text-black/40", textDark: "text-white/50",
                   title: "Normalise",
                   body: <>For cross-country comparisons, <span className="font-mono text-xs">oil_import</span> values were also normalised by population (kb/d per capita) and GDP (in purchase-power parity dollars). Population data for the corresponding years was sourced from World Bank development indicators.</>,
                 },
@@ -316,7 +302,7 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-        </section>
+        </section></FadeIn>
 
       </div>
     </div>
