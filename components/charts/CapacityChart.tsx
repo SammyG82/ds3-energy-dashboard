@@ -155,7 +155,7 @@ export default function CapacityChart({ data }: Props) {
         )}
       </div>
 
-      <p className="text-xs text-slate-400 font-mono">
+      <p className="text-xs text-slate-400">
         GW = gigawatts &nbsp;·&nbsp; 1 GW powers roughly 750,000 homes
       </p>
     </div>

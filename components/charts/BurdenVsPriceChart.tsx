@@ -127,7 +127,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3 text-xs font-mono text-slate-500 flex-wrap">
+      <div className="flex items-center gap-3 text-xs text-slate-500 flex-wrap">
         <span>Bubble color: household income (green = higher income, red = lower income)</span>
         <span>·</span>
         <span>Bubble size: number of electricity customers</span>
@@ -174,7 +174,7 @@ export default function BurdenVsPriceChart({ data }: Props) {
             </p>
           </div>
         ) : (
-          <p aria-hidden="true" className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
+          <p aria-hidden="true" className="text-xs text-slate-400 px-4 py-4 text-center">
             Hover over a state to see its full affordability profile
           </p>
         )}
