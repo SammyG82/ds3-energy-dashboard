@@ -19,3 +19,11 @@ html.page-loading main {
   stroke-dasharray: 3;
   opacity: 0.6;
 }
+
+html.dark .chart-axis line,
+html.dark .chart-axis path {
+  stroke: #334155;
+}
+html.dark .chart-axis text {
+  fill: #64748b;
+}

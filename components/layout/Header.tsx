@@ -10,8 +10,7 @@ import { BASE } from "@/lib/data";
 const nav = [
   { label: "Dashboard",      href: "/" },
   { label: "EV Forecast",    href: "/ev-forecast/" },
-  { label: "Oil Explorer",   href: "/oil-explorer/" },
-  { label: "EV GDP Impact",  href: "/ev-gdp-impact/" },
+  { label: "EV Impact",  href: "/ev-gdp-impact/" },
   { label: "About",           href: "/about/" },
 ];
 
@@ -37,11 +36,11 @@ export default function Header() {
           isTransparent
             ? ""
             : isDark
-            ? "bg-black/80 backdrop-blur-xl border-b border-white/10"
+            ? "bg-black border-b border-white/10"
             : "bg-white/80 backdrop-blur-xl border-b border-slate-200"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 grid grid-cols-3 items-center">
           <Link
             href="/"
             onClick={(e) => {
@@ -50,7 +49,7 @@ export default function Header() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
             }}
-            className={`flex items-center gap-3 whitespace-nowrap shrink-0 focus:outline-none focus:ring-2 rounded ${
+            className={`flex items-center gap-3 whitespace-nowrap focus:outline-none focus:ring-2 rounded ${
               isTransparent ? "focus:ring-white/50" : "focus:ring-slate-500"
             }`}
           >
@@ -61,13 +60,13 @@ export default function Header() {
               className="w-10 h-10 object-contain"
               style={isTransparent ? { mixBlendMode: "multiply" } : undefined}
             />
-            <span className={`inline-flex items-center gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
+            <span className={`inline-flex items-end gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
               <span className="text-3xl">DS<span className={isTransparent || isDark ? "text-white" : "text-cyan-500"}>3</span></span>
-              <span className="text-base">Energy Dashboard</span>
+              <span className="text-lg">Energy Dashboard</span>
             </span>
           </Link>
 
-          <nav className="flex-1 flex justify-center flex-wrap gap-1.5" aria-label="Primary navigation">
+          <nav className="flex justify-center gap-1.5" aria-label="Primary navigation">
             {nav.map(({ label, href }) => {
               const active = pathname === href;
               return (
@@ -95,10 +94,11 @@ export default function Header() {
             })}
           </nav>
 
-          <button
-            onClick={toggle}
-            aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-            className={`shrink-0 px-4 py-2.5 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
+          <div className="flex justify-end">
+            <button
+              onClick={toggle}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              className={`px-4 py-2.5 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
               isTransparent
                 ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white/50"
                 : isDark
@@ -106,8 +106,9 @@ export default function Header() {
                 : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
             }`}
           >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </button>
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+          </div>
         </div>
       </div>
     </header>

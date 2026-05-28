@@ -186,10 +186,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         step="1"
         value={year}
         onChange={(e) => setYear(Number(e.target.value))}
-        className="flex-1 accent-blue-600 focus:outline-none focus:ring-2 focus:ring-slate-500"
+        className="flex-1 accent-teal-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
         aria-label="Select year"
       />
-      <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
+      <span className="text-sm font-bold text-teal-500 w-10 text-right">{year}</span>
       <ForecastBadge isForecast={isProjected} isDark={isDark} />
     </div>
   ) : null;

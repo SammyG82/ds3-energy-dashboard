@@ -7,7 +7,7 @@ export default function AboutPage() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}>
+    <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-black text-white" : "bg-white text-gray-900"}`}>
       <div className="max-w-4xl mx-auto px-6 sm:px-12 py-16">
         <FadeIn>
           <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>About</h1>
@@ -15,8 +15,8 @@ export default function AboutPage() {
 
         {/* The Project */}
         <FadeIn><section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6">The Project</h2>
-          <p className={`text-lg leading-relaxed mb-8 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+          <h2 className="text-xl font-bold mb-6">The Project</h2>
+          <p className={`text-lg leading-relaxed mb-8 ${isDark ? "text-white/60" : "text-gray-700"}`}>
             The central research question is whether rising EV adoption in non-oil-producing countries leads to measurable reductions in oil imports, and what the potential fiscal dividend of those savings might be.
           </p>
 
@@ -29,7 +29,7 @@ export default function AboutPage() {
             ].map(({ title, body }) => (
               <div key={title} className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
                 <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h4>
-                <p className={`text-sm ${isDark ? "text-white/70" : "text-black/70"}`}>{body}</p>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-black/70"}`}>{body}</p>
               </div>
             ))}
           </div>
@@ -37,8 +37,8 @@ export default function AboutPage() {
 
         {/* Key Variables */}
         <FadeIn><section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6">Key Variables</h2>
-          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+          <h2 className="text-xl font-bold mb-6">Key Variables</h2>
+          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
             The datasets were merged on a shared country × year key and filtered to exclude major oil-exporting nations. The table below lists the primary variables present in the merged analytical dataset after preprocessing. Derived columns are calculated from the two source datasets.
           </p>
 
@@ -47,10 +47,10 @@ export default function AboutPage() {
               <table className="w-full">
                 <thead>
                   <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
-                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
-                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
-                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
-                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>Source</th>
+                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
+                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
+                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
+                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Source</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -69,7 +69,7 @@ export default function AboutPage() {
                     <tr key={row.name} className={i < arr.length - 1 ? `border-b ${isDark ? "border-white/5" : "border-gray-100"}` : ""}>
                       <td className={`py-3 px-4 text-sm font-mono ${isDark ? "text-teal-400" : "text-teal-600"}`}>{row.name}</td>
                       <td className={`py-3 px-4 text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{row.desc}</td>
-                      <td className={`py-3 px-4 text-sm ${isDark ? "text-white/70" : "text-black/60"}`}>{row.unit}</td>
+                      <td className={`py-3 px-4 text-sm ${isDark ? "text-white/60" : "text-black/60"}`}>{row.unit}</td>
                       <td className="py-3 px-4 text-xs">
                         <div className="flex flex-col gap-1.5 items-start">
                           {row.tags.map((tag) => (
@@ -92,7 +92,7 @@ export default function AboutPage() {
 
         {/* Methodology */}
         <FadeIn><section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6">Methodology</h2>
+          <h2 className="text-xl font-bold mb-6">Methodology</h2>
 
           <div className="mb-8">
             <h3 className={`text-lg font-medium mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Dataset Sources</h3>
@@ -169,7 +169,7 @@ export default function AboutPage() {
                   className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}
                 >
                   <h5 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h5>
-                  <p className={`text-sm mb-3 ${isDark ? "text-white/70" : "text-black/70"}`}>{desc}</p>
+                  <p className={`text-sm mb-3 ${isDark ? "text-white/60" : "text-black/70"}`}>{desc}</p>
                   <div className={`text-xs space-y-1 ${isDark ? "text-white/60" : "text-black/60"}`}>
                     <div><span className="font-medium">Rows:</span> {rows}</div>
                     <div><span className="font-medium">Source:</span> {source}</div>
@@ -181,7 +181,7 @@ export default function AboutPage() {
             </div>
 
             <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-gray-900"}`}>Dataset description</h4>
-            <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+            <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
               All charts draw on publicly available International Energy Agency (IEA) datasets. Coverage spans 50+ countries from 1971–2023 for oil trade and 2010–2030 for EV sales, with forecasts extending to 2035.
             </p>
 
@@ -190,7 +190,7 @@ export default function AboutPage() {
                 <div className="mb-4">
                   <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>Oil Import / Export Dataset</h4>
                 </div>
-                <p className={`text-xs uppercase tracking-wide mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
+                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Oil Information" },
@@ -200,12 +200,12 @@ export default function AboutPage() {
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[100px_1fr] gap-2">
-                      <span className={`text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
+                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>
                   ))}
                 </div>
-                <p className={`text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/60"}`}>
+                <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>
                   Records crude oil and petroleum product import and export volumes by country. Used to derive net import position and to identify countries whose oil supply is predominantly import-dependent (i.e. non-major-exporters).
                 </p>
               </div>
@@ -214,7 +214,7 @@ export default function AboutPage() {
                 <div className="mb-4">
                   <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>EV Sales & Market Growth Dataset</h4>
                 </div>
-                <p className={`text-xs uppercase tracking-wide mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
+                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Global EV Outlook" },
@@ -224,12 +224,12 @@ export default function AboutPage() {
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[100px_1fr] gap-2">
-                      <span className={`text-xs uppercase tracking-wide ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
+                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>
                   ))}
                 </div>
-                <p className={`text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/60"}`}>
+                <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>
                   Captures annual battery electric vehicle (BEV) and plug-in hybrid (PHEV) sales figures alongside each market's overall new-vehicle sales, enabling calculation of EV market share and year-over-year growth rates.
                 </p>
               </div>
@@ -239,8 +239,8 @@ export default function AboutPage() {
 
         {/* Data Processing */}
         <FadeIn><section className="mb-16">
-          <h2 className="text-2xl font-semibold mb-6">Data Processing</h2>
-          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+          <h2 className="text-xl font-bold mb-6">Data Processing</h2>
+          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
             The following pipeline was applied to transform raw IEA data into the analytical dataset used throughout this project:
           </p>
 
@@ -296,7 +296,7 @@ export default function AboutPage() {
                   </div>
                   <div className="flex-1">
                     <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h4>
-                    <p className={`text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/60"}`}>{body}</p>
+                    <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>{body}</p>
                   </div>
                 </div>
               ))}

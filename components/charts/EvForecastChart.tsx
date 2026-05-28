@@ -234,7 +234,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     <div className="flex flex-col gap-4">
       {!preview && (
         <div className="flex flex-col gap-2">
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Regions</p>
+          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Regions</p>
           <RegionPicker
             options={allRegions}
             selected={selected}
@@ -281,7 +281,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           >
             <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
               <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
-              <ForecastBadge isForecast={previewTooltip.year >= forecastBoundary} />
+              <ForecastBadge isForecast={previewTooltip.year >= forecastBoundary} isDark={isDark} />
             </div>
             {previewTooltip.entries.map(({ region, value, color }) => (
               <div key={region} className="flex items-center gap-2">
@@ -300,7 +300,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
             <>
               <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>
                 <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
-                <ForecastBadge isForecast={pinned.year >= forecastBoundary} />
+                <ForecastBadge isForecast={pinned.year >= forecastBoundary} isDark={isDark} />
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
                 {pinned.entries.map(({ region, value, color }) => (
@@ -313,7 +313,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
               </div>
             </>
           ) : (
-            <p className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
+            <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
               Hover over the chart to explore values by year
             </p>
           )}

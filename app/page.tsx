@@ -168,7 +168,7 @@ export default function LandingPage() {
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top importers with 95% CI bands through 2030</p>
               </div>
-              <Link href="/oil-explorer/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-gdp-impact/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Explorer →
               </Link>
             </div>

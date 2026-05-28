@@ -200,7 +200,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
           >
             {filtered.length === 0 ? (
-              <p className="text-xs text-slate-400 font-mono px-3 py-2">No regions match.</p>
+              <p className="text-xs text-slate-400 px-3 py-2">No regions match.</p>
             ) : (
               filtered.map((region) => (
                 <label
@@ -224,7 +224,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             )}
           </div>
 
-          <p aria-live="polite" aria-atomic="true" className="text-xs text-slate-400 font-mono">
+          <p aria-live="polite" aria-atomic="true" className="text-xs text-slate-400">
             {selected.length} of {options.length} selected
           </p>
         </div>

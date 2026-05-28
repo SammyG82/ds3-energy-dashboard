@@ -258,7 +258,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
             )}
           </div>
         ) : (
-          <p className={`text-xs font-mono px-4 py-4 text-center ${isDark ? "text-white/30" : "text-slate-400"}`}>
+          <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/30" : "text-slate-400"}`}>
             Hover over the chart to explore sales by year
           </p>
         )}

@@ -140,7 +140,7 @@ export default function ReliabilityChart({ data, natAvgSaidi: natAvgSaidiProp }:
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex gap-4 text-xs font-mono flex-wrap">
+        <div className="flex gap-4 text-xs flex-wrap">
           {[
             { label: "< 100 min — Good", color: "#16a34a" },
             { label: "100–200 min — Fair", color: "#d97706" },
@@ -195,7 +195,7 @@ export default function ReliabilityChart({ data, natAvgSaidi: natAvgSaidiProp }:
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">
               <span className="text-sm font-bold text-slate-800">{STATE_NAMES[pinned.state] ?? pinned.state}</span>
-              <span className={`text-xs px-2 py-0.5 rounded font-mono font-semibold ${r.bg} ${r.text}`}>{r.label} reliability</span>
+              <span className={`text-xs px-2 py-0.5 rounded font-semibold ${r.bg} ${r.text}`}>{r.label} reliability</span>
             </div>
             <div>
               <p className="text-xs text-slate-400">Average outage time</p>
@@ -209,7 +209,7 @@ export default function ReliabilityChart({ data, natAvgSaidi: natAvgSaidiProp }:
         )}
       </div>
 
-      <p className="text-xs text-slate-400 font-mono">
+      <p className="text-xs text-slate-400">
         SAIDI = how long the average customer loses power per year &nbsp;·&nbsp; National average: {natAvgSaidi} min/year{data.length > 40 ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>

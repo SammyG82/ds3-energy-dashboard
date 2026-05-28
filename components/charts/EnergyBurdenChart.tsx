@@ -141,7 +141,7 @@ export default function EnergyBurdenChart({ data, natAvgBurden: natAvgBurdenProp
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-4 flex-wrap">
-        <div className="flex gap-4 text-xs font-mono flex-wrap">
+        <div className="flex gap-4 text-xs flex-wrap">
           {[
             { label: "< 2.0% — Low burden", color: "#16a34a" },
             { label: "2.0–2.5% — Moderate burden", color: "#d97706" },
@@ -196,7 +196,7 @@ export default function EnergyBurdenChart({ data, natAvgBurden: natAvgBurdenProp
           >
             <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-1.5 mb-0.5">
               <span className="text-sm font-bold text-slate-800">{STATE_NAMES[pinned.state] ?? pinned.state}</span>
-              <span className={`text-xs px-2 py-0.5 rounded font-mono font-semibold ${r.bg} ${r.text}`}>{r.label}</span>
+              <span className={`text-xs px-2 py-0.5 rounded font-semibold ${r.bg} ${r.text}`}>{r.label}</span>
             </div>
             <div>
               <p className="text-xs text-slate-400">Share of income on electricity</p>
@@ -216,7 +216,7 @@ export default function EnergyBurdenChart({ data, natAvgBurden: natAvgBurdenProp
         )}
       </div>
 
-      <p className="text-xs text-slate-400 font-mono">
+      <p className="text-xs text-slate-400">
         Energy burden = electricity costs as a share of household income &nbsp;·&nbsp; National average: {natAvgBurden}%{data.length > 40 ? ` · Showing highest ${sorted.length} of ${data.length} states` : ""}
       </p>
     </div>

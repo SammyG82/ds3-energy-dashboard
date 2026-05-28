@@ -71,7 +71,7 @@ export default function EvForecastPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
 
         <FadeIn>
-          <div id="ev-sales-by-country" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-by-country" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales by Country</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Top countries ranked by annual EV sales — select a year</p>
@@ -87,7 +87,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={100}>
-          <div id="ev-sales-projections" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-projections" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Projections</h2>
             <p className={`text-sm mb-6 ${isDark ? "text-white/50" : "text-slate-500"}`}>IEA Stated Policies Scenario (STEPS) projections of EV sales. Select multiple regions to compare trajectories.</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
@@ -102,8 +102,8 @@ export default function EvForecastPage() {
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
-            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <h3 className="text-blue-500 text-xs uppercase tracking-wider mb-3">Behind the Numbers</h3>
+            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
+              <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
               <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
               <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
                 IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show STEPS projections through 2035. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.
@@ -113,7 +113,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <div className={`border rounded-2xl p-6 ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Single-country sales trajectory with IEA STEPS projection through 2035</p>
@@ -125,8 +125,8 @@ export default function EvForecastPage() {
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
-            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/5" : "bg-slate-50"}`}>
-              <h3 className="text-blue-500 text-xs uppercase tracking-wider mb-4">Behind the Numbers</h3>
+            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
+              <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Annual Growth Rate</h4>
