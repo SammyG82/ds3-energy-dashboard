@@ -12,9 +12,6 @@ const nav = [
   { label: "EV Forecast",    href: "/ev-forecast/" },
   { label: "Oil Explorer",   href: "/oil-explorer/" },
   { label: "EV GDP Impact",  href: "/ev-gdp-impact/" },
-  { label: "Energy Access",  href: "/energy-access/" },
-  { label: "Affordability",  href: "/affordability/" },
-  { label: "Global Targets", href: "/global-targets/" },
   { label: "About",           href: "/about/" },
 ];
 
