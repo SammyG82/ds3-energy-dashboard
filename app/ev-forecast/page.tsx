@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useLayoutEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -37,22 +37,6 @@ export default function EvForecastPage() {
     }, 300);
   }, [data, salesData]);
 
-  useLayoutEffect(() => {
-    const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-    const isReload = navEntry?.type === "reload";
-    const savedY = isReload ? Number(sessionStorage.getItem("scroll-y") || "0") : 0;
-    if (isReload) sessionStorage.removeItem("scroll-y");
-    if (savedY > 100) window.scrollTo(0, savedY);
-    if (savedY > 100) {
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
-    }
-  }, []);
-
-  useEffect(() => {
-    const saveY = () => sessionStorage.setItem("scroll-y", String(window.scrollY));
-    window.addEventListener("beforeunload", saveY);
-    return () => window.removeEventListener("beforeunload", saveY);
-  }, []);
 
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
   const forecastBoundary = useMemo(() => {

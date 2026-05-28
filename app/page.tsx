@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast, BASE } from "@/lib/data";
@@ -55,22 +55,6 @@ export default function LandingPage() {
     fetchOilForecast().then(setOilData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
   }, []);
 
-  useLayoutEffect(() => {
-    const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
-    const isReload = navEntry?.type === "reload";
-    const savedY = isReload ? Number(sessionStorage.getItem("scroll-y") || "0") : 0;
-    if (isReload) sessionStorage.removeItem("scroll-y");
-    if (savedY > 100) window.scrollTo(0, savedY);
-    if (savedY > 100) {
-      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
-    }
-  }, []);
-
-  useEffect(() => {
-    const saveY = () => sessionStorage.setItem("scroll-y", String(window.scrollY));
-    window.addEventListener("beforeunload", saveY);
-    return () => window.removeEventListener("beforeunload", saveY);
-  }, []);
 
 
   return (

@@ -15,7 +15,7 @@ const nav = [
   { label: "Energy Access",  href: "/energy-access/" },
   { label: "Affordability",  href: "/affordability/" },
   { label: "Global Targets", href: "/global-targets/" },
-  { label: "Datasets",       href: "/datasets/" },
+  { label: "About",           href: "/about/" },
 ];
 
 export default function Header() {

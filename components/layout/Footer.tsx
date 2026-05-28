@@ -23,10 +23,10 @@ export default function Footer() {
             GitHub
           </a>
           <Link
-            href="/datasets/"
+            href="/about/"
             className={`text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 rounded ${isDark ? "text-white/40 hover:text-white focus:ring-white/50" : "text-slate-400 hover:text-slate-700 focus:ring-slate-500"}`}
           >
-            Datasets
+            About
           </Link>
         </nav>
       </div>
