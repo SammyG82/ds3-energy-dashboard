@@ -4,20 +4,21 @@ export interface StatCardProps {
   sub?: string;
   accent?: "blue" | "teal" | "amber";
   size?: "xl" | "2xl";
+  isDark?: boolean;
 }
 
 const accentMap = {
-  blue:  "text-blue-600",
-  teal:  "text-teal-600",
-  amber: "text-amber-600",
+  blue:  "text-blue-500",
+  teal:  "text-teal-500",
+  amber: "text-amber-500",
 };
 
-export default function StatCard({ label, value, sub, accent = "blue", size = "2xl" }: StatCardProps) {
+export default function StatCard({ label, value, sub, accent = "blue", size = "2xl", isDark = false }: StatCardProps) {
   return (
-    <div className="bg-white border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-colors">
-      <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-1">{label}</p>
+    <div className={`rounded-xl p-4 border transition-colors ${isDark ? "bg-white/5 border-white/10 hover:border-white/20" : "bg-white border-slate-200 hover:border-slate-300"}`}>
+      <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>{label}</p>
       <p className={`${size === "xl" ? "text-xl" : "text-2xl leading-none"} font-bold ${accentMap[accent]}`}>{value}</p>
-      {sub && <p className={size === "xl" ? "text-xs text-slate-400 mt-0.5" : "text-sm text-slate-500 mt-1"}>{sub}</p>}
+      {sub && <p className={`mt-1 ${size === "xl" ? "text-xs" : "text-sm"} ${isDark ? "text-white/50" : "text-slate-500"}`}>{sub}</p>}
     </div>
   );
 }

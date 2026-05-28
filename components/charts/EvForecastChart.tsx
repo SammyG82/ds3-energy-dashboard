@@ -12,6 +12,7 @@ import { TOP_5_MARKETS } from "@/lib/ev-presets";
 interface Props {
   data: EvRow[];
   preview?: boolean;
+  isDark?: boolean;
   onYearChange?: (year: number | null) => void;
   onSelectionChange?: (regions: string[]) => void;
 }
@@ -29,7 +30,7 @@ const REGION_COLORS = [
   "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
 ];
 
-export default function EvForecastChart({ data, preview = false, onYearChange, onSelectionChange }: Props) {
+export default function EvForecastChart({ data, preview = false, isDark = false, onYearChange, onSelectionChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const onYearChangeRef = useRef(onYearChange);
@@ -108,7 +109,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
 
     const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 56 };
-    const totalH = preview ? 220 : 340;
+    const totalH = preview ? 300 : 340;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -134,7 +135,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
 
       g.append("text")
         .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-        .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
+        .attr("font-size", "10px")
         .attr("fill", "#94a3b8")
         .text("Forecast →");
     }
@@ -156,6 +157,21 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           .attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
     });
+
+    if (preview) {
+      const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
+      regionData.forEach(({ region, values }) => {
+        const color = colorMap[region];
+        tickYears.forEach((yr) => {
+          const row = values.find((d) => d.year === yr);
+          if (!row) return;
+          g.append("circle")
+            .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
+            .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+            .style("pointer-events", "none");
+        });
+      });
+    }
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
@@ -214,7 +230,7 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           onYearChangeRef.current?.(null);
         }
       });
-  }, [regionData, data, preview, colorMap, forecastBoundary, containerWidth]);
+  }, [regionData, data, preview, isDark, colorMap, forecastBoundary, containerWidth]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -241,6 +257,21 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
           />
         </div>
       )}
+
+      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
+            Historical
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
+              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
+            </svg>
+            IEA STEPS Forecast
+          </span>
+        </div>
+      </div>
 
       <div ref={containerRef} className="w-full relative">
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
@@ -290,9 +321,6 @@ export default function EvForecastChart({ data, preview = false, onYearChange, o
         </div>
       )}
 
-      <p className="text-xs text-slate-400 font-mono">
-        Solid = Historical data &nbsp;·&nbsp; Dashed = IEA STEPS projected forecast
-      </p>
     </div>
   );
 }

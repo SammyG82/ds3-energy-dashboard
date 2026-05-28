@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { fetchEvSales, fetchEvData, fetchOilForecast } from "@/lib/data";
+import { fetchEvSales, fetchEvData, fetchOilForecast, BASE } from "@/lib/data";
+import { useTheme } from "@/lib/theme-context";
 import type { OilRow, EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
+import FadeIn from "@/components/ui/FadeIn";
 
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
@@ -39,6 +41,7 @@ const pillars = [
 ];
 
 export default function LandingPage() {
+  const { isDark } = useTheme();
   const [evSales, setEvSales] = useState<EvRow[]>([]);
   const [evData, setEvData] = useState<EvRow[]>([]);
   const [oilData, setOilData] = useState<OilRow[]>([]);
@@ -52,148 +55,174 @@ export default function LandingPage() {
     fetchOilForecast().then(setOilData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
   }, []);
 
-  return (
-    <>
-      {/* Hero */}
-      <section className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
-          <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-3">
-            DS3 · UCSD Data Science Student Society
-          </p>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 tracking-tight mb-4">
-            EV Adoption &amp;{" "}
-            <span className="text-teal-600">Oil Dependency</span>
-          </h1>
-          <p className="text-slate-500 max-w-2xl mx-auto text-base leading-relaxed mb-10">
-            Does rising electric vehicle adoption measurably reduce oil dependency in oil-importing
-            countries — and how could the resulting savings fund clean energy infrastructure?
-          </p>
+  useLayoutEffect(() => {
+    const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming;
+    const isReload = navEntry?.type === "reload";
+    const savedY = isReload ? Number(sessionStorage.getItem("scroll-y") || "0") : 0;
+    if (isReload) sessionStorage.removeItem("scroll-y");
+    if (savedY > 100) window.scrollTo(0, savedY);
+    document.documentElement.classList.remove("page-loading");
+    if (savedY > 100) {
+      requestAnimationFrame(() => window.scrollTo({ top: 0, behavior: "smooth" }));
+    }
+  }, []);
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-            {stats.map(({ value, label, accent }) => (
-              <div key={label} className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                <p className={`text-2xl font-bold ${accent}`}>{value}</p>
-                <p className="text-xs text-slate-500 mt-1">{label}</p>
-              </div>
-            ))}
-          </div>
+  useEffect(() => {
+    const saveY = () => sessionStorage.setItem("scroll-y", String(window.scrollY));
+    window.addEventListener("beforeunload", saveY);
+    return () => window.removeEventListener("beforeunload", saveY);
+  }, []);
+
+  return (
+    <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
+      {/* Hero — full-viewport, pulled under fixed header */}
+      <section className="relative overflow-hidden min-h-screen -mt-[72px]">
+        <img
+          src={`${BASE}/images/hero-bg.webp`}
+          alt="Electric vehicle on scenic coastal road with wind turbine"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "50% 75%" }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+        {/* Gradient overlays — two layers cross-fading via opacity so the gradient animates smoothly */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent from-[30%] via-white/40 via-[70%] to-white transition-opacity duration-300" style={{ opacity: isDark ? 0 : 1 }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 from-[30%] via-black/60 via-[70%] to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
+        {/* Hero copy */}
+        <div className="relative h-full flex flex-col items-start justify-center px-12 md:px-24 py-32 min-h-screen text-white">
+          <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
+            Does EV adoption reduce oil dependency?
+          </h1>
+          <p className="text-xl md:text-2xl font-light max-w-2xl drop-shadow-md text-white/90">
+            A regional study of EV adoption and oil dependency using IEA data
+          </p>
+        </div>
+      </section>
+
+      {/* Heading + stats */}
+      <section className={`border-b transition-colors duration-300 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
+          <FadeIn>
+            <h1 className={`text-4xl sm:text-5xl font-light tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+              EV Adoption &amp;{" "}
+              <span className="text-teal-600">Oil Dependency</span>
+            </h1>
+            <p className={`max-w-2xl mx-auto text-base leading-relaxed mb-10 ${isDark ? "text-white/70" : "text-slate-500"}`}>
+              Does rising electric vehicle adoption measurably reduce oil dependency in oil-importing
+              countries — and how could the resulting savings fund clean energy infrastructure?
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={150}>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
+              {stats.map(({ value, label, accent }) => (
+                <div key={label} className={`rounded-xl p-4 border ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <p className={`text-2xl font-bold ${accent}`}>{value}</p>
+                  <p className={`text-xs mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>{label}</p>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
         </div>
       </section>
 
       {/* Preview charts */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
+      <section>
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">Explorer</p>
-              <h2 className="text-xl font-bold text-slate-900">EV Share by Country</h2>
-              <p className="text-sm text-slate-500">Top 10 EV sales countries — select a year</p>
+        <FadeIn>
+          <div className={`rounded-2xl p-6 border min-h-[500px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>Explorer</p>
+                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>EV Share by Country</h2>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top 10 EV sales countries — select a year</p>
+              </div>
+              <Link href="/ev-share/" className="text-sm font-semibold text-blue-500 hover:underline">
+                Full Explorer →
+              </Link>
             </div>
-            <Link href="/ev-share/" className="text-sm font-semibold text-blue-600 hover:underline">
-              Full Explorer →
-            </Link>
+            {evSales.length > 0 ? (
+              <EvShareChart data={evSales} preview isDark={isDark} />
+            ) : errors.evSales ? (
+              <ErrorMessage message={errors.evSales} />
+            ) : (
+              <LoadingPlaceholder text="Loading data…" />
+            )}
           </div>
-          {evSales.length > 0 ? (
-            <EvShareChart data={evSales} preview />
-          ) : errors.evSales ? (
-            <ErrorMessage message={errors.evSales} />
-          ) : (
-            <LoadingPlaceholder text="Loading data…" />
-          )}
-        </div>
+        </FadeIn>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">Forecast</p>
-              <h2 className="text-xl font-bold text-slate-900">EV Sales Trajectory <span className="text-slate-400 font-normal text-base">(Top 5 Markets)</span></h2>
-              <p className="text-sm text-slate-500">IEA STEPS projections through 2035</p>
+        <FadeIn>
+          <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>Forecast</p>
+                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  EV Sales Trajectory{" "}
+                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Markets)</span>
+                </h2>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>IEA STEPS projections through 2035</p>
+              </div>
+              <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-500 hover:underline">
+                Full Forecast →
+              </Link>
             </div>
-            <Link href="/ev-forecast/" className="text-sm font-semibold text-blue-600 hover:underline">
-              Full Forecast →
-            </Link>
+            {evData.length > 0 ? (
+              <EvForecastChart data={evData} preview isDark={isDark} />
+            ) : errors.evData ? (
+              <ErrorMessage message={errors.evData} />
+            ) : (
+              <LoadingPlaceholder text="Loading data…" />
+            )}
           </div>
-          {evData.length > 0 ? (
-            <EvForecastChart data={evData} preview />
-          ) : errors.evData ? (
-            <ErrorMessage message={errors.evData} />
-          ) : (
-            <LoadingPlaceholder text="Loading data…" />
-          )}
-        </div>
+        </FadeIn>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-0.5">ARIMA Model</p>
-              <h2 className="text-xl font-bold text-slate-900">Oil Import Forecasts <span className="text-slate-400 font-normal text-base">(Top 5 Importers)</span></h2>
-              <p className="text-sm text-slate-500">Top importers with 95% CI bands through 2030</p>
+        <FadeIn>
+          <div className={`rounded-2xl p-6 border min-h-[400px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className={`text-xs font-medium uppercase tracking-wider mb-0.5 text-teal-500`}>ARIMA Model</p>
+                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  Oil Import Forecasts{" "}
+                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Importers)</span>
+                </h2>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top importers with 95% CI bands through 2030</p>
+              </div>
+              <Link href="/oil-explorer/" className="text-sm font-semibold text-blue-500 hover:underline">
+                Full Explorer →
+              </Link>
             </div>
-            <Link href="/oil-explorer/" className="text-sm font-semibold text-blue-600 hover:underline">
-              Full Explorer →
-            </Link>
+            {oilData.length > 0 ? (
+              <OilForecastChart data={oilData} preview isDark={isDark} />
+            ) : errors.oilData ? (
+              <ErrorMessage message={errors.oilData} />
+            ) : (
+              <LoadingPlaceholder text="Loading data…" />
+            )}
           </div>
-          {oilData.length > 0 ? (
-            <OilForecastChart data={oilData} preview />
-          ) : errors.oilData ? (
-            <ErrorMessage message={errors.oilData} />
-          ) : (
-            <LoadingPlaceholder text="Loading data…" />
-          )}
+        </FadeIn>
         </div>
       </section>
 
-      {/* Project goals */}
-      <section className="bg-slate-50 border-t border-slate-200">
+      {/* Project Goals */}
+      <section className={`border-t transition-colors duration-300 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14">
-          <h2 className="text-2xl font-bold text-slate-900 mb-8">Project Goals</h2>
+          <FadeIn>
+            <h2 className={`text-4xl mb-8 font-light ${isDark ? "text-white" : "text-black"}`}>
+              Project Goals
+            </h2>
+          </FadeIn>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {pillars.map(({ title, body }) => (
-              <div key={title} className="bg-white border border-slate-200 rounded-xl p-5">
-                <h3 className="font-bold text-slate-900 mb-2">{title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{body}</p>
-              </div>
+            {pillars.map(({ title, body }, i) => (
+              <FadeIn key={title} delay={i * 80}>
+                <div className={`p-6 rounded-2xl border h-full ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+                  <h3 className={`text-lg mb-3 font-medium ${isDark ? "text-white" : "text-black"}`}>{title}</h3>
+                  <p className={`text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/70"}`}>{body}</p>
+                </div>
+              </FadeIn>
             ))}
           </div>
         </div>
       </section>
-
-      {/* Methods */}
-      <section className="border-t border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {(
-            [
-              {
-                label: "Data Sources",
-                body: "IEA Oil Information Database (import/export volumes, 1971–2023) and IEA Global EV Outlook (sales, market share, 2010–2035).",
-              },
-              {
-                label: "Methodology",
-                body: "Country-level EV share compared to year-over-year oil import changes, controlling for GDP growth and energy-mix shifts.",
-              },
-              {
-                label: "Forecast Models",
-                body: (
-                  <>
-                    Oil: Log-ARIMA with AIC-based grid search.<br />
-                    EV: IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024.
-                  </>
-                ),
-              },
-              {
-                label: "Coverage",
-                body: "50+ countries · 1971–2023 oil data · 2010–2035 EV data · Forecasts through 2030 (oil) and 2035 (EV).",
-              },
-            ] as { label: string; body: React.ReactNode }[]
-          ).map(({ label, body }) => (
-            <div key={label}>
-              <p className="text-xs font-mono uppercase tracking-widest text-teal-600 mb-2">{label}</p>
-              <p className="text-sm text-slate-500 leading-relaxed">{body}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </>
+    </div>
   );
 }

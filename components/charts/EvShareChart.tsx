@@ -11,6 +11,7 @@ import StatCard from "@/components/ui/StatCard";
 interface Props {
   data: EvRow[];
   preview?: boolean;
+  isDark?: boolean;
 }
 
 interface Tooltip {
@@ -22,12 +23,14 @@ interface Tooltip {
 
 const DEFAULT_COLOR = "#94a3b8";
 
-export default function EvShareChart({ data, preview = false }: Props) {
+export default function EvShareChart({ data, preview = false, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const isDarkRef = useRef(isDark);
+  useEffect(() => { isDarkRef.current = isDark; }, [isDark]);
 
   const topN = preview ? 10 : 20;
 
@@ -69,7 +72,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
     const totalW = containerWidth;
     const margin = { top: 8, right: 52, bottom: 8, left: preview ? 105 : 115 };
-    const barH = preview ? 22 : 28;
+    const barH = preview ? 28 : 28;
     const gap = 4;
     const height = filtered.length * (barH + gap);
     const width = totalW - margin.left - margin.right;
@@ -90,7 +93,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .attr("class", "chart-grid-line")
       .attr("x1", (d) => x(d)).attr("x2", (d) => x(d))
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.6);
+      .attr("stroke", isDarkRef.current ? "#334155" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.6);
 
     const barsSel = g.selectAll<SVGRectElement, EvRow>(".bar")
       .data(filtered)
@@ -137,8 +140,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .attr("y", (d) => (y(dn(d.region_country)) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", "11px")
-      .attr("font-family", "ui-monospace, monospace")
-      .attr("fill", "#64748b")
+      .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
       .attr("opacity", 0)
       .attr("pointer-events", "none")
       .text((d) => fmtEvSales(d.ev_sales))
@@ -153,8 +155,17 @@ export default function EvShareChart({ data, preview = false }: Props) {
       .selectAll("text")
       .attr("dx", -6)
       .attr("font-size", preview ? "11px" : "12px")
-      .attr("fill", "#475569");
+      .attr("fill", isDarkRef.current ? "#94a3b8" : "#475569");
   }, [filtered, preview, containerWidth, total]);
+
+  // Update only colours when theme changes — no redraw, no animation restart
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svg = d3.select(svgRef.current);
+    svg.selectAll(".chart-grid-line").attr("stroke", isDark ? "#334155" : "#e2e8f0");
+    svg.selectAll<SVGTextElement, unknown>(".bar-label").attr("fill", isDark ? "#94a3b8" : "#64748b");
+    svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#475569");
+  }, [isDark]);
 
   const leader = filtered[0];
 
@@ -167,7 +178,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
 
   const yearSlider = years.length > 0 ? (
     <div className="flex items-center gap-3">
-      <span className="text-xs font-mono uppercase tracking-widest text-slate-400 whitespace-nowrap">Year</span>
+      <span className="text-xs font-medium uppercase tracking-wider text-slate-400 whitespace-nowrap">Year</span>
       <input
         type="range"
         min={years[0]}
@@ -179,7 +190,7 @@ export default function EvShareChart({ data, preview = false }: Props) {
         aria-label="Select year"
       />
       <span className="text-sm font-bold text-blue-600 w-10 text-right">{year}</span>
-      <ForecastBadge isForecast={isProjected} />
+      <ForecastBadge isForecast={isProjected} isDark={isDark} />
     </div>
   ) : null;
 
@@ -188,9 +199,9 @@ export default function EvShareChart({ data, preview = false }: Props) {
       {!preview && yearSlider}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Total Sales of Top ${topN}`} value={fmtEvSales(total)} accent="blue" />
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader`} value={leader ? dn(leader.region_country) : "—"} accent="teal" />
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Total Sales of Top ${topN}`} value={fmtEvSales(total)} accent="blue" isDark={isDark} />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader`} value={leader ? dn(leader.region_country) : "—"} accent="teal" isDark={isDark} />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" isDark={isDark} />
       </div>
 
       {preview && yearSlider}
@@ -199,17 +210,17 @@ export default function EvShareChart({ data, preview = false }: Props) {
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {tooltip && tooltipPos && (
           <div
-            className="absolute bg-white border border-slate-200 rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm"
+            className={`absolute rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
             style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >
             <div className="flex items-center justify-between gap-3">
-              <span className="font-bold text-slate-800 text-sm">{tooltip.country}</span>
-              <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">#{tooltip.rank}</span>
+              <span className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{tooltip.country}</span>
+              <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
             </div>
-            <p className="text-blue-600 font-bold text-base mt-0.5">
-              {fmtEvSales(tooltip.sales)} <span className="text-slate-400 text-xs font-normal">vehicles</span>
+            <p className="text-blue-500 font-bold text-base mt-0.5">
+              {fmtEvSales(tooltip.sales)} <span className={`text-xs font-normal ${isDark ? "text-white/40" : "text-slate-400"}`}>vehicles</span>
             </p>
-            <p className="text-slate-400 text-xs">
+            <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
               {tooltip.sharePct.toFixed(1)}% of top {topN} countries' combined sales
             </p>
           </div>

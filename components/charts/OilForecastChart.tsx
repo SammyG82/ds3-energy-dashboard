@@ -16,6 +16,7 @@ const dn = (c: string) => OIL_DISPLAY[c] ?? c;
 interface Props {
   data: OilRow[];
   preview?: boolean;
+  isDark?: boolean;
   datasetLabel?: "Oil Imports (KBD)" | "Net Trade (KBD)" | "Oil Exports (KBD)";
   chartPresets?: PresetItem[];
   statYear?: number;
@@ -30,7 +31,7 @@ interface Pinned {
 const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 
 
-export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
+export default function OilForecastChart({ data, preview = false, isDark = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -131,7 +132,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
 
     const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 60 };
-    const totalH = preview ? 220 : 360;
+    const totalH = preview ? 300 : 360;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -155,7 +156,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
 
     g.append("text")
       .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-      .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
+      .attr("font-size", "10px")
       .attr("fill", "#94a3b8").text("Forecast →");
 
     activeCountries.forEach((country) => {
@@ -187,6 +188,22 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
         g.append("path").datum(forecast).attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
     });
+
+    if (preview) {
+      const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
+      activeCountries.forEach((country) => {
+        const color = COUNTRY_COLORS[country] ?? "#64748b";
+        const rows = activeData.filter((d) => d.Country === country);
+        tickYears.forEach((yr) => {
+          const row = rows.find((d) => d.Year === yr);
+          if (!row) return;
+          g.append("circle")
+            .attr("cx", x(yr)).attr("cy", y(row.value)).attr("r", 3)
+            .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+            .style("pointer-events", "none");
+        });
+      });
+    }
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
@@ -236,7 +253,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selectedSet, preview, forecastBoundary, containerWidth, allCountries]);
+  }, [data, selectedSet, preview, isDark, forecastBoundary, containerWidth, allCountries]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -282,6 +299,25 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           />
         </>
       )}
+
+      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
+            Historical
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
+              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
+            </svg>
+            Forecast
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="block w-4 h-2.5 rounded-sm bg-current opacity-20" aria-hidden="true" />
+            95% CI
+          </span>
+        </div>
+      </div>
 
       <div ref={containerRef} className="w-full relative">
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
@@ -342,9 +378,6 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
         </div>
       )}
 
-      <p className="text-xs text-slate-400 font-mono">
-        Solid = Historical data &nbsp;·&nbsp; Dashed = ARIMA projected forecast &nbsp;·&nbsp; Band = 95% CI &nbsp;·&nbsp; {datasetLabel}
-      </p>
     </div>
   );
 }
