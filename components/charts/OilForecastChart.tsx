@@ -147,8 +147,18 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       .domain([minYear, maxYear])
       .range([0, width]);
 
-    const yMax = Math.max(0, d3.max(activeData, (d) => d.value * 1.05) ?? 1);
-    const yScaleMin = Math.min(0, d3.min(activeData, (d) => d.value * 1.05) ?? 0);
+    const CI_RATIO = 1.5;
+    const capCIHigh = (val: number, ci: number) => Math.min(ci, val + Math.abs(val) * CI_RATIO);
+    const capCILow  = (val: number, ci: number) => Math.max(ci, val - Math.abs(val) * CI_RATIO);
+
+    const yMax = Math.max(0, d3.max(activeData, (d) => {
+      const hi = d.ciHigh !== null ? capCIHigh(d.value, d.ciHigh) : d.value;
+      return Math.max(d.value, hi) * 1.05;
+    }) ?? 1);
+    const yScaleMin = Math.min(0, d3.min(activeData, (d) => {
+      const lo = d.ciLow !== null ? capCILow(d.value, d.ciLow) : d.value;
+      return Math.min(d.value, lo) * 1.05;
+    }) ?? 0);
     const y = d3.scaleLinear().domain([yScaleMin, yMax]).nice().range([height, 0]);
 
     g.append("defs").append("clipPath").attr("id", clipId)
@@ -169,8 +179,8 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       if (forecastWithCI.length > 1) {
         const area = d3.area<OilRow>()
           .x((d) => x(d.Year))
-          .y0((d) => y(d.ciLow!))
-          .y1((d) => y(d.ciHigh!))
+          .y0((d) => y(capCILow(d.value, d.ciLow!)))
+          .y1((d) => y(capCIHigh(d.value, d.ciHigh!)))
           .curve(d3.curveMonotoneX);
         g.append("path").datum(forecastWithCI)
           .attr("fill", color).attr("opacity", 0.1)

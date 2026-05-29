@@ -46,7 +46,7 @@ function assertOilType(t: string | undefined): OilRow["Type"] | null {
 }
 
 function normalizeOilCountry(c: string | undefined): string {
-  return c === "Usa" ? "USA" : (c ?? "");
+  return c ?? "";
 }
 
 export interface GdpMeta {
@@ -135,13 +135,6 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
 }
 
 
-const NET_TRADE_NAMES: Record<string, string> = {
-  Usa: "USA",
-  Saudiarab: "Saudi Arabia",
-  Uae: "UAE",
-  Kazakhsta: "Kazakhstan",
-};
-
 export async function fetchNetTrade(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/net_trade_forecast.csv`);
   return raw
@@ -150,7 +143,7 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
       if (!Type) return [];
       const value = +(d["Net_Trade"] ?? 0);
       return [{
-        Country: NET_TRADE_NAMES[d.Country ?? ""] ?? d.Country ?? "",
+        Country: d.Country ?? "",
         Year: +(d.Year ?? 0),
         Type,
         value: Number.isFinite(value) ? value : 0,

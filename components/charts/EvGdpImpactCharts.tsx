@@ -14,7 +14,7 @@ interface Props {
   isDark?: boolean;
 }
 
-const GALLONS_PER_EV = 1300; // BEV+PHEV blended: ~950 gal/year vs 1300 for BEV-only.
+const GALLONS_PER_EV = 1300;
 const GALLONS_PER_BARREL = 42;
 const FALLBACK_PRICE = 75;
 
@@ -268,8 +268,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       const sel = d3.select(refLabelRef.current);
       if (refPrice !== null) {
         const labelY = y(refPrice) - 8;
+        const xPos = x(refYear);
+        const chartW = x.range()[1];
+        const flipLeft = xPos > chartW - 40;
         sel
-          .attr("x", x(refYear) + 5)
+          .attr("x", flipLeft ? xPos - 5 : xPos + 5)
+          .attr("text-anchor", flipLeft ? "end" : "start")
           .attr("y", labelY < 10 ? labelY + 18 : labelY)
           .attr("fill", benchmark === "brent" ? "#d97706" : "#0891b2")
           .text(`$${refPrice.toFixed(0)}`);

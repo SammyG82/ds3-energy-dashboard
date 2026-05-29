@@ -67,14 +67,8 @@ const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
     {
       label: "Americas",
       description: "Western Hemisphere oil exporters",
-      detail: "USA, Canada, Mexico, and Venezuela — the four major oil exporters in the Western Hemisphere.",
-      regions: ["USA", "Canada", "Mexico", "Venezuela"],
-    },
-    {
-      label: "Africa",
-      description: "Major African oil exporters",
-      detail: "Nigeria, Algeria, Libya, and Angola are the four largest African oil exporters in the dataset.",
-      regions: ["Nigeria", "Algeria", "Libya", "Angola"],
+      detail: "USA, Canada, Mexico, and Brazil — the four major oil exporters in the Western Hemisphere tracked in the dataset.",
+      regions: ["USA", "Canada", "Mexico", "Brazil"],
     },
     {
       label: "All Countries",
@@ -215,7 +209,7 @@ export default function EvGdpImpactPage() {
               <div>
                 <h4 className={`text-sm font-medium mb-2 ${isDark ? "text-white" : "text-black"}`}>Log-ARIMA forecast</h4>
                 <p className={`text-sm ${isDark ? "text-white/70" : "text-black/70"}`}>
-                  Forecasts are produced by a Log-ARIMA model fitted separately for each country. The model parameters (p, d, q) are selected by minimising AIC across a grid search. The shaded band around each forecast line is a 95% confidence interval — wider bands mean the model is less certain about that country&apos;s trajectory.
+                  Forecasts are produced by a Log-ARIMA model fitted separately for each country. The model parameters (p, d, q) are selected by minimising AIC across a grid search. The shaded band around each forecast line is a 95% confidence interval — wider bands mean the model is less certain about that country&apos;s trajectory. Bands are capped at ±150% of the point forecast to keep the chart readable; for volatile series the true statistical interval may extend further.
                 </p>
               </div>
             </div>
