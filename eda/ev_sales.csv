@@ -1,0 +1,1298 @@
+region_country,year,ev_sales,type
+Australia,2011,49.0,Actual
+Australia,2012,170.0,Actual
+Australia,2013,190.0,Actual
+Australia,2014,370.0,Actual
+Australia,2015,760.0,Actual
+Australia,2016,670.0,Actual
+Australia,2017,1200.0,Actual
+Australia,2018,1800.0,Actual
+Australia,2019,6300.0,Actual
+Australia,2020,5200.0,Actual
+Australia,2021,17000.0,Actual
+Australia,2022,33000.0,Actual
+Australia,2023,87000.0,Actual
+Australia,2024,91000.0,Actual
+Australia,2025,111686.20071577719,Forecast
+Australia,2026,118109.59821468891,Forecast
+Australia,2027,120662.55411431995,Forecast
+Australia,2028,121629.72533420619,Forecast
+Australia,2029,121989.4403837021,Forecast
+Australia,2030,122122.30807957116,Forecast
+Australia,2031,122171.26022569322,Forecast
+Australia,2032,122189.27858950655,Forecast
+Australia,2033,122195.9085124469,Forecast
+Australia,2034,122198.34770582126,Forecast
+Australia,2035,122199.24505941822,Forecast
+Austria,2013,650.0,Actual
+Austria,2014,1700.0,Actual
+Austria,2015,1700.0,Actual
+Austria,2016,3800.0,Actual
+Austria,2017,5400.0,Actual
+Austria,2018,6800.0,Actual
+Austria,2019,9300.0,Actual
+Austria,2020,16000.0,Actual
+Austria,2021,33000.0,Actual
+Austria,2022,34000.0,Actual
+Austria,2023,48000.0,Actual
+Austria,2024,45000.0,Actual
+Austria,2025,52968.435452966274,Forecast
+Austria,2026,55036.40818160925,Forecast
+Austria,2027,56205.351762478276,Forecast
+Austria,2028,56848.559335204714,Forecast
+Austria,2029,57197.24719296447,Forecast
+Austria,2030,57384.74753082825,Forecast
+Austria,2031,57485.1329612927,Forecast
+Austria,2032,57538.752474901805,Forecast
+Austria,2033,57567.356808708166,Forecast
+Austria,2034,57582.60614461683,Forecast
+Austria,2035,57590.73286776684,Forecast
+Belgium,2010,48.0,Actual
+Belgium,2011,280.0,Actual
+Belgium,2012,570.0,Actual
+Belgium,2013,500.0,Actual
+Belgium,2014,1300.0,Actual
+Belgium,2015,1400.0,Actual
+Belgium,2016,2100.0,Actual
+Belgium,2017,2700.0,Actual
+Belgium,2018,3600.0,Actual
+Belgium,2019,8800.0,Actual
+Belgium,2020,15000.0,Actual
+Belgium,2021,23000.0,Actual
+Belgium,2022,38000.0,Actual
+Belgium,2023,93000.0,Actual
+Belgium,2024,130000.0,Actual
+Belgium,2025,170629.5269503086,Forecast
+Belgium,2026,195033.8714372878,Forecast
+Belgium,2027,207669.30988101297,Forecast
+Belgium,2028,213554.96742547536,Forecast
+Belgium,2029,216161.1531077612,Forecast
+Belgium,2030,217289.2305512526,Forecast
+Belgium,2031,217772.70078515934,Forecast
+Belgium,2032,217979.02551356016,Forecast
+Belgium,2033,218066.9161609546,Forecast
+Belgium,2034,218104.32698504755,Forecast
+Belgium,2035,218120.2457183937,Forecast
+Brazil,2010,10.0,Actual
+Brazil,2011,8.0,Actual
+Brazil,2012,22.0,Actual
+Brazil,2013,39.0,Actual
+Brazil,2014,61.0,Actual
+Brazil,2015,61.0,Actual
+Brazil,2016,130.0,Actual
+Brazil,2017,140.0,Actual
+Brazil,2018,180.0,Actual
+Brazil,2019,540.0,Actual
+Brazil,2020,800.0,Actual
+Brazil,2021,2900.0,Actual
+Brazil,2022,8500.0,Actual
+Brazil,2023,19000.0,Actual
+Brazil,2024,62000.0,Actual
+Brazil,2025,139887.7920822271,Forecast
+Brazil,2026,274020.09886328864,Forecast
+Brazil,2027,423356.31255645835,Forecast
+Brazil,2028,529518.3516214945,Forecast
+Brazil,2029,583330.9208654544,Forecast
+Brazil,2030,605986.2837971138,Forecast
+Brazil,2031,614769.9161799294,Forecast
+Brazil,2032,618065.6450715861,Forecast
+Brazil,2033,619286.9844017986,Forecast
+Brazil,2034,619737.5053985424,Forecast
+Brazil,2035,619903.4077820976,Forecast
+Bulgaria,2015,21.0,Actual
+Bulgaria,2016,5.0,Actual
+Bulgaria,2017,68.0,Actual
+Bulgaria,2018,190.0,Actual
+Bulgaria,2019,180.0,Actual
+Bulgaria,2020,140.0,Actual
+Bulgaria,2021,430.0,Actual
+Bulgaria,2022,1000.0,Actual
+Bulgaria,2023,1800.0,Actual
+Bulgaria,2024,1700.0,Actual
+Bulgaria,2025,2048.538086561594,Forecast
+Bulgaria,2026,2117.6128197216717,Forecast
+Bulgaria,2027,2144.2107696546545,Forecast
+Bulgaria,2028,2154.1645027219774,Forecast
+Bulgaria,2029,2157.8495681245568,Forecast
+Bulgaria,2030,2159.2084021546634,Forecast
+Bulgaria,2031,2159.7087199491334,Forecast
+Bulgaria,2032,2159.89283492263,Forecast
+Bulgaria,2033,2159.960574934789,Forecast
+Bulgaria,2034,2159.9854961617025,Forecast
+Bulgaria,2035,2159.9946643134263,Forecast
+Canada,2011,220.0,Actual
+Canada,2012,620.0,Actual
+Canada,2013,1600.0,Actual
+Canada,2014,2800.0,Actual
+Canada,2015,4400.0,Actual
+Canada,2016,5200.0,Actual
+Canada,2017,8700.0,Actual
+Canada,2018,23000.0,Actual
+Canada,2019,32000.0,Actual
+Canada,2020,37000.0,Actual
+Canada,2021,59000.0,Actual
+Canada,2022,91000.0,Actual
+Canada,2023,130000.0,Actual
+Canada,2024,190000.0,Actual
+Canada,2025,270071.43868423696,Forecast
+Canada,2026,375467.988729481,Forecast
+Canada,2027,506539.32625376637,Forecast
+Canada,2028,659095.5910838109,Forecast
+Canada,2029,823553.8583744224,Forecast
+Canada,2030,986818.1723239936,Forecast
+Canada,2031,1136161.6312878502,Forecast
+Canada,2032,1262885.969279242,Forecast
+Canada,2033,1363741.2681401272,Forecast
+Canada,2034,1439991.5311138497,Forecast
+Canada,2035,1495431.4648727025,Forecast
+Central and South America,2010,10.0,Actual
+Central and South America,2011,15.0,Actual
+Central and South America,2012,53.0,Actual
+Central and South America,2013,66.0,Actual
+Central and South America,2014,93.0,Actual
+Central and South America,2015,110.0,Actual
+Central and South America,2016,210.0,Actual
+Central and South America,2017,390.0,Actual
+Central and South America,2018,810.0,Actual
+Central and South America,2019,2000.0,Actual
+Central and South America,2020,2400.0,Actual
+Central and South America,2021,7200.0,Actual
+Central and South America,2022,18000.0,Actual
+Central and South America,2023,36000.0,Actual
+Central and South America,2024,98000.0,Actual
+Central and South America,2025,221405.5288932922,Forecast
+Central and South America,2026,427319.5246998779,Forecast
+Central and South America,2027,658501.809512919,Forecast
+Central and South America,2028,827494.101478294,Forecast
+Central and South America,2029,916256.0784605795,Forecast
+Central and South America,2030,954922.1640485182,Forecast
+Central and South America,2031,970380.2407635837,Forecast
+Central and South America,2032,976346.35504998,Forecast
+Central and South America,2033,978617.593948594,Forecast
+Central and South America,2034,979477.7032355294,Forecast
+Central and South America,2035,979802.7751561328,Forecast
+Chile,2011,6.0,Actual
+Chile,2012,5.0,Actual
+Chile,2013,5.0,Actual
+Chile,2014,5.0,Actual
+Chile,2015,13.0,Actual
+Chile,2016,22.0,Actual
+Chile,2017,120.0,Actual
+Chile,2018,130.0,Actual
+Chile,2019,220.0,Actual
+Chile,2020,160.0,Actual
+Chile,2021,560.0,Actual
+Chile,2022,1300.0,Actual
+Chile,2023,1600.0,Actual
+Chile,2024,4500.0,Actual
+Chile,2025,8756.501851814333,Forecast
+Chile,2026,15823.544877904256,Forecast
+Chile,2027,24706.18471041428,Forecast
+Chile,2028,32944.80503759899,Forecast
+Chile,2029,38692.673503227576,Forecast
+Chile,2030,41953.4158502515,Forecast
+Chile,2031,43589.86512353148,Forecast
+Chile,2032,44360.702768262425,Forecast
+Chile,2033,44712.943789535864,Forecast
+Chile,2034,44871.66793750547,Forecast
+Chile,2035,44942.73994193044,Forecast
+China,2010,1100.0,Actual
+China,2011,4800.0,Actual
+China,2012,9600.0,Actual
+China,2013,15000.0,Actual
+China,2014,49000.0,Actual
+China,2015,150000.0,Actual
+China,2016,260000.0,Actual
+China,2017,470000.0,Actual
+China,2018,820000.0,Actual
+China,2019,830000.0,Actual
+China,2020,920000.0,Actual
+China,2021,2700000.0,Actual
+China,2022,4400000.0,Actual
+China,2023,5400000.0,Actual
+China,2024,6400000.0,Actual
+China,2025,7068848.742260078,Forecast
+China,2026,7384595.508311973,Forecast
+China,2027,7540434.802748327,Forecast
+China,2028,7614787.791103286,Forecast
+China,2029,7649688.653634481,Forecast
+China,2030,7665945.430334163,Forecast
+China,2031,7673490.686918172,Forecast
+China,2032,7676986.832003521,Forecast
+China,2033,7678605.542550271,Forecast
+China,2034,7679354.735172601,Forecast
+China,2035,7679701.428778175,Forecast
+Colombia,2011,1.0,Actual
+Colombia,2012,26.0,Actual
+Colombia,2013,22.0,Actual
+Colombia,2014,27.0,Actual
+Colombia,2015,39.0,Actual
+Colombia,2016,28.0,Actual
+Colombia,2017,92.0,Actual
+Colombia,2018,250.0,Actual
+Colombia,2019,760.0,Actual
+Colombia,2020,670.0,Actual
+Colombia,2021,840.0,Actual
+Colombia,2022,1900.0,Actual
+Colombia,2023,3600.0,Actual
+Colombia,2024,11000.0,Actual
+Colombia,2025,25143.47846058224,Forecast
+Colombia,2026,49073.11278824313,Forecast
+Colombia,2027,75510.97159276431,Forecast
+Colombia,2028,94175.9879531173,Forecast
+Colombia,2029,103596.36657956573,Forecast
+Colombia,2030,107554.23363100992,Forecast
+Colombia,2031,109087.4268646099,Forecast
+Colombia,2032,109662.51326405177,Forecast
+Colombia,2033,109875.60430640663,Forecast
+Colombia,2034,109954.20463440852,Forecast
+Colombia,2035,109983.14838101683,Forecast
+Costa Rica,2016,22.0,Actual
+Costa Rica,2017,14.0,Actual
+Costa Rica,2018,230.0,Actual
+Costa Rica,2019,350.0,Actual
+Costa Rica,2020,590.0,Actual
+Costa Rica,2021,1000.0,Actual
+Costa Rica,2022,2600.0,Actual
+Costa Rica,2023,5800.0,Actual
+Costa Rica,2024,11000.0,Actual
+Costa Rica,2025,17534.751528683253,Forecast
+Costa Rica,2026,23106.8590370653,Forecast
+Costa Rica,2027,26538.18856488386,Forecast
+Costa Rica,2028,28244.78597336418,Forecast
+Costa Rica,2029,29003.685486577684,Forecast
+Costa Rica,2030,29324.271446196886,Forecast
+Costa Rica,2031,29456.75056456996,Forecast
+Costa Rica,2032,29510.99752002348,Forecast
+Costa Rica,2033,29533.127001897607,Forecast
+Costa Rica,2034,29542.140649993,Forecast
+Costa Rica,2035,29545.809739813216,Forecast
+Croatia,2019,190.0,Actual
+Croatia,2020,530.0,Actual
+Croatia,2021,1400.0,Actual
+Croatia,2022,1400.0,Actual
+Croatia,2023,1600.0,Actual
+Croatia,2024,1800.0,Actual
+Croatia,2025,2041.98736496282,Forecast
+Croatia,2026,2101.70680200226,Forecast
+Croatia,2027,2131.6255814894653,Forecast
+Croatia,2028,2146.2888302780716,Forecast
+Croatia,2029,2153.397917836742,Forecast
+Croatia,2030,2156.826473447649,Forecast
+Croatia,2031,2158.4757914000434,Forecast
+Croatia,2032,2159.268230818249,Forecast
+Croatia,2033,2159.6487462766154,Forecast
+Croatia,2034,2159.8314114936957,Forecast
+Croatia,2035,2159.9190874502774,Forecast
+Cyprus,2019,23.0,Actual
+Cyprus,2020,42.0,Actual
+Cyprus,2021,84.0,Actual
+Cyprus,2022,400.0,Actual
+Cyprus,2023,790.0,Actual
+Cyprus,2024,1200.0,Actual
+Cyprus,2025,1542.3711100198097,Forecast
+Cyprus,2026,1715.2224314272883,Forecast
+Cyprus,2027,1788.9779158138451,Forecast
+Cyprus,2028,1817.7326527431553,Forecast
+Cyprus,2029,1828.5448899225169,Forecast
+Cyprus,2030,1832.554924091218,Forecast
+Cyprus,2031,1834.034562104996,Forecast
+Cyprus,2032,1834.5794918731092,Forecast
+Cyprus,2033,1834.78004181606,Forecast
+Cyprus,2034,1834.8538310496376,Forecast
+Cyprus,2035,1834.880978085001,Forecast
+Czech Republic,2015,300.0,Actual
+Czech Republic,2016,200.0,Actual
+Czech Republic,2017,390.0,Actual
+Czech Republic,2018,700.0,Actual
+Czech Republic,2019,760.0,Actual
+Czech Republic,2020,3300.0,Actual
+Czech Republic,2021,2700.0,Actual
+Czech Republic,2022,3900.0,Actual
+Czech Republic,2023,6700.0,Actual
+Czech Republic,2024,11000.0,Actual
+Czech Republic,2025,16170.381536205949,Forecast
+Czech Republic,2026,23711.902942912966,Forecast
+Czech Republic,2027,33514.34349196237,Forecast
+Czech Republic,2028,45244.30289534545,Forecast
+Czech Republic,2029,57968.20971324719,Forecast
+Czech Republic,2030,70381.25656517642,Forecast
+Czech Republic,2031,81299.16336425711,Forecast
+Czech Republic,2032,90060.74922780537,Forecast
+Czech Republic,2033,96588.8756327595,Forecast
+Czech Republic,2034,101188.7950475466,Forecast
+Czech Republic,2035,104304.01664683617,Forecast
+Denmark,2011,420.0,Actual
+Denmark,2012,490.0,Actual
+Denmark,2013,500.0,Actual
+Denmark,2014,1600.0,Actual
+Denmark,2015,4300.0,Actual
+Denmark,2016,1300.0,Actual
+Denmark,2017,710.0,Actual
+Denmark,2018,1500.0,Actual
+Denmark,2019,5500.0,Actual
+Denmark,2020,14000.0,Actual
+Denmark,2021,25000.0,Actual
+Denmark,2022,31000.0,Actual
+Denmark,2023,63000.0,Actual
+Denmark,2024,89000.0,Actual
+Denmark,2025,122259.26471140207,Forecast
+Denmark,2026,151787.1828866973,Forecast
+Denmark,2027,174301.65478731247,Forecast
+Denmark,2028,189320.3862061366,Forecast
+Denmark,2029,198466.31358732784,Forecast
+Denmark,2030,203730.0566014545,Forecast
+Denmark,2031,206661.46675432887,Forecast
+Denmark,2032,208264.1407336453,Forecast
+Denmark,2033,209131.53071156426,Forecast
+Denmark,2034,209598.40189964327,Forecast
+Denmark,2035,209848.95141420653,Forecast
+Estonia,2015,34.0,Actual
+Estonia,2016,35.0,Actual
+Estonia,2017,26.0,Actual
+Estonia,2018,85.0,Actual
+Estonia,2019,80.0,Actual
+Estonia,2020,340.0,Actual
+Estonia,2021,480.0,Actual
+Estonia,2022,730.0,Actual
+Estonia,2023,1400.0,Actual
+Estonia,2024,1300.0,Actual
+Estonia,2025,1563.1841096396704,Forecast
+Estonia,2026,1628.328523687455,Forecast
+Estonia,2027,1657.6631376951648,Forecast
+Estonia,2028,1670.4418400472803,Forecast
+Estonia,2029,1675.9279291962748,Forecast
+Estonia,2030,1678.2684363647836,Forecast
+Estonia,2031,1679.2642790429047,Forecast
+Estonia,2032,1679.687507486822,Forecast
+Estonia,2033,1679.86729015399,Forecast
+Estonia,2034,1679.943644029847,Forecast
+Estonia,2035,1679.9760687515013,Forecast
+Finland,2011,30.0,Actual
+Finland,2012,51.0,Actual
+Finland,2013,50.0,Actual
+Finland,2014,180.0,Actual
+Finland,2015,240.0,Actual
+Finland,2016,220.0,Actual
+Finland,2017,500.0,Actual
+Finland,2018,780.0,Actual
+Finland,2019,1900.0,Actual
+Finland,2020,4200.0,Actual
+Finland,2021,10000.0,Actual
+Finland,2022,15000.0,Actual
+Finland,2023,30000.0,Actual
+Finland,2024,22000.0,Actual
+Finland,2025,32125.923442444873,Forecast
+Finland,2026,34096.25862655036,Forecast
+Finland,2027,35092.79013495133,Forecast
+Finland,2028,35574.19225569183,Forecast
+Finland,2029,35801.587315444456,Forecast
+Finland,2030,35907.86061169791,Forecast
+Finland,2031,35957.279997560574,Forecast
+Finland,2032,35980.20767812312,Forecast
+Finland,2033,35990.83328723733,Forecast
+Finland,2034,35995.755156820655,Forecast
+Finland,2035,35998.0344785548,Forecast
+France,2010,190.0,Actual
+France,2011,2600.0,Actual
+France,2012,5700.0,Actual
+France,2013,8900.0,Actual
+France,2014,11000.0,Actual
+France,2015,18000.0,Actual
+France,2016,23000.0,Actual
+France,2017,26000.0,Actual
+France,2018,33000.0,Actual
+France,2019,45000.0,Actual
+France,2020,110000.0,Actual
+France,2021,170000.0,Actual
+France,2022,210000.0,Actual
+France,2023,310000.0,Actual
+France,2024,300000.0,Actual
+France,2025,343074.4766057753,Forecast
+France,2026,356735.3647996448,Forecast
+France,2027,364093.2084240627,Forecast
+France,2028,367944.7487185261,Forecast
+France,2029,369930.7970092765,Forecast
+France,2030,370946.9672403302,Forecast
+France,2031,371464.82575869333,Forecast
+France,2032,371728.199368269,Forecast
+France,2033,371862.0079038004,Forecast
+France,2034,371929.95437625586,Forecast
+France,2035,371964.44761582447,Forecast
+Germany,2010,140.0,Actual
+Germany,2011,1400.0,Actual
+Germany,2012,2200.0,Actual
+Germany,2013,5200.0,Actual
+Germany,2014,9100.0,Actual
+Germany,2015,12000.0,Actual
+Germany,2016,11000.0,Actual
+Germany,2017,25000.0,Actual
+Germany,2018,36000.0,Actual
+Germany,2019,63000.0,Actual
+Germany,2020,190000.0,Actual
+Germany,2021,360000.0,Actual
+Germany,2022,470000.0,Actual
+Germany,2023,520000.0,Actual
+Germany,2024,380000.0,Actual
+Germany,2025,585721.1611859151,Forecast
+Germany,2026,604291.1268296508,Forecast
+Germany,2027,614006.0773396143,Forecast
+Germany,2028,618972.1517494183,Forecast
+Germany,2029,621480.6621723333,Forecast
+Germany,2030,622740.165777646,Forecast
+Germany,2031,623370.6378804852,Forecast
+Germany,2032,623685.7554071717,Forecast
+Germany,2033,623843.1353396646,Forecast
+Germany,2034,623921.7061734281,Forecast
+Germany,2035,623960.924683575,Forecast
+Greece,2013,3.0,Actual
+Greece,2014,39.0,Actual
+Greece,2015,35.0,Actual
+Greece,2016,41.0,Actual
+Greece,2017,50.0,Actual
+Greece,2018,88.0,Actual
+Greece,2019,190.0,Actual
+Greece,2020,680.0,Actual
+Greece,2021,2200.0,Actual
+Greece,2022,2800.0,Actual
+Greece,2023,7000.0,Actual
+Greece,2024,8700.0,Actual
+Greece,2025,10379.48210512299,Forecast
+Greece,2026,11060.338149127958,Forecast
+Greece,2027,11333.84125092481,Forecast
+Greece,2028,11437.892036171459,Forecast
+Greece,2029,11476.652501909233,Forecast
+Greece,2030,11490.977860432275,Forecast
+Greece,2031,11496.256867518694,Forecast
+Greece,2032,11498.200126298063,Forecast
+Greece,2033,11498.915176556553,Forecast
+Greece,2034,11499.1782512233,Forecast
+Greece,2035,11499.2750340134,Forecast
+Hungary,2015,120.0,Actual
+Hungary,2016,170.0,Actual
+Hungary,2017,750.0,Actual
+Hungary,2018,1300.0,Actual
+Hungary,2019,1800.0,Actual
+Hungary,2020,3000.0,Actual
+Hungary,2021,4300.0,Actual
+Hungary,2022,4700.0,Actual
+Hungary,2023,5800.0,Actual
+Hungary,2024,8600.0,Actual
+Hungary,2025,10038.35946894704,Forecast
+Hungary,2026,11773.245431111833,Forecast
+Hungary,2027,13321.77402249468,Forecast
+Hungary,2028,14614.661627599238,Forecast
+Hungary,2029,15635.254776006941,Forecast
+Hungary,2030,16405.822601683005,Forecast
+Hungary,2031,16968.28411756986,Forecast
+Hungary,2032,17368.794194518152,Forecast
+Hungary,2033,17648.9786744162,Forecast
+Hungary,2034,17842.567700795476,Forecast
+Hungary,2035,17975.179869876054,Forecast
+Iceland,2012,17.0,Actual
+Iceland,2013,80.0,Actual
+Iceland,2014,200.0,Actual
+Iceland,2015,390.0,Actual
+Iceland,2016,380.0,Actual
+Iceland,2017,840.0,Actual
+Iceland,2018,780.0,Actual
+Iceland,2019,1100.0,Actual
+Iceland,2020,2500.0,Actual
+Iceland,2021,4200.0,Actual
+Iceland,2022,6900.0,Actual
+Iceland,2023,10000.0,Actual
+Iceland,2024,2700.0,Actual
+Iceland,2025,8408.563541744496,Forecast
+Iceland,2026,9319.131256648941,Forecast
+Iceland,2027,10052.310348551242,Forecast
+Iceland,2028,10614.780399003897,Forecast
+Iceland,2029,11030.482053280406,Forecast
+Iceland,2030,11329.314759466672,Forecast
+Iceland,2031,11539.880984397478,Forecast
+Iceland,2032,11686.169759996894,Forecast
+Iceland,2033,11786.807204699924,Forecast
+Iceland,2034,11855.57160407592,Forecast
+Iceland,2035,11902.340118653794,Forecast
+India,2010,450.0,Actual
+India,2011,1400.0,Actual
+India,2012,190.0,Actual
+India,2013,410.0,Actual
+India,2014,1000.0,Actual
+India,2015,450.0,Actual
+India,2016,730.0,Actual
+India,2017,920.0,Actual
+India,2018,920.0,Actual
+India,2019,680.0,Actual
+India,2020,3100.0,Actual
+India,2021,12000.0,Actual
+India,2022,48000.0,Actual
+India,2023,82000.0,Actual
+India,2024,92000.0,Actual
+India,2025,109479.08102206473,Forecast
+India,2026,114974.0157977373,Forecast
+India,2027,117136.88667798488,Forecast
+India,2028,117953.17966184486,Forecast
+India,2029,118256.34696747643,Forecast
+India,2030,118368.26846800839,Forecast
+India,2031,118409.49540916935,Forecast
+India,2032,118424.66917987654,Forecast
+India,2033,118430.25227669519,Forecast
+India,2034,118432.30631568802,Forecast
+India,2035,118433.06197233197,Forecast
+Indonesia,2011,2.0,Actual
+Indonesia,2013,2.0,Actual
+Indonesia,2019,29.0,Actual
+Indonesia,2020,340.0,Actual
+Indonesia,2021,730.0,Actual
+Indonesia,2022,11000.0,Actual
+Indonesia,2023,17000.0,Actual
+Indonesia,2024,49000.0,Actual
+Indonesia,2025,112888.08681689297,Forecast
+Indonesia,2026,219825.74755565918,Forecast
+Indonesia,2027,337412.14847211464,Forecast
+Indonesia,2028,420077.08727387903,Forecast
+Indonesia,2029,461689.6631559485,Forecast
+Indonesia,2030,479151.1806904197,Forecast
+Indonesia,2031,485912.0622677345,Forecast
+Indonesia,2032,488447.5558916177,Forecast
+Indonesia,2033,489387.00030289666,Forecast
+Indonesia,2034,489733.51909483754,Forecast
+Indonesia,2035,489861.1221731302,Forecast
+Ireland,2015,470.0,Actual
+Ireland,2016,390.0,Actual
+Ireland,2017,620.0,Actual
+Ireland,2018,1200.0,Actual
+Ireland,2019,3400.0,Actual
+Ireland,2020,4000.0,Actual
+Ireland,2021,8600.0,Actual
+Ireland,2022,16000.0,Actual
+Ireland,2023,23000.0,Actual
+Ireland,2024,17000.0,Actual
+Ireland,2025,24848.43040922365,Forecast
+Ireland,2026,26175.669778384465,Forecast
+Ireland,2027,26881.22447635567,Forecast
+Ireland,2028,27242.05569691262,Forecast
+Ireland,2029,27422.939806451534,Forecast
+Ireland,2030,27512.708567990303,Forecast
+Ireland,2031,27557.036255634626,Forecast
+Ireland,2032,27578.871072797436,Forecast
+Ireland,2033,27589.613292027425,Forecast
+Ireland,2034,27594.895039331226,Forecast
+Ireland,2035,27597.49120830655,Forecast
+Israel,2011,3.0,Actual
+Israel,2012,600.0,Actual
+Israel,2013,460.0,Actual
+Israel,2014,6.0,Actual
+Israel,2015,3.0,Actual
+Israel,2016,5.0,Actual
+Israel,2017,130.0,Actual
+Israel,2018,130.0,Actual
+Israel,2019,850.0,Actual
+Israel,2020,1500.0,Actual
+Israel,2021,11000.0,Actual
+Israel,2022,27000.0,Actual
+Israel,2023,49000.0,Actual
+Israel,2024,69000.0,Actual
+Israel,2025,82922.13839411084,Forecast
+Israel,2026,89290.82365929258,Forecast
+Israel,2027,91887.02889278275,Forecast
+Israel,2028,92880.51621732744,Forecast
+Israel,2029,93251.42671455351,Forecast
+Israel,2030,93388.62351913749,Forecast
+Israel,2031,93439.19703271512,Forecast
+Israel,2032,93457.81577316404,Forecast
+Israel,2033,93464.66709204884,Forecast
+Israel,2034,93467.18780416531,Forecast
+Israel,2035,93468.11515654037,Forecast
+Italy,2010,40.0,Actual
+Italy,2011,110.0,Actual
+Italy,2012,460.0,Actual
+Italy,2013,860.0,Actual
+Italy,2014,1000.0,Actual
+Italy,2015,1500.0,Actual
+Italy,2016,1400.0,Actual
+Italy,2017,2000.0,Actual
+Italy,2018,5000.0,Actual
+Italy,2019,11000.0,Actual
+Italy,2020,33000.0,Actual
+Italy,2021,67000.0,Actual
+Italy,2022,49000.0,Actual
+Italy,2023,66000.0,Actual
+Italy,2024,66000.0,Actual
+Italy,2025,77843.4873756714,Forecast
+Italy,2026,79194.85243741858,Forecast
+Italy,2027,79837.05573328743,Forecast
+Italy,2028,80138.1708904315,Forecast
+Italy,2029,80278.46672887108,Forecast
+Italy,2030,80343.64074535233,Forecast
+Italy,2031,80373.87560399815,Forecast
+Italy,2032,80387.89291455249,Forecast
+Italy,2033,80394.38961948345,Forecast
+Italy,2034,80397.40028229353,Forecast
+Italy,2035,80398.79537649141,Forecast
+Japan,2010,2400.0,Actual
+Japan,2011,13000.0,Actual
+Japan,2012,13000.0,Actual
+Japan,2013,15000.0,Actual
+Japan,2014,16000.0,Actual
+Japan,2015,10000.0,Actual
+Japan,2016,15000.0,Actual
+Japan,2017,18000.0,Actual
+Japan,2018,27000.0,Actual
+Japan,2019,21000.0,Actual
+Japan,2020,15000.0,Actual
+Japan,2021,22000.0,Actual
+Japan,2022,59000.0,Actual
+Japan,2023,88000.0,Actual
+Japan,2024,60000.0,Actual
+Japan,2025,88503.76183000517,Forecast
+Japan,2026,106782.6280529211,Forecast
+Japan,2027,128225.07585731869,Forecast
+Japan,2028,153120.5984663162,Forecast
+Japan,2029,181681.5741972473,Forecast
+Japan,2030,214001.47877760945,Forecast
+Japan,2031,250012.43647302833,Forecast
+Japan,2032,289449.5004064492,Forecast
+Japan,2033,331830.7171386541,Forecast
+Japan,2034,376461.5645015125,Forecast
+Japan,2035,422468.90974645136,Forecast
+Korea,2010,61.0,Actual
+Korea,2011,270.0,Actual
+Korea,2012,510.0,Actual
+Korea,2013,600.0,Actual
+Korea,2014,1300.0,Actual
+Korea,2015,3100.0,Actual
+Korea,2016,4700.0,Actual
+Korea,2017,14000.0,Actual
+Korea,2018,55000.0,Actual
+Korea,2019,33000.0,Actual
+Korea,2020,31000.0,Actual
+Korea,2021,72000.0,Actual
+Korea,2022,120000.0,Actual
+Korea,2023,120000.0,Actual
+Korea,2024,120000.0,Actual
+Korea,2025,138297.8049781574,Forecast
+Korea,2026,143877.61394701115,Forecast
+Korea,2027,147234.58819432615,Forecast
+Korea,2028,149201.85436439136,Forecast
+Korea,2029,150337.00446076438,Forecast
+Korea,2030,150986.16234540474,Forecast
+Korea,2031,151355.49418952118,Forecast
+Korea,2032,151565.00800928992,Forecast
+Korea,2033,151683.66338355388,Forecast
+Korea,2034,151750.79909160134,Forecast
+Korea,2035,151788.7645380164,Forecast
+Latvia,2015,17.0,Actual
+Latvia,2016,22.0,Actual
+Latvia,2017,22.0,Actual
+Latvia,2018,73.0,Actual
+Latvia,2019,86.0,Actual
+Latvia,2020,310.0,Actual
+Latvia,2021,410.0,Actual
+Latvia,2022,1100.0,Actual
+Latvia,2023,1700.0,Actual
+Latvia,2024,1300.0,Actual
+Latvia,2025,1877.2650120777719,Forecast
+Latvia,2026,1966.2442978156098,Forecast
+Latvia,2027,2007.4164513916278,Forecast
+Latvia,2028,2025.7716621425968,Forecast
+Latvia,2029,2033.8187160695893,Forecast
+Latvia,2030,2037.320655128444,Forecast
+Latvia,2031,2038.8397406013396,Forecast
+Latvia,2032,2039.497775359365,Forecast
+Latvia,2033,2039.7826490965167,Forecast
+Latvia,2034,2039.905943140112,Forecast
+Latvia,2035,2039.9592990439537,Forecast
+Lithuania,2015,37.0,Actual
+Lithuania,2016,64.0,Actual
+Lithuania,2017,52.0,Actual
+Lithuania,2018,140.0,Actual
+Lithuania,2019,160.0,Actual
+Lithuania,2020,450.0,Actual
+Lithuania,2021,1200.0,Actual
+Lithuania,2022,1400.0,Actual
+Lithuania,2023,2100.0,Actual
+Lithuania,2024,1800.0,Actual
+Lithuania,2025,2341.412329418035,Forecast
+Lithuania,2026,2432.934706385821,Forecast
+Lithuania,2027,2478.387400055044,Forecast
+Lithuania,2028,2500.3034833168745,Forecast
+Lithuania,2029,2510.720254365955,Forecast
+Lithuania,2030,2515.6375861415827,Forecast
+Lithuania,2031,2517.9513528294415,Forecast
+Lithuania,2032,2519.0383973223234,Forecast
+Lithuania,2033,2519.548742238626,Forecast
+Lithuania,2034,2519.7882579996885,Forecast
+Lithuania,2035,2519.9006501019426,Forecast
+Luxembourg,2019,990.0,Actual
+Luxembourg,2020,2500.0,Actual
+Luxembourg,2021,4600.0,Actual
+Luxembourg,2022,6400.0,Actual
+Luxembourg,2023,11000.0,Actual
+Luxembourg,2024,13000.0,Actual
+Luxembourg,2025,15080.671002968518,Forecast
+Luxembourg,2026,16158.910784001953,Forecast
+Luxembourg,2027,16715.97640570083,Forecast
+Luxembourg,2028,16988.96283860407,Forecast
+Luxembourg,2029,17119.271872840676,Forecast
+Luxembourg,2030,17180.694487216908,Forecast
+Luxembourg,2031,17209.4744706678,Forecast
+Luxembourg,2032,17222.92181661478,Forecast
+Luxembourg,2033,17229.196819421246,Forecast
+Luxembourg,2034,17232.123166317753,Forecast
+Luxembourg,2035,17233.487478857187,Forecast
+Malaysia,2012,10.0,Actual
+Malaysia,2013,2.0,Actual
+Malaysia,2014,15.0,Actual
+Malaysia,2015,37.0,Actual
+Malaysia,2016,110.0,Actual
+Malaysia,2017,140.0,Actual
+Malaysia,2018,62.0,Actual
+Malaysia,2019,42.0,Actual
+Malaysia,2020,87.0,Actual
+Malaysia,2021,290.0,Actual
+Malaysia,2022,1300.0,Actual
+Malaysia,2023,9200.0,Actual
+Malaysia,2024,26000.0,Actual
+Malaysia,2025,58805.30601868402,Forecast
+Malaysia,2026,115112.92923694292,Forecast
+Malaysia,2027,177713.1276886131,Forecast
+Malaysia,2028,222157.66953324154,Forecast
+Malaysia,2029,244667.98530124358,Forecast
+Malaysia,2030,254141.27908411986,Forecast
+Malaysia,2031,257813.55346455256,Forecast
+Malaysia,2032,259191.3526947488,Forecast
+Malaysia,2033,259701.9292712214,Forecast
+Malaysia,2034,259890.2663851807,Forecast
+Malaysia,2035,259959.62048633382,Forecast
+Mexico,2011,3.0,Actual
+Mexico,2012,88.0,Actual
+Mexico,2013,12.0,Actual
+Mexico,2014,48.0,Actual
+Mexico,2015,92.0,Actual
+Mexico,2016,250.0,Actual
+Mexico,2017,230.0,Actual
+Mexico,2018,200.0,Actual
+Mexico,2019,290.0,Actual
+Mexico,2020,1800.0,Actual
+Mexico,2021,3000.0,Actual
+Mexico,2022,4400.0,Actual
+Mexico,2023,14000.0,Actual
+Mexico,2024,20000.0,Actual
+Mexico,2025,26206.70945410849,Forecast
+Mexico,2026,29308.409654958305,Forecast
+Mexico,2027,30642.60212298578,Forecast
+Mexico,2028,31164.50780093737,Forecast
+Mexico,2029,31361.007506542,Forecast
+Mexico,2030,31433.92062986624,Forecast
+Mexico,2031,31460.829247002457,Forecast
+Mexico,2032,31470.739969132886,Forecast
+Mexico,2033,31474.387491297548,Forecast
+Mexico,2034,31475.729552458848,Forecast
+Mexico,2035,31476.2232979659,Forecast
+Netherlands,2010,120.0,Actual
+Netherlands,2011,860.0,Actual
+Netherlands,2012,790.0,Actual
+Netherlands,2013,2600.0,Actual
+Netherlands,2014,2700.0,Actual
+Netherlands,2015,3400.0,Actual
+Netherlands,2016,4000.0,Actual
+Netherlands,2017,8000.0,Actual
+Netherlands,2018,24000.0,Actual
+Netherlands,2019,61000.0,Actual
+Netherlands,2020,72000.0,Actual
+Netherlands,2021,63000.0,Actual
+Netherlands,2022,73000.0,Actual
+Netherlands,2023,110000.0,Actual
+Netherlands,2024,130000.0,Actual
+Netherlands,2025,136210.75372610887,Forecast
+Netherlands,2026,145586.88281416742,Forecast
+Netherlands,2027,152296.33528059107,Forecast
+Netherlands,2028,156924.8538619158,Forecast
+Netherlands,2029,160037.71937477065,Forecast
+Netherlands,2030,162095.62456660008,Forecast
+Netherlands,2031,163440.70633170125,Forecast
+Netherlands,2032,164313.347468423,Forecast
+Netherlands,2033,164876.75198015966,Forecast
+Netherlands,2034,165239.3675491973,Forecast
+Netherlands,2035,165472.28269319818,Forecast
+New Zealand,2010,10.0,Actual
+New Zealand,2011,13.0,Actual
+New Zealand,2012,22.0,Actual
+New Zealand,2013,30.0,Actual
+New Zealand,2014,110.0,Actual
+New Zealand,2015,300.0,Actual
+New Zealand,2016,1200.0,Actual
+New Zealand,2017,2900.0,Actual
+New Zealand,2018,4400.0,Actual
+New Zealand,2019,5300.0,Actual
+New Zealand,2020,3900.0,Actual
+New Zealand,2021,6800.0,Actual
+New Zealand,2022,19000.0,Actual
+New Zealand,2023,21000.0,Actual
+New Zealand,2024,6300.0,Actual
+New Zealand,2025,18329.248744066925,Forecast
+New Zealand,2026,20070.06826064605,Forecast
+New Zealand,2027,21459.823785653603,Forecast
+New Zealand,2028,22523.29222810797,Forecast
+New Zealand,2029,23310.995129318813,Forecast
+New Zealand,2030,23880.47275996966,Forecast
+New Zealand,2031,24285.008873824445,Forecast
+New Zealand,2032,24568.801776517612,Forecast
+New Zealand,2033,24766.146205964345,Forecast
+New Zealand,2034,24902.53782340686,Forecast
+New Zealand,2035,24996.40418005541,Forecast
+Norway,2010,360.0,Actual
+Norway,2011,2000.0,Actual
+Norway,2012,3900.0,Actual
+Norway,2013,7900.0,Actual
+Norway,2014,20000.0,Actual
+Norway,2015,26000.0,Actual
+Norway,2016,24000.0,Actual
+Norway,2017,33000.0,Actual
+Norway,2018,46000.0,Actual
+Norway,2019,60000.0,Actual
+Norway,2020,77000.0,Actual
+Norway,2021,110000.0,Actual
+Norway,2022,140000.0,Actual
+Norway,2023,100000.0,Actual
+Norway,2024,110000.0,Actual
+Norway,2025,141122.2255853078,Forecast
+Norway,2026,148265.09145856043,Forecast
+Norway,2027,153702.03750679997,Forecast
+Norway,2028,157744.71648427693,Forecast
+Norway,2029,160698.64628600737,Forecast
+Norway,2030,162829.61495771076,Forecast
+Norway,2031,164352.75613336358,Forecast
+Norway,2032,165434.26616658975,Forecast
+Norway,2033,166198.5932086737,Forecast
+Norway,2034,166736.96707969642,Forecast
+Norway,2035,167115.2974081634,Forecast
+Poland,2010,15.0,Actual
+Poland,2011,43.0,Actual
+Poland,2012,44.0,Actual
+Poland,2013,31.0,Actual
+Poland,2014,140.0,Actual
+Poland,2015,70.0,Actual
+Poland,2016,110.0,Actual
+Poland,2017,440.0,Actual
+Poland,2018,620.0,Actual
+Poland,2019,1500.0,Actual
+Poland,2020,3700.0,Actual
+Poland,2021,7200.0,Actual
+Poland,2022,14000.0,Actual
+Poland,2023,17000.0,Actual
+Poland,2024,17000.0,Actual
+Poland,2025,19800.68600206889,Forecast
+Poland,2026,20173.353396831506,Forecast
+Poland,2027,20315.27904486252,Forecast
+Poland,2028,20368.470041929184,Forecast
+Poland,2029,20388.284991351862,Forecast
+Poland,2030,20395.649928449333,Forecast
+Poland,2031,20398.385077926792,Forecast
+Poland,2032,20399.400526316047,Forecast
+Poland,2033,20399.777476910385,Forecast
+Poland,2034,20399.917400961232,Forecast
+Poland,2035,20399.96933993777,Forecast
+Portugal,2010,13.0,Actual
+Portugal,2011,170.0,Actual
+Portugal,2012,54.0,Actual
+Portugal,2013,150.0,Actual
+Portugal,2014,190.0,Actual
+Portugal,2015,670.0,Actual
+Portugal,2016,800.0,Actual
+Portugal,2017,1900.0,Actual
+Portugal,2018,4300.0,Actual
+Portugal,2019,6800.0,Actual
+Portugal,2020,7800.0,Actual
+Portugal,2021,13000.0,Actual
+Portugal,2022,18000.0,Actual
+Portugal,2023,36000.0,Actual
+Portugal,2024,42000.0,Actual
+Portugal,2025,54607.582047859796,Forecast
+Portugal,2026,63979.57510535279,Forecast
+Portugal,2027,70837.18260470545,Forecast
+Portugal,2028,75395.54993524487,Forecast
+Portugal,2029,78235.3204030617,Forecast
+Portugal,2030,79933.56020432056,Forecast
+Portugal,2031,80924.41046318425,Forecast
+Portugal,2032,81494.2309633796,Forecast
+Portugal,2033,81819.20308358084,Forecast
+Portugal,2034,82003.65568507776,Forecast
+Portugal,2035,82108.06703270364,Forecast
+Rest of the world,2010,450.0,Actual
+Rest of the world,2011,570.0,Actual
+Rest of the world,2012,1200.0,Actual
+Rest of the world,2013,490.0,Actual
+Rest of the world,2014,1300.0,Actual
+Rest of the world,2015,1600.0,Actual
+Rest of the world,2016,1800.0,Actual
+Rest of the world,2017,4700.0,Actual
+Rest of the world,2018,8000.0,Actual
+Rest of the world,2019,14000.0,Actual
+Rest of the world,2020,29000.0,Actual
+Rest of the world,2021,50000.0,Actual
+Rest of the world,2022,82000.0,Actual
+Rest of the world,2023,130000.0,Actual
+Rest of the world,2024,190000.0,Actual
+Rest of the world,2025,251986.58157363685,Forecast
+Rest of the world,2026,306029.0313690024,Forecast
+Rest of the world,2027,346078.81447749486,Forecast
+Rest of the world,2028,372374.53374258144,Forecast
+Rest of the world,2029,388294.37300292106,Forecast
+Rest of the world,2030,397463.40300649597,Forecast
+Rest of the world,2031,402593.15327570244,Forecast
+Rest of the world,2032,405416.52502272854,Forecast
+Rest of the world,2033,406956.51262313576,Forecast
+Rest of the world,2034,407792.35116653563,Forecast
+Rest of the world,2035,408244.79282576597,Forecast
+Romania,2015,24.0,Actual
+Romania,2016,74.0,Actual
+Romania,2017,190.0,Actual
+Romania,2018,600.0,Actual
+Romania,2019,1500.0,Actual
+Romania,2020,2800.0,Actual
+Romania,2021,6300.0,Actual
+Romania,2022,12000.0,Actual
+Romania,2023,15000.0,Actual
+Romania,2024,9800.0,Actual
+Romania,2025,16238.707567005507,Forecast
+Romania,2026,17076.793466770803,Forecast
+Romania,2027,17527.687224404013,Forecast
+Romania,2028,17761.440997269638,Forecast
+Romania,2029,17880.297043376464,Forecast
+Romania,2030,17940.135631564834,Forecast
+Romania,2031,17970.11137152619,Forecast
+Romania,2032,17985.08990652876,Forecast
+Romania,2033,17992.565130136318,Forecast
+Romania,2034,17996.293398580554,Forecast
+Romania,2035,17998.152292251878,Forecast
+Russia,2011,41.0,Actual
+Russia,2012,49.0,Actual
+Russia,2015,110.0,Actual
+Russia,2016,350.0,Actual
+Russia,2017,110.0,Actual
+Russia,2018,140.0,Actual
+Russia,2019,350.0,Actual
+Russia,2020,780.0,Actual
+Russia,2021,1300.0,Actual
+Russia,2022,760.0,Actual
+Russia,2023,1900.0,Actual
+Russia,2024,4600.0,Actual
+Russia,2025,7813.0067433442355,Forecast
+Russia,2026,13131.318321683668,Forecast
+Russia,2027,20158.73101566557,Forecast
+Russia,2028,27769.580645744598,Forecast
+Russia,2029,34425.858102968676,Forecast
+Russia,2030,39243.146000195,Forecast
+Russia,2031,42272.51821867605,Forecast
+Russia,2032,44012.486860064004,Forecast
+Russia,2033,44960.225244312714,Forecast
+Russia,2034,45461.566738742345,Forecast
+Russia,2035,45722.670695744935,Forecast
+Seychelles,2015,3.0,Actual
+Seychelles,2016,12.0,Actual
+Seychelles,2017,30.0,Actual
+Seychelles,2018,32.0,Actual
+Seychelles,2019,37.0,Actual
+Seychelles,2020,26.0,Actual
+Seychelles,2021,61.0,Actual
+Seychelles,2022,37.0,Actual
+Seychelles,2023,100.0,Actual
+Seychelles,2025,135.47037634317098,Forecast
+Seychelles,2026,170.13073601602508,Forecast
+Seychelles,2027,211.48965911016717,Forecast
+Seychelles,2028,259.7558649111572,Forecast
+Seychelles,2029,314.6419118213629,Forecast
+Seychelles,2030,375.2463490796042,Forecast
+Seychelles,2031,440.02931341774405,Forecast
+Seychelles,2032,506.92168044443287,Forecast
+Seychelles,2033,573.5671413209866,Forecast
+Seychelles,2034,637.643693540873,Forecast
+Seychelles,2035,697.1753928163903,Forecast
+Slovakia,2015,52.0,Actual
+Slovakia,2016,59.0,Actual
+Slovakia,2017,210.0,Actual
+Slovakia,2018,290.0,Actual
+Slovakia,2019,160.0,Actual
+Slovakia,2020,920.0,Actual
+Slovakia,2021,1100.0,Actual
+Slovakia,2022,1400.0,Actual
+Slovakia,2023,2300.0,Actual
+Slovakia,2024,2200.0,Actual
+Slovakia,2025,2527.3701007750556,Forecast
+Slovakia,2026,2638.0847577917584,Forecast
+Slovakia,2027,2697.4122754318987,Forecast
+Slovakia,2028,2728.2171137215532,Forecast
+Slovakia,2029,2743.9504359780776,Forecast
+Slovakia,2030,2751.9184417479314,Forecast
+Slovakia,2031,2755.9364900626106,Forecast
+Slovakia,2032,2757.95829784082,Forecast
+Slovakia,2033,2758.974525287532,Forecast
+Slovakia,2034,2759.4850348018585,Forecast
+Slovakia,2035,2759.741422459172,Forecast
+Slovenia,2016,140.0,Actual
+Slovenia,2017,290.0,Actual
+Slovenia,2018,470.0,Actual
+Slovenia,2019,190.0,Actual
+Slovenia,2020,1600.0,Actual
+Slovenia,2021,1700.0,Actual
+Slovenia,2022,2300.0,Actual
+Slovenia,2023,4300.0,Actual
+Slovenia,2024,3100.0,Actual
+Slovenia,2025,4393.359594896901,Forecast
+Slovenia,2026,4704.375903043026,Forecast
+Slovenia,2027,4896.776496537334,Forecast
+Slovenia,2028,5010.512042309494,Forecast
+Slovenia,2029,5075.947442945811,Forecast
+Slovenia,2030,5113.0084211952035,Forecast
+Slovenia,2031,5133.812547612434,Forecast
+Slovenia,2032,5145.432506113049,Forecast
+Slovenia,2033,5151.904559544158,Forecast
+Slovenia,2034,5155.503718501132,Forecast
+Slovenia,2035,5157.503499626918,Forecast
+South Africa,2013,34.0,Actual
+South Africa,2014,14.0,Actual
+South Africa,2015,120.0,Actual
+South Africa,2016,100.0,Actual
+South Africa,2017,68.0,Actual
+South Africa,2018,66.0,Actual
+South Africa,2019,160.0,Actual
+South Africa,2020,92.0,Actual
+South Africa,2021,220.0,Actual
+South Africa,2022,500.0,Actual
+South Africa,2023,810.0,Actual
+South Africa,2024,1200.0,Actual
+South Africa,2025,1835.0248206150338,Forecast
+South Africa,2026,2628.1267028910142,Forecast
+South Africa,2027,3527.5464374241137,Forecast
+South Africa,2028,4419.885146064261,Forecast
+South Africa,2029,5195.1659961480855,Forecast
+South Africa,2030,5794.804476289956,Forecast
+South Africa,2031,6218.211638756344,Forecast
+South Africa,2032,6498.318024785477,Forecast
+South Africa,2033,6675.719919324916,Forecast
+South Africa,2034,6784.992013846477,Forecast
+South Africa,2035,6851.149230065347,Forecast
+Spain,2010,76.0,Actual
+Spain,2011,390.0,Actual
+Spain,2012,430.0,Actual
+Spain,2013,810.0,Actual
+Spain,2014,1400.0,Actual
+Spain,2015,1300.0,Actual
+Spain,2016,2000.0,Actual
+Spain,2017,3900.0,Actual
+Spain,2018,6000.0,Actual
+Spain,2019,10000.0,Actual
+Spain,2020,18000.0,Actual
+Spain,2021,24000.0,Actual
+Spain,2022,33000.0,Actual
+Spain,2023,57000.0,Actual
+Spain,2024,62000.0,Actual
+Spain,2025,75106.11564288185,Forecast
+Spain,2026,83068.73802477121,Forecast
+Spain,2027,88346.48083798065,Forecast
+Spain,2028,91626.76223011526,Forecast
+Spain,2029,93584.72746046864,Forecast
+Spain,2030,94725.31026817737,Forecast
+Spain,2031,95380.33672565408,Forecast
+Spain,2032,95753.43679178493,Forecast
+Spain,2033,95964.95965153654,Forecast
+Spain,2034,96084.56062017205,Forecast
+Spain,2035,96152.08472982919,Forecast
+Sweden,2010,4.0,Actual
+Sweden,2011,180.0,Actual
+Sweden,2012,270.0,Actual
+Sweden,2013,430.0,Actual
+Sweden,2014,1200.0,Actual
+Sweden,2015,3000.0,Actual
+Sweden,2016,2900.0,Actual
+Sweden,2017,4400.0,Actual
+Sweden,2018,7100.0,Actual
+Sweden,2019,16000.0,Actual
+Sweden,2020,28000.0,Actual
+Sweden,2021,57000.0,Actual
+Sweden,2022,96000.0,Actual
+Sweden,2023,110000.0,Actual
+Sweden,2024,94000.0,Actual
+Sweden,2025,125065.38404311317,Forecast
+Sweden,2026,128751.76305484398,Forecast
+Sweden,2027,130501.96898652092,Forecast
+Sweden,2028,131314.15730910882,Forecast
+Sweden,2029,131687.05697311385,Forecast
+Sweden,2030,131857.4274200584,Forecast
+Sweden,2031,131935.0915921768,Forecast
+Sweden,2032,131970.4589054384,Forecast
+Sweden,2033,131986.5572296798,Forecast
+Sweden,2034,131993.88323066637,Forecast
+Sweden,2035,131997.21681364215,Forecast
+Switzerland,2011,400.0,Actual
+Switzerland,2012,340.0,Actual
+Switzerland,2013,1200.0,Actual
+Switzerland,2014,2700.0,Actual
+Switzerland,2015,3300.0,Actual
+Switzerland,2016,3300.0,Actual
+Switzerland,2017,4800.0,Actual
+Switzerland,2018,5100.0,Actual
+Switzerland,2019,13000.0,Actual
+Switzerland,2020,20000.0,Actual
+Switzerland,2021,32000.0,Actual
+Switzerland,2022,40000.0,Actual
+Switzerland,2023,53000.0,Actual
+Switzerland,2024,46000.0,Actual
+Switzerland,2025,57761.072505453194,Forecast
+Switzerland,2026,60255.103302683405,Forecast
+Switzerland,2027,61718.53760691028,Forecast
+Switzerland,2028,62552.82827732786,Forecast
+Switzerland,2029,63020.64489379342,Forecast
+Switzerland,2030,63280.53507748719,Forecast
+Switzerland,2031,63424.1676205504,Forecast
+Switzerland,2032,63503.32113209727,Forecast
+Switzerland,2033,63546.872382784226,Forecast
+Switzerland,2034,63570.81397367443,Forecast
+Switzerland,2035,63583.96917504356,Forecast
+Thailand,2010,1.0,Actual
+Thailand,2011,9.0,Actual
+Thailand,2012,7.0,Actual
+Thailand,2013,13.0,Actual
+Thailand,2014,6.0,Actual
+Thailand,2015,14.0,Actual
+Thailand,2016,2.0,Actual
+Thailand,2017,27.0,Actual
+Thailand,2018,110.0,Actual
+Thailand,2019,700.0,Actual
+Thailand,2020,1300.0,Actual
+Thailand,2021,1900.0,Actual
+Thailand,2022,9900.0,Actual
+Thailand,2023,77000.0,Actual
+Thailand,2024,71000.0,Actual
+Thailand,2025,97700.20182573448,Forecast
+Thailand,2026,106762.0391042923,Forecast
+Thailand,2027,110533.59556992211,Forecast
+Thailand,2028,111989.00321307003,Forecast
+Thailand,2029,112534.10806165561,Forecast
+Thailand,2030,112735.97849841682,Forecast
+Thailand,2031,112810.42483000935,Forecast
+Thailand,2032,112837.83684961451,Forecast
+Thailand,2033,112847.92452023023,Forecast
+Thailand,2034,112851.6360206906,Forecast
+Thailand,2035,112853.00146683354,Forecast
+Turkiye,2012,92.0,Actual
+Turkiye,2014,46.0,Actual
+Turkiye,2015,120.0,Actual
+Turkiye,2016,44.0,Actual
+Turkiye,2017,77.0,Actual
+Turkiye,2018,190.0,Actual
+Turkiye,2019,230.0,Actual
+Turkiye,2020,890.0,Actual
+Turkiye,2021,3000.0,Actual
+Turkiye,2022,7000.0,Actual
+Turkiye,2023,66000.0,Actual
+Turkiye,2024,99000.0,Actual
+Turkiye,2025,154694.73477253583,Forecast
+Turkiye,2026,191346.61469254442,Forecast
+Turkiye,2027,209617.23207832017,Forecast
+Turkiye,2028,217248.4643651479,Forecast
+Turkiye,2029,220197.53835595777,Forecast
+Turkiye,2030,221302.68818567053,Forecast
+Turkiye,2031,221712.04640058035,Forecast
+Turkiye,2032,221863.0221741153,Forecast
+Turkiye,2033,221918.61480457688,Forecast
+Turkiye,2034,221939.073200806,Forecast
+Turkiye,2035,221946.60037329007,Forecast
+USA,2010,1200.0,Actual
+USA,2011,9800.0,Actual
+USA,2012,15000.0,Actual
+USA,2013,48000.0,Actual
+USA,2014,63000.0,Actual
+USA,2015,71000.0,Actual
+USA,2016,87000.0,Actual
+USA,2017,100000.0,Actual
+USA,2018,240000.0,Actual
+USA,2019,240000.0,Actual
+USA,2020,230000.0,Actual
+USA,2021,470000.0,Actual
+USA,2022,800000.0,Actual
+USA,2023,1100000.0,Actual
+USA,2024,1200000.0,Actual
+USA,2025,1475222.3756622216,Forecast
+USA,2026,1646533.9282863925,Forecast
+USA,2027,1769295.3300440272,Forecast
+USA,2028,1851787.8821659572,Forecast
+USA,2029,1904852.8855366732,Forecast
+USA,2030,1938035.5336252681,Forecast
+USA,2031,1958419.4515757717,Forecast
+USA,2032,1970804.6179686605,Forecast
+USA,2033,1978279.7036383422,Forecast
+USA,2034,1982773.1335928694,Forecast
+USA,2035,1985467.6786479866,Forecast
+United Kingdom,2010,240.0,Actual
+United Kingdom,2011,1200.0,Actual
+United Kingdom,2012,1600.0,Actual
+United Kingdom,2013,2600.0,Actual
+United Kingdom,2014,6700.0,Actual
+United Kingdom,2015,10000.0,Actual
+United Kingdom,2016,10000.0,Actual
+United Kingdom,2017,14000.0,Actual
+United Kingdom,2018,16000.0,Actual
+United Kingdom,2019,38000.0,Actual
+United Kingdom,2020,110000.0,Actual
+United Kingdom,2021,190000.0,Actual
+United Kingdom,2022,270000.0,Actual
+United Kingdom,2023,310000.0,Actual
+United Kingdom,2024,380000.0,Actual
+United Kingdom,2025,418069.09637643426,Forecast
+United Kingdom,2026,436686.3867594696,Forecast
+United Kingdom,2027,446376.2635096217,Forecast
+United Kingdom,2028,451257.40838679706,Forecast
+United Kingdom,2029,453675.73475095193,Forecast
+United Kingdom,2030,454864.0205445682,Forecast
+United Kingdom,2031,455445.5350551705,Forecast
+United Kingdom,2032,455729.54589087446,Forecast
+United Kingdom,2033,455868.1213856247,Forecast
+United Kingdom,2034,455935.70347401977,Forecast
+United Kingdom,2035,455968.65504518774,Forecast
+Uzbekistan,2023,760.0,Actual
+Uzbekistan,2024,5600.0,Actual
+Viet Nam,2018,3.0,Actual
+Viet Nam,2021,85.0,Actual
+Viet Nam,2022,7300.0,Actual
+Viet Nam,2023,32000.0,Actual
+Viet Nam,2024,69000.0,Actual
+Viet Nam,2025,143462.50179968134,Forecast
+Viet Nam,2026,236089.8384416417,Forecast
+Viet Nam,2027,309635.49622448237,Forecast
+Viet Nam,2028,349712.6219513611,Forecast
+Viet Nam,2029,367197.0118088543,Forecast
+Viet Nam,2030,374077.29059975647,Forecast
+Viet Nam,2031,376673.72733895446,Forecast
+Viet Nam,2032,377637.9950024119,Forecast
+Viet Nam,2033,377993.97259874915,Forecast
+Viet Nam,2034,378125.0983550605,Forecast
+Viet Nam,2035,378173.3597178677,Forecast
+World,2010,7000.0,Actual
+World,2011,40000.0,Actual
+World,2012,58000.0,Actual
+World,2013,110000.0,Actual
+World,2014,200000.0,Actual
+World,2015,330000.0,Actual
+World,2016,470000.0,Actual
+World,2017,760000.0,Actual
+World,2018,1400000.0,Actual
+World,2019,1500000.0,Actual
+World,2020,2000000.0,Actual
+World,2021,4700000.0,Actual
+World,2022,7300000.0,Actual
+World,2023,9500000.0,Actual
+World,2024,11000000.0,Actual
+World,2025,12303216.626684848,Forecast
+World,2026,12952793.683102552,Forecast
+World,2027,13295172.856226802,Forecast
+World,2028,13468822.89216243,Forecast
+World,2029,13555177.88552815,Forecast
+World,2030,13597700.958665648,Forecast
+World,2031,13618538.73043376,Forecast
+World,2032,13628725.63844367,Forecast
+World,2033,13633699.880880723,Forecast
+World,2034,13636127.408022812,Forecast
+World,2035,13637311.759151498,Forecast

@@ -14,7 +14,7 @@ interface Props {
   isDark?: boolean;
 }
 
-const GALLONS_PER_EV = 1300;
+const GALLONS_PER_EV = 1300; // BEV+PHEV blended: ~950 gal/year vs 1300 for BEV-only.
 const GALLONS_PER_BARREL = 42;
 const FALLBACK_PRICE = 75;
 

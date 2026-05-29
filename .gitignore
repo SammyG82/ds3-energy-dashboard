@@ -51,3 +51,4 @@ analysis/oil_info/*.xlsx
 
 # Raw source data for oil price script (process manually, commit only oil_prices.json)
 public/raw data/
+eia_extraction/elec.txt
