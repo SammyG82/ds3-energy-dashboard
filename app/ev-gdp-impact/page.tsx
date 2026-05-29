@@ -207,7 +207,7 @@ export default function EvGdpImpactPage() {
             <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
             <div className="space-y-4">
               <div>
-                <h4 className={`text-sm font-medium mb-2 ${isDark ? "text-white" : "text-black"}`}>Log-ARIMA forecast</h4>
+                <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Log-ARIMA forecast</h4>
                 <p className={`text-sm ${isDark ? "text-white/70" : "text-black/70"}`}>
                   Forecasts are produced by a Log-ARIMA model fitted separately for each country. The model parameters (p, d, q) are selected by minimising AIC across a grid search. The shaded band around each forecast line is a 95% confidence interval — wider bands mean the model is less certain about that country&apos;s trajectory. Bands are capped at ±150% of the point forecast to keep the chart readable; for volatile series the true statistical interval may extend further.
                 </p>

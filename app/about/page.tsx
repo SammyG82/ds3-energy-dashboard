@@ -7,16 +7,16 @@ export default function AboutPage() {
   const { isDark } = useTheme();
 
   return (
-    <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-black text-white" : "bg-white text-gray-900"}`}>
+    <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-black text-white" : "bg-white text-slate-900"}`}>
       <div className="max-w-4xl mx-auto px-6 sm:px-12 py-16">
         <FadeIn>
-          <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-gray-900"}`}>About</h1>
+          <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-slate-900"}`}>About</h1>
         </FadeIn>
 
         {/* The Project */}
         <FadeIn><section className="mb-16">
           <h2 className="text-xl font-bold mb-6">The Project</h2>
-          <p className={`text-lg leading-relaxed mb-8 ${isDark ? "text-white/60" : "text-gray-700"}`}>
+          <p className={`text-lg leading-relaxed mb-8 ${isDark ? "text-white/60" : "text-slate-700"}`}>
             The central research question is whether rising EV adoption in non-oil-producing countries leads to measurable reductions in oil imports, and what the potential fiscal dividend of those savings might be.
           </p>
 
@@ -27,8 +27,8 @@ export default function AboutPage() {
               { title: "Infrastructure Dividend", body: "Reduced oil imports free foreign exchange reserves. Conservative estimates of fuel and import displacement translate to billions of dollars in available public sector savings to invest in electricity grid and clean-transition infrastructure." },
               { title: "Caveats", body: "Oil demand is shaped by many factors beyond passenger vehicles — industry, shipping, and heating. These estimates are indicative, not causal: GDP growth and energy-mix shifts are not controlled for. The analysis focuses specifically on light-vehicle transport fuel displacement." },
             ].map(({ title, body }) => (
-              <div key={title} className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
-                <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h4>
+              <div key={title} className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
+                <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-black/70"}`}>{body}</p>
               </div>
             ))}
@@ -38,15 +38,15 @@ export default function AboutPage() {
         {/* Key Variables */}
         <FadeIn><section className="mb-16">
           <h2 className="text-xl font-bold mb-6">Key Variables</h2>
-          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
+          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
             The table below lists the primary variables used across the project's data files. Each chart reads its own independent file at runtime — there is no single merged dataset. Derived columns are computed in the browser from source data.
           </p>
 
-          <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
+          <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
+                  <tr className={`border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
                     <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
                     <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
                     <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
@@ -95,7 +95,7 @@ export default function AboutPage() {
           <h2 className="text-xl font-bold mb-6">Methodology</h2>
 
           <div className="mb-8">
-            <h3 className={`text-lg font-medium mb-4 ${isDark ? "text-white" : "text-gray-900"}`}>Dataset Sources</h3>
+            <h3 className={`text-lg font-medium mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset Sources</h3>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
               {[
@@ -150,9 +150,9 @@ export default function AboutPage() {
               ].map(({ title, desc, rows, source, license, columns }) => (
                 <div
                   key={title}
-                  className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}
+                  className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}
                 >
-                  <h5 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h5>
+                  <h5 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h5>
                   <p className={`text-sm mb-3 ${isDark ? "text-white/60" : "text-black/70"}`}>{desc}</p>
                   <div className={`text-xs space-y-1 ${isDark ? "text-white/60" : "text-black/60"}`}>
                     <div><span className="font-medium">Rows:</span> {rows}</div>
@@ -164,15 +164,15 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-gray-900"}`}>Dataset description</h4>
-            <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
+            <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset description</h4>
+            <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
               All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with IEA STEPS projections through 2035.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
+              <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
                 <div className="mb-4">
-                  <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>Oil Import / Export Dataset</h4>
+                  <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Oil Import / Export Dataset</h4>
                 </div>
                 <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
@@ -194,9 +194,9 @@ export default function AboutPage() {
                 </p>
               </div>
 
-              <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
+              <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
                 <div className="mb-4">
-                  <h4 className={`text-xl font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>EV Sales & Market Growth Dataset</h4>
+                  <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales & Market Growth Dataset</h4>
                 </div>
                 <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
@@ -224,11 +224,11 @@ export default function AboutPage() {
         {/* Data Processing */}
         <FadeIn><section className="mb-16">
           <h2 className="text-xl font-bold mb-6">Data Processing</h2>
-          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
+          <p className={`text-lg leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
             The following pipeline was applied to transform raw IEA data into the analytical dataset used throughout this project:
           </p>
 
-          <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-gray-50/50 border-gray-200/50"}`}>
+          <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
             <div className="space-y-6">
               {[
                 {
@@ -279,7 +279,7 @@ export default function AboutPage() {
                     <span className={`text-xs font-semibold ${isDark ? textDark : textLight}`}>{num}</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h4>
+                    <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
                     <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>{body}</p>
                   </div>
                 </div>

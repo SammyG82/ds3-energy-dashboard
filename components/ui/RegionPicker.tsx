@@ -211,7 +211,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                     type="checkbox"
                     checked={selectedSet.has(region)}
                     onChange={() => onToggle(region)}
-                    className="accent-teal-600 w-3.5 h-3.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    className="w-3.5 h-3.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-500"
                   />
                   <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
                   <span

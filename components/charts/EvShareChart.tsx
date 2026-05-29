@@ -154,8 +154,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .call((ax) => ax.select(".domain").remove())
       .selectAll("text")
       .attr("dx", -6)
-      .attr("font-size", preview ? "11px" : "12px")
-      .attr("fill", isDarkRef.current ? "#94a3b8" : "#475569");
+      .attr("font-size", "11px")
+      .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
   }, [filtered, preview, containerWidth, total]);
 
   // Update only colours when theme changes — no redraw, no animation restart
@@ -164,7 +164,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     const svg = d3.select(svgRef.current);
     svg.selectAll(".chart-grid-line").attr("stroke", isDark ? "#334155" : "#e2e8f0");
     svg.selectAll<SVGTextElement, unknown>(".bar-label").attr("fill", isDark ? "#94a3b8" : "#64748b");
-    svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#475569");
+    svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
   }, [isDark]);
 
   const leader = filtered[0];
@@ -186,7 +186,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         step="1"
         value={year}
         onChange={(e) => setYear(Number(e.target.value))}
-        className="flex-1 accent-teal-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
+        className="flex-1 focus:outline-none focus:ring-2 focus:ring-slate-500"
         aria-label="Select year"
       />
       <span className="text-sm font-mono font-bold text-teal-500 w-10 text-right">{year}</span>

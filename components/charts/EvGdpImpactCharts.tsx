@@ -302,16 +302,19 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
             <input id="ev-adoption-rate" type="range" min="0.5" max="3" step="0.1" value={adoption}
               aria-label="EV Adoption Rate multiplier"
               onChange={(e) => setAdoption(parseFloat(e.target.value))}
-              className="w-full accent-teal-500 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+              className="w-full focus:outline-none focus:ring-2 focus:ring-slate-500" />
             <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>0.5x = slower growth · 2x = double the projected rate</p>
           </div>
 
           <div className="flex flex-col gap-2">
             <label htmlFor="gdp-country-select" className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Country</label>
-            <select id="gdp-country-select" value={country} onChange={(e) => setCountry(e.target.value)}
-              className={`text-sm font-semibold rounded-lg px-3 py-2 border focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 border-white/10 text-white" : "bg-white border-slate-200 text-slate-700"}`}>
-              {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
+            <div className="relative">
+              <select id="gdp-country-select" value={country} onChange={(e) => setCountry(e.target.value)}
+                className={`appearance-none text-sm font-semibold rounded-lg pl-3 pr-8 py-2 border focus:outline-none focus:ring-2 focus:ring-slate-500 w-full ${isDark ? "bg-white/10 border-white/10 text-white" : "bg-white border-slate-200 text-slate-700"}`}>
+                {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+              </select>
+              <svg className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${isDark ? "text-white/40" : "text-slate-500"}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 6 8 10 12 6" /></svg>
+            </div>
           </div>
 
           <div>
@@ -323,7 +326,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
               min={years.length ? years[0] : 2024} max={years.length ? years[years.length - 1] : 2030}
               step="1" value={year} aria-label="Analysis Year"
               onChange={(e) => setYear(parseInt(e.target.value))}
-              className="w-full accent-teal-500 focus:outline-none focus:ring-2 focus:ring-slate-500" />
+              className="w-full focus:outline-none focus:ring-2 focus:ring-slate-500" />
             <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Select 2024 – 2030</p>
           </div>
 
@@ -387,7 +390,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
               disabled={!beyondData}
               aria-label="Custom oil price assumption"
               onChange={(e) => setCustomPrice(Math.max(40, Math.min(150, parseFloat(e.target.value))))}
-              className={`w-full focus:outline-none focus:ring-2 focus:ring-slate-500 ${beyondData ? "accent-amber-500" : "accent-slate-300"}`} />
+              className="w-full range-amber focus:outline-none focus:ring-2 focus:ring-slate-500" />
             <div className="flex justify-between mt-1">
               <span className={`text-xs font-mono ${isDark ? "text-white/30" : "text-slate-400"}`}>$40</span>
               <span className={`text-xs font-mono ${isDark ? "text-white/30" : "text-slate-400"}`}>$150</span>
