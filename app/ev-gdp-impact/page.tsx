@@ -135,7 +135,7 @@ export default function EvGdpImpactPage() {
       <PageHeader
         title="EV"
         titleAccent="Impact"
-        subtitle="How EV adoption changes oil spending as a percentage of GDP. Explore projections by country with adjustable adoption rate and analysis year."
+        subtitle="Model how EV adoption reduces oil import spending — and what those savings represent as a share of GDP"
         isDark={isDark}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-6">
@@ -166,7 +166,7 @@ export default function EvGdpImpactPage() {
 
           <div>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>Oil Explorer</h2>
-            <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Historical trade volumes with Log-ARIMA forecasts and 95% confidence intervals through 2030.</p>
+            <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030</p>
           </div>
 
           <div className="flex flex-col gap-2">

@@ -67,7 +67,7 @@ export default function EvForecastPage() {
       <PageHeader
         title="EV"
         titleAccent="Forecast"
-        subtitle="IEA Stated Policies Scenario (STEPS) projections of EV sales across 50+ countries and regions through 2035."
+        subtitle="Historical EV sales from 2010 across 50+ countries, with IEA Stated Policies Scenario projections through 2035"
         isDark={isDark}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
@@ -76,7 +76,7 @@ export default function EvForecastPage() {
           <div id="ev-sales-by-country" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales by Country</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Top countries ranked by annual EV sales — select a year</p>
+              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>
             </div>
             {salesData.length > 0 ? (
               <EvShareChart data={salesData} isDark={isDark} />
@@ -91,7 +91,7 @@ export default function EvForecastPage() {
         <FadeIn delay={100}>
           <div id="ev-sales-projections" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Projections</h2>
-            <p className={`text-sm mb-6 ${isDark ? "text-white/50" : "text-slate-500"}`}>IEA Stated Policies Scenario (STEPS) projections of EV sales. Select multiple regions to compare trajectories.</p>
+            <p className={`text-sm mb-6 ${isDark ? "text-white/50" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
               <StatCard label={`${isProjected ? "Projected " : ""}Global EV Sales (${effectiveYear})`} value={globalSales !== null ? fmtEvSales(globalSales) : "—"} accent="teal" isDark={isDark} />
               <StatCard label={`${isProjected ? "Projected " : ""}YoY Growth (${effectiveYear - 1}→${effectiveYear})`} value={yoyGrowth !== null ? `${yoyGrowth >= 0 ? "+" : ""}${yoyGrowth.toFixed(1)}%` : "—"} accent="amber" isDark={isDark} />
@@ -118,7 +118,7 @@ export default function EvForecastPage() {
           <div className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Single-country sales trajectory with IEA STEPS projection through 2035</p>
+              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and IEA-projected growth through 2035</p>
             </div>
             {salesData.length > 0 ? (
               <EvTrendChart data={salesData} isDark={isDark} />

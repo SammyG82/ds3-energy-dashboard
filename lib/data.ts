@@ -86,6 +86,15 @@ export const COUNTRY_COLORS: Record<string, string> = {
   // Asian / Oceania / other EV markets
   Thailand: "#c026d3", "Viet Nam": "#65a30d", Malaysia: "#831843",
   "New Zealand": "#713f12", Israel: "#525252", Turkiye: "#6366f1",
+  // Lower-ranked EV markets — visible when top countries are excluded
+  Bulgaria: "#a78bfa", Chile: "#38bdf8", Colombia: "#fbbf24",
+  "Costa Rica": "#84cc16", Croatia: "#f43f5e", Cyprus: "#fb923c",
+  Estonia: "#67e8f9", Greece: "#3b82f6", Hungary: "#e11d48",
+  Iceland: "#93c5fd", Latvia: "#881337", Lithuania: "#a3e635",
+  Luxembourg: "#a855f7", Romania: "#3730a3", Seychelles: "#2dd4bf",
+  Slovakia: "#2d6bc4", Slovenia: "#115e59", "South Africa": "#4ade80",
+  Uzbekistan: "#5eead4", "Central and South America": "#10b981",
+  "Rest of the world": "#94a3b8",
   // Oil-only — no EV conflict
   UAE: "#1d4ed8", Kuwait: "#d97706", Iran: "#7c2d12", Qatar: "#0f766e",
   Nigeria: "#166534", Algeria: "#92400e", Angola: "#c2410c", Indonesia: "#4d7c0f",

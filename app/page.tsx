@@ -120,8 +120,11 @@ export default function LandingPage() {
           <div className={`rounded-2xl p-6 border min-h-125 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>EV Share by Country</h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top 10 EV sales countries — select a year</p>
+                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  EV Share by Country{" "}
+                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 10 Countries)</span>
+                </h2>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>
               </div>
               <Link href="/ev-forecast/#ev-sales-by-country" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Explorer →
@@ -145,7 +148,7 @@ export default function LandingPage() {
                   EV Sales Trajectory{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Markets)</span>
                 </h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>IEA STEPS projections through 2035</p>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
               </div>
               <Link href="/ev-forecast/#ev-sales-projections" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Forecast →
@@ -169,7 +172,7 @@ export default function LandingPage() {
                   Oil Import Forecasts{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Importers)</span>
                 </h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Top importers with 95% CI bands through 2030</p>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030</p>
               </div>
               <Link href="/ev-gdp-impact/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline">
                 Full Explorer →

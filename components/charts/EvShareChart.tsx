@@ -29,6 +29,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
+  const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const isDarkRef = useRef(isDark);
   useEffect(() => { isDarkRef.current = isDark; }, [isDark]);
 
@@ -49,12 +50,17 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     setTooltipPos(null);
   }, [year, data, containerWidth]);
 
+  useEffect(() => {
+    setExcluded(new Set());
+  }, [data]);
+
   const filtered = useMemo(
     () => data
       .filter((d) => d.year === year && !AGGREGATES.has(d.region_country))
       .sort((a, b) => b.ev_sales - a.ev_sales)
+      .filter((d) => !excluded.has(d.region_country))
       .slice(0, topN),
-    [data, year, topN]
+    [data, year, topN, excluded]
   );
 
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
@@ -109,6 +115,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("width", 0);
 
     barsSel
+      .attr("cursor", "pointer")
       .on("mouseover", function (event, d) {
         barsSel.attr("opacity", 0.3).attr("stroke", "none");
         d3.select(this).attr("opacity", 1.0).attr("stroke", isDarkRef.current ? "#94a3b8" : "#1e293b").attr("stroke-width", 1.5);
@@ -125,6 +132,11 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         barsSel.attr("opacity", 0.85).attr("stroke", "none");
         setTooltip(null);
         setTooltipPos(null);
+      })
+      .on("click", (_event, d) => {
+        setTooltip(null);
+        setTooltipPos(null);
+        setExcluded((prev) => new Set([...prev, d.region_country]));
       });
 
     barsSel
@@ -152,10 +164,19 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickSize(0))
       .call((ax) => ax.select(".domain").remove())
-      .selectAll("text")
+      .selectAll<SVGTextElement, string>("text")
       .attr("dx", -6)
       .attr("font-size", "11px")
-      .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
+      .attr("cursor", "pointer")
+      .on("click", (_event, countryDisplay) => {
+        const row = filtered.find((d) => dn(d.region_country) === countryDisplay);
+        if (row) {
+          setTooltip(null);
+          setTooltipPos(null);
+          setExcluded((prev) => new Set([...prev, row.region_country]));
+        }
+      });
   }, [filtered, preview, containerWidth, total]);
 
   // Update only colours when theme changes — no redraw, no animation restart
@@ -175,6 +196,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   }, [year, leader, topN, total]);
 
   const isProjected = year >= forecastBoundary;
+  const excludedLabel = excluded.size > 0 ? ` (excl. ${excluded.size})` : "";
 
   const yearSlider = years.length > 0 ? (
     <div className="flex items-center gap-3">
@@ -196,18 +218,42 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
   return (
     <div className="flex flex-col gap-4">
-      {!preview && yearSlider}
+      {yearSlider}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Total Sales of Top ${topN}`} value={fmtEvSales(total)} accent="blue" isDark={isDark} />
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader`} value={leader ? dn(leader.region_country) : "—"} accent="teal" isDark={isDark} />
-        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" isDark={isDark} />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Total Sales of Top ${topN}${excludedLabel}`} value={fmtEvSales(total)} accent="blue" isDark={isDark} />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader${excludedLabel}`} value={leader ? dn(leader.region_country) : "—"} accent="teal" isDark={isDark} />
+        <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}${excludedLabel}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" isDark={isDark} />
       </div>
 
-      {preview && yearSlider}
+      {excluded.size > 0 && (
+        <div className="flex items-center gap-2">
+          <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+            {excluded.size === 1 ? "1 country hidden" : `${excluded.size} countries hidden`} — click a bar or name to hide, or
+          </span>
+          <button
+            onClick={() => setExcluded(new Set())}
+            className={`text-xs font-medium px-2 py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+          >
+            Reset
+          </button>
+        </div>
+      )}
 
       <div ref={containerRef} className="w-full relative">
-        <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
+        {filtered.length === 0 ? (
+          <div className={`flex flex-col items-center justify-center gap-3 py-16 rounded-xl border ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"}`}>
+            <span className="text-sm">All countries hidden.</span>
+            <button
+              onClick={() => setExcluded(new Set())}
+              className={`text-xs font-medium px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+            >
+              Reset
+            </button>
+          </div>
+        ) : (
+          <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
+        )}
         {tooltip && tooltipPos && (
           <div
             className={`absolute rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
