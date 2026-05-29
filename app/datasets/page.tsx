@@ -13,7 +13,7 @@ const datasets = [
   {
     name: "IEA Global EV Outlook — Sales",
     file: "ev_sales.csv",
-    description: "EV sales by country and year, including actual figures (2010–2023) and projections through 2035.",
+    description: "Total EV sales (BEV-only sales) by country and year, including actual figures (2010–2023) and projections through 2035.",
     rows: "1,302 rows",
     columns: "region_country, year, ev_sales, type",
     source: "International Energy Agency (IEA) — Global EV Outlook 2024",
@@ -22,10 +22,10 @@ const datasets = [
   {
     name: "EV Forecast Data",
     file: "ev_data.json",
-    description: "IEA Stated Policies Scenario (STEPS) projections of EV sales by region through 2035.",
+    description: "IEA Stated Policies Scenario (STEPS) projections of total EV sales (BEV-only sales) by region through 2035.",
     rows: "1,302 records",
     columns: "region_country, year, ev_sales, type",
-    source: "International Energy Agency (IEA) — Global EV Outlook 2024 (Projection-STEPS)",
+    source: "International Energy Agency (IEA) — Global EV Outlook 2025 (Projection-STEPS)",
     license: "Open",
   },
   {
