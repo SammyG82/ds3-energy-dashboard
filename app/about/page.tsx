@@ -275,7 +275,7 @@ export default function AboutPage() {
                 },
               ].map(({ num, bgLight, bgDark, textLight, textDark, title, body }) => (
                 <div key={num} className="flex gap-3 items-start">
-                  <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center -mt-2 ${isDark ? bgDark : bgLight}`}>
+                  <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center -mt-2 ${isDark ? bgDark : bgLight}`}>
                     <span className={`text-xs font-semibold ${isDark ? textDark : textLight}`}>{num}</span>
                   </div>
                   <div className="flex-1">
