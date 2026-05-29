@@ -16,6 +16,7 @@ const dn = (c: string) => OIL_DISPLAY[c] ?? c;
 interface Props {
   data: OilRow[];
   preview?: boolean;
+  isDark?: boolean;
   datasetLabel?: "Oil Imports (KBD)" | "Net Trade (KBD)" | "Oil Exports (KBD)";
   chartPresets?: PresetItem[];
   statYear?: number;
@@ -30,7 +31,7 @@ interface Pinned {
 const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 
 
-export default function OilForecastChart({ data, preview = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
+export default function OilForecastChart({ data, preview = false, isDark = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -131,7 +132,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
 
     const totalW = containerWidth;
     const margin = { top: 12, right: 24, bottom: 32, left: 60 };
-    const totalH = preview ? 220 : 360;
+    const totalH = preview ? 300 : 360;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -155,7 +156,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
 
     g.append("text")
       .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-      .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
+      .attr("font-size", "10px")
       .attr("fill", "#94a3b8").text("Forecast →");
 
     activeCountries.forEach((country) => {
@@ -186,6 +187,20 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
       if (forecast.length > 1)
         g.append("path").datum(forecast).attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
+    });
+
+    const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
+    activeCountries.forEach((country) => {
+      const color = COUNTRY_COLORS[country] ?? "#64748b";
+      const rows = activeData.filter((d) => d.Country === country);
+      tickYears.forEach((yr) => {
+        const row = rows.find((d) => d.Year === yr);
+        if (!row) return;
+        g.append("circle")
+          .attr("cx", x(yr)).attr("cy", y(row.value)).attr("r", 3)
+          .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+          .style("pointer-events", "none");
+      });
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
@@ -236,7 +251,7 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selectedSet, preview, forecastBoundary, containerWidth, allCountries]);
+  }, [data, selectedSet, preview, isDark, forecastBoundary, containerWidth, allCountries]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -244,8 +259,8 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
         <>
           {datasetLabel === "Oil Imports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" />
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Importer`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" isDark={isDark} />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Importer`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
             </div>
           )}
 
@@ -256,18 +271,18 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
                 value={hasImporters
                   ? (displayNetDeficit > 0 ? `${Math.round(displayNetDeficit).toLocaleString()} KBD` : "—")
                   : (displayNetSurplus > 0 ? `${Math.round(displayNetSurplus).toLocaleString()} KBD` : "—")}
-                accent="blue" />
+                accent="blue" isDark={isDark} />
               <StatCard size="xl"
                 label={`${displayIsForecast ? "Projected " : ""}${hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}`}
                 value={hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
-                accent="teal" />
+                accent="teal" isDark={isDark} />
             </div>
           )}
 
           {datasetLabel === "Oil Exports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" />
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Exporter`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" isDark={isDark} />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Exporter`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
             </div>
           )}
 
@@ -279,72 +294,89 @@ export default function OilForecastChart({ data, preview = false, datasetLabel =
             colorMap={COUNTRY_COLORS}
             displayNames={OIL_DISPLAY}
             presets={chartPresets ?? OIL_IMPORT_PRESETS}
+            isDark={isDark}
           />
         </>
       )}
+
+      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5">
+            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
+            Historical
+          </span>
+          <span className="flex items-center gap-1.5">
+            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
+              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
+            </svg>
+            Forecast
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="block w-4 h-2.5 rounded-sm bg-current opacity-20" aria-hidden="true" />
+            95% CI
+          </span>
+        </div>
+      </div>
 
       <div ref={containerRef} className="w-full relative">
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
-            className="absolute bg-white border border-slate-200 rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm"
+            className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
             style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150)}
           >
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-1.5 mb-0.5">
-              <p className="text-xs font-mono font-bold text-slate-500">{previewTooltip.year}</p>
-              <ForecastBadge isForecast={previewTooltip.isForecast} />
+            <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
+              <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
+              <ForecastBadge isForecast={previewTooltip.isForecast} isDark={isDark} />
             </div>
             {previewTooltip.entries.map(({ country, value, color }) => (
               <div key={country} className="flex items-center gap-2">
                 <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                <span className="text-xs text-slate-700 flex-1">{dn(country)}</span>
-                <span className="text-xs font-mono font-semibold text-slate-900">
-                  {Math.round(value).toLocaleString()}<span className="text-slate-400 font-normal ml-0.5">KBD</span>
+                <span className={`text-xs flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dn(country)}</span>
+                <span className={`text-xs font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  {Math.round(value).toLocaleString()}<span className={`font-normal ml-0.5 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
                 </span>
               </div>
             ))}
-            <p className="text-xs text-slate-400 border-t border-slate-100 pt-1.5 mt-0.5">KBD = thousands of barrels/day</p>
+            <p className={`text-xs border-t pt-1.5 mt-0.5 ${isDark ? "text-white/40 border-white/10" : "text-slate-400 border-slate-100"}`}>KBD = thousands of barrels/day</p>
           </div>
         )}
       </div>
 
       {!preview && (
-        <div className="border border-slate-200 rounded-xl bg-white overflow-hidden">
+        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200"}`}>
           {pinned ? (
             <>
-              <div className="px-4 py-2 border-b border-slate-100 flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-slate-500">{pinned.year}</span>
+              <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>
+                <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
                 <div className="flex items-center gap-2">
-                  <ForecastBadge isForecast={pinned.isForecast} />
-                  <span className="text-xs text-slate-400">Thousands of barrels per day</span>
+                  <ForecastBadge isForecast={pinned.isForecast} isDark={isDark} />
+                  <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>Thousands of barrels per day</span>
                 </div>
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
                 {pinned.entries.map(({ country, value, color }) => (
-                  <div key={country} className="flex items-center gap-3 px-4 py-2 border-b border-slate-50 last:border-0">
+                  <div key={country} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className="text-sm text-slate-700 flex-1">{dn(country)}</span>
-                    <span className="text-sm font-mono font-semibold text-slate-900">
-                      {Math.round(value).toLocaleString()}<span className="text-xs font-normal text-slate-400 ml-1">KBD</span>
+                    <span className={`text-sm flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dn(country)}</span>
+                    <span className={`text-sm font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                      {Math.round(value).toLocaleString()}<span className={`text-xs font-normal ml-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
                     </span>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-slate-400 font-mono px-4 py-2 border-t border-slate-100">
+              <p className={`text-xs px-4 py-2 border-t ${isDark ? "text-white/40 border-white/10" : "text-slate-400 border-slate-100"}`}>
                 KBD = thousands of barrels per day
               </p>
             </>
           ) : (
-            <p className="text-xs text-slate-400 font-mono px-4 py-4 text-center">
+            <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
               Hover over the chart to explore oil volumes by year
             </p>
           )}
         </div>
       )}
 
-      <p className="text-xs text-slate-400 font-mono">
-        Solid = Historical data &nbsp;·&nbsp; Dashed = ARIMA projected forecast &nbsp;·&nbsp; Band = 95% CI &nbsp;·&nbsp; {datasetLabel}
-      </p>
     </div>
   );
 }

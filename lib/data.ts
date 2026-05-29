@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "";
+export const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "";
 
 // d3.csv returns "" for empty cells (not null/undefined), so both checks are required
 function parseCI(value: string | undefined): number | null {
