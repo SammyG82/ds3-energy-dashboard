@@ -2,6 +2,8 @@ import * as d3 from "d3";
 
 export const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboard" : "";
 
+export const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
+
 // d3.csv returns "" for empty cells (not null/undefined), so both checks are required
 function parseCI(value: string | undefined): number | null {
   if (value === undefined || value === "" || value.trim() === "") return null;

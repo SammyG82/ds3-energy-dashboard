@@ -11,7 +11,7 @@ import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import { useDataFetch } from "@/lib/ui-utils";
-import { TOP_5_MARKETS } from "@/lib/ev-presets";
+import { TOP_5_MARKETS } from "@/lib/data";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });

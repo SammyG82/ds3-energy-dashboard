@@ -7,7 +7,7 @@ import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
 import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
-import { TOP_5_MARKETS } from "@/lib/ev-presets";
+import { TOP_5_MARKETS } from "@/lib/data";
 
 interface Props {
   data: EvRow[];

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { TOP_5_MARKETS } from "@/lib/ev-presets";
+import { TOP_5_MARKETS } from "@/lib/data";
 
 const EUROPE = [
   "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",

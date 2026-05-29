@@ -43,12 +43,26 @@ next-env.d.ts
 # eia_extraction generated outputs (re-run scripts to regenerate)
 eia_extraction/*.png
 eia_extraction/*.svg
+eia_extraction/energy_access_data.csv
+eia_extraction/energy_access_master.csv
+eia_extraction/energy_access_panel.csv
+eia_extraction/energy_access_series.json
+eia_extraction/reliability_by_state_2024.csv
+eia_extraction/seds_expenditure.csv
+eia_extraction/state_median_income_2024.csv
 
 # Analysis generated outputs (re-run notebooks to regenerate)
 analysis/oil_info/*.png
 analysis/oil_info/*.svg
 analysis/oil_info/*.xlsx
 analysis/IEA_Global_EV_Data_*.csv
+analysis/oil_info/exports.csv
+analysis/oil_info/net_trade_forecast.csv
+
+# EDA notebook outputs (re-run notebooks to regenerate; public/data/ is source of truth)
+eda/ev_data.json
+eda/ev_sales.csv
+eda/merged_targets_clean.csv
 
 # Raw source data for oil price script (process manually, commit only oil_prices.json)
 public/raw data/
