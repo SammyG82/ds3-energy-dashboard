@@ -27,3 +27,6 @@ html.dark .chart-axis path {
 html.dark .chart-axis text {
   fill: #64748b;
 }
+html.dark .chart-grid-line {
+  stroke: #334155;
+}

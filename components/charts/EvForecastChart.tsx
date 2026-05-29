@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import { TOP_5_MARKETS } from "@/lib/ev-presets";
@@ -98,8 +98,8 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     setSelected(defaultRegions);
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
-  useEffect(() => { setPinned(null); }, [selected, containerWidth]);
-  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, containerWidth]);
+  useEffect(() => { setPinned(null); }, [selected, containerWidth, data]);
+  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
@@ -116,8 +116,9 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const [minYear = 2010, maxYear = 2035] = d3.extent(data, (d) => d.year);
     const x = d3.scaleLinear()
-      .domain(d3.extent(data, (d) => d.year) as [number, number])
+      .domain([minYear, maxYear])
       .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -125,19 +126,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       .nice()
       .range([height, 0]);
 
-    drawHorizontalGridLines(g, y, width);
+    drawHorizontalGridLines(g, y, width, 5, isDark);
 
     if (isFinite(forecastBoundary)) {
-      g.append("line")
-        .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
-        .attr("y1", 0).attr("y2", height)
-        .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
-
-      g.append("text")
-        .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-        .attr("font-size", "10px")
-        .attr("fill", "#94a3b8")
-        .text("Forecast →");
+      drawForecastBoundary(g, x, forecastBoundary, height);
     }
 
     const line = d3.line<EvRow>()

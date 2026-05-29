@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 
@@ -69,8 +69,9 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const [minYear = 2010, maxYear = 2035] = d3.extent(countryData, (d) => d.year);
     const x = d3.scaleLinear()
-      .domain(d3.extent(countryData, (d) => d.year) as [number, number])
+      .domain([minYear, maxYear])
       .range([0, width]);
 
     const y = d3.scaleLinear()
@@ -78,18 +79,10 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       .nice()
       .range([height, 0]);
 
-    drawHorizontalGridLines(g, y, width);
+    drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
     if (forecast.length > 0) {
-      g.append("line")
-        .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
-        .attr("y1", 0).attr("y2", height)
-        .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
-
-      g.append("text")
-        .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-        .attr("font-size", "10px").attr("font-family", "ui-monospace, monospace")
-        .attr("fill", "#94a3b8").text("Forecast →");
+      drawForecastBoundary(g, x, forecastBoundary, height);
     }
 
     const line = d3.line<EvRow>()
@@ -127,19 +120,22 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       g.append("circle")
         .attr("class", "tick-dot")
         .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
-        .attr("fill", isDarkRef.current ? "#0f172a" : "#fff").attr("stroke", "#0d9488").attr("stroke-width", 2)
+        .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", "#0d9488").attr("stroke-width", 2)
         .style("pointer-events", "none");
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     const crosshair = g.append("line")
+      .attr("class", "chart-crosshair")
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
     const byYear = new Map(countryData.map((d) => [d.year, d]));
@@ -170,8 +166,9 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     if (!svgRef.current) return;
     const svg = d3.select(svgRef.current);
     svg.selectAll(".grid-h").attr("stroke", isDark ? "#334155" : "#e2e8f0");
-    svg.selectAll(".tick-dot").attr("fill", isDark ? "#0f172a" : "#fff");
+    svg.selectAll(".tick-dot").attr("fill", isDark ? "#000" : "#fff");
     svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
+    svg.selectAll(".chart-crosshair").attr("stroke", isDark ? "#94a3b8" : "#64748b");
   }, [isDark]);
 
   const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);

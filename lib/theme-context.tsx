@@ -8,13 +8,15 @@ interface ThemeContextValue {
   toggle: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue>({ isDark: false, toggle: () => {} });
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
   useLayoutEffect(() => {
-    if (localStorage.getItem("ds3-theme") === "dark") setIsDark(true);
+    const dark = localStorage.getItem("ds3-theme") === "dark";
+    setIsDark(dark);
+    document.documentElement.classList.toggle("dark", dark);
   }, []);
 
   return (
@@ -23,6 +25,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       toggle: () => setIsDark((d) => {
         const next = !d;
         localStorage.setItem("ds3-theme", next ? "dark" : "light");
+        document.documentElement.classList.toggle("dark", next);
         return next;
       }),
     }}>
@@ -32,5 +35,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTheme() {
-  return useContext(ThemeContext);
+  const ctx = useContext(ThemeContext);
+  if (!ctx) throw new Error("useTheme must be used inside ThemeProvider");
+  return ctx;
 }

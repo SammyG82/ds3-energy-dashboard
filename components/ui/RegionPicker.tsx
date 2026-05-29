@@ -172,8 +172,8 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
-          <p className="text-xs font-mono uppercase tracking-widest text-slate-400">Why these groups?</p>
+        <div className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+          <p className={`text-xs uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>
               <p className={`text-sm font-semibold mb-0.5 ${isDark ? "text-white" : "text-slate-700"}`}>{label}</p>
@@ -189,7 +189,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Escape") { setShowCustom(false); customBtnRef.current?.focus(); } }}
+            onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search regions"
             className={`w-full pl-3 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
@@ -200,7 +200,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
           >
             {filtered.length === 0 ? (
-              <p className="text-xs text-slate-400 px-3 py-2">No regions match.</p>
+              <p className={`text-xs px-3 py-2 ${isDark ? "text-white/40" : "text-slate-400"}`}>No regions match.</p>
             ) : (
               filtered.map((region) => (
                 <label
@@ -224,7 +224,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             )}
           </div>
 
-          <p aria-live="polite" aria-atomic="true" className="text-xs text-slate-400">
+          <p aria-live="polite" aria-atomic="true" className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
             {selected.length} of {options.length} selected
           </p>
         </div>

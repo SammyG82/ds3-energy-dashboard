@@ -64,6 +64,9 @@ export default function LandingPage() {
         <img
           src={`${BASE}/images/hero-bg.webp`}
           alt="Electric vehicle on scenic coastal road with wind turbine"
+          width={1920}
+          height={1080}
+          loading="eager"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: "50% 75%" }}
           onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
@@ -72,8 +75,8 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-linear-to-b from-transparent from-30% via-white/40 via-70% to-white transition-opacity duration-300" style={{ opacity: isDark ? 0 : 1 }} />
         <div className="absolute inset-0 bg-linear-to-b from-black/20 from-30% via-black/60 via-70% to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
         {/* Hero copy */}
-        <div className="relative h-full flex flex-col items-start justify-center px-12 md:px-24 py-32 min-h-screen text-white">
-          <h1 className="text-5xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
+        <div className="relative h-full flex flex-col items-start justify-center px-6 sm:px-12 md:px-24 py-32 min-h-screen text-white">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
             Does EV adoption reduce oil dependency?
           </h1>
           <p className="text-xl md:text-2xl font-light max-w-2xl drop-shadow-md text-white/90">
@@ -86,10 +89,10 @@ export default function LandingPage() {
       <section className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
           <FadeIn>
-            <h1 className={`text-4xl sm:text-5xl font-light tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+            <h2 className={`text-4xl sm:text-5xl font-light tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
               EV Adoption &amp;{" "}
               <span className="text-teal-600">Oil Dependency</span>
-            </h1>
+            </h2>
             <p className={`max-w-2xl mx-auto text-base leading-relaxed mb-10 ${isDark ? "text-white/70" : "text-slate-500"}`}>
               Does rising electric vehicle adoption measurably reduce oil dependency in oil-importing
               countries — and how could the resulting savings fund clean energy infrastructure?
@@ -127,7 +130,7 @@ export default function LandingPage() {
             {evSales.length > 0 ? (
               <EvShareChart data={evSales} preview isDark={isDark} />
             ) : errors.evSales ? (
-              <ErrorMessage message={errors.evSales} />
+              <ErrorMessage message={errors.evSales} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -151,7 +154,7 @@ export default function LandingPage() {
             {evData.length > 0 ? (
               <EvForecastChart data={evData} preview isDark={isDark} />
             ) : errors.evData ? (
-              <ErrorMessage message={errors.evData} />
+              <ErrorMessage message={errors.evData} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -175,7 +178,7 @@ export default function LandingPage() {
             {oilData.length > 0 ? (
               <OilForecastChart data={oilData} preview isDark={isDark} />
             ) : errors.oilData ? (
-              <ErrorMessage message={errors.oilData} />
+              <ErrorMessage message={errors.oilData} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}

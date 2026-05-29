@@ -1,18 +1,6 @@
 import { useState, useEffect, useRef, type RefObject } from "react";
 import type { CSSProperties } from "react";
-
-export const STATE_NAMES: Record<string, string> = {
-  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
-  CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
-  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
-  KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
-  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri",
-  MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
-  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio",
-  OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
-  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont",
-  VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming",
-};
+import type { Selection } from "d3";
 
 export function tooltipStyle(
   x: number,
@@ -29,22 +17,7 @@ export function tooltipStyle(
   };
 }
 
-const THRESHOLD_COLORS = [
-  { color: "#16a34a", bg: "bg-green-100", text: "text-green-700" },
-  { color: "#d97706", bg: "bg-amber-100", text: "text-amber-700" },
-  { color: "#dc2626", bg: "bg-red-100", text: "text-red-700" },
-];
-
-export function thresholdRating(
-  value: number,
-  thresholds: [number, number],
-  labels: [string, string, string]
-): { label: string; color: string; bg: string; text: string } {
-  const i = value < thresholds[0] ? 0 : value < thresholds[1] ? 1 : 2;
-  return { label: labels[i], ...THRESHOLD_COLORS[i] };
-}
-
-export function toggleSelection(prev: string[], item: string, min = 1): string[] {
+export function toggleSelection<T>(prev: T[], item: T, min = 1): T[] {
   return prev.includes(item)
     ? prev.length > min ? prev.filter((x) => x !== item) : prev
     : [...prev, item];
@@ -52,18 +25,40 @@ export function toggleSelection(prev: string[], item: string, min = 1): string[]
 
 type HGridScale = ((v: number) => number) & { ticks: (count: number) => number[] };
 
+// Parent element typed as `any` to accept both SVG and HTML parent contexts without invariance errors
+type GSelection = Selection<SVGGElement, unknown, any, unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export function drawHorizontalGridLines(
-  g: { selectAll(sel: string): any },
+  g: GSelection,
   yScale: HGridScale,
   width: number,
-  tickCount = 5
+  tickCount = 5,
+  isDark = false
 ): void {
-  g.selectAll(".grid-h")
+  g.selectAll<SVGLineElement, number>(".grid-h")
     .data(yScale.ticks(tickCount))
     .enter().append("line")
+    .attr("class", "grid-h")
     .attr("x1", 0).attr("x2", width)
-    .attr("y1", (d: number) => yScale(d)).attr("y2", (d: number) => yScale(d))
-    .attr("stroke", "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    .attr("y1", (d) => yScale(d)).attr("y2", (d) => yScale(d))
+    .attr("stroke", isDark ? "#1e293b" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+}
+
+export function drawForecastBoundary(
+  g: GSelection,
+  x: (v: number) => number,
+  boundary: number,
+  height: number
+): void {
+  g.append("line")
+    .attr("x1", x(boundary)).attr("x2", x(boundary))
+    .attr("y1", 0).attr("y2", height)
+    .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
+  g.append("text")
+    .attr("x", x(boundary) + 4).attr("y", 12)
+    .attr("font-size", "10px")
+    .attr("fill", "#94a3b8")
+    .text("Forecast →");
 }
 
 export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; error: string | null } {
@@ -76,7 +71,10 @@ export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; er
     fnRef.current().then((result) => {
       if (mounted) setData(result);
     }).catch((err) => {
-      if (mounted) { if (process.env.NODE_ENV === "development") console.error(err); setError("Failed to load data."); }
+      if (mounted) {
+        if (process.env.NODE_ENV === "development") console.error(err);
+        setError(err instanceof Error ? err.message : String(err) || "Failed to load data.");
+      }
     });
     return () => { mounted = false; };
   }, []);
@@ -88,15 +86,18 @@ export function useContainerSize(ref: RefObject<Element | null>): { width: numbe
   useEffect(() => {
     if (!ref.current) return;
     let tid: ReturnType<typeof setTimeout>;
+    let mounted = true;
     const obs = new ResizeObserver((entries) => {
       clearTimeout(tid);
       tid = setTimeout(() => {
-        const { width, height } = entries[0].contentRect;
-        setSize({ width: Math.floor(width), height: Math.floor(height) });
+        if (mounted) {
+          const { width, height } = entries[0].contentRect;
+          setSize({ width: Math.floor(width), height: Math.floor(height) });
+        }
       }, 150);
     });
     obs.observe(ref.current);
-    return () => { clearTimeout(tid); obs.disconnect(); };
+    return () => { mounted = false; clearTimeout(tid); obs.disconnect(); };
   }, [ref]);
   return size;
 }

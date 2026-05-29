@@ -17,6 +17,8 @@ const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChar
 const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
 const EvTrendChart = dynamic(() => import("@/components/charts/EvTrendChart"), { ssr: false });
 
+const HEADER_HEIGHT_PX = 96;
+
 export default function EvForecastPage() {
   const { isDark } = useTheme();
   const { data, error } = useDataFetch<EvRow[]>(fetchEvData, []);
@@ -28,11 +30,11 @@ export default function EvForecastPage() {
     if (scrolledRef.current || !data.length || !salesData.length) return;
     const hash = window.location.hash;
     if (!hash) return;
-    const el = document.querySelector(hash);
-    if (!el) return;
     scrolledRef.current = true;
     setTimeout(() => {
-      const top = window.scrollY + el.getBoundingClientRect().top - 96;
+      const el = document.querySelector(hash);
+      if (!el) return;
+      const top = window.scrollY + el.getBoundingClientRect().top - HEADER_HEIGHT_PX;
       window.scrollTo({ top, behavior: "smooth" });
     }, 300);
   }, [data, salesData]);
@@ -65,7 +67,7 @@ export default function EvForecastPage() {
       <PageHeader
         title="EV"
         titleAccent="Forecast"
-        subtitle="Explore logistic S-curve projections of current and forecasted EV sales by region and country through 2035."
+        subtitle="IEA Stated Policies Scenario (STEPS) projections of EV sales across 50+ countries and regions through 2035."
         isDark={isDark}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
@@ -79,7 +81,7 @@ export default function EvForecastPage() {
             {salesData.length > 0 ? (
               <EvShareChart data={salesData} isDark={isDark} />
             ) : salesError ? (
-              <ErrorMessage message={salesError} />
+              <ErrorMessage message={salesError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -98,7 +100,7 @@ export default function EvForecastPage() {
             {data.length > 0 ? (
               <EvForecastChart data={data} onYearChange={setHoveredYear} onSelectionChange={setSelectedRegions} isDark={isDark} />
             ) : error ? (
-              <ErrorMessage message={error} />
+              <ErrorMessage message={error} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -106,7 +108,7 @@ export default function EvForecastPage() {
               <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
               <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
               <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2024. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show STEPS projections through 2035. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.
+                IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2025. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show STEPS projections through 2035. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.
               </p>
             </div>
           </div>
@@ -121,7 +123,7 @@ export default function EvForecastPage() {
             {salesData.length > 0 ? (
               <EvTrendChart data={salesData} isDark={isDark} />
             ) : salesError ? (
-              <ErrorMessage message={salesError} />
+              <ErrorMessage message={salesError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -141,7 +143,7 @@ export default function EvForecastPage() {
                 <div>
                   <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Peak Year &amp; 2030 Forecast</h4>
                   <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                    Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from the IEA's Stated Policies Scenario (STEPS) in the Global EV Outlook 2024, modelling adoption under currently enacted policies.
+                    Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from the IEA's Stated Policies Scenario (STEPS) in the Global EV Outlook 2025, modelling adoption under currently enacted policies.
                   </p>
                 </div>
               </div>

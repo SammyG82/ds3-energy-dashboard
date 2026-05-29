@@ -13,25 +13,36 @@ export interface EvRow {
   region_country: string;
   year: number;
   ev_sales: number;
-  type: string;
+  type: "Actual" | "Forecast";
 }
 
 export interface OilRow {
   Country: string;
   Year: number;
-  Type: string;
+  Type: "Historical" | "Forecast";
   value: number;
   ciLow: number | null;
   ciHigh: number | null;
 }
 
-function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?: unknown; type?: unknown }): EvRow {
+function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?: unknown; type?: unknown }): EvRow | null {
+  const type = String(d.type ?? "");
+  if (type !== "Actual" && type !== "Forecast") return null;
+  const evSales = +(d.ev_sales ?? 0);
+  if (!Number.isFinite(evSales)) return null;
+  const year = +(d.year ?? 0);
+  if (!Number.isFinite(year)) return null;
   return {
     region_country: String(d.region_country ?? ""),
-    year: +(d.year ?? 0),
-    ev_sales: +(d.ev_sales ?? 0),
-    type: String(d.type ?? ""),
+    year,
+    ev_sales: evSales,
+    type,
   };
+}
+
+function assertOilType(t: string | undefined): OilRow["Type"] | null {
+  const v = t ?? "";
+  return v === "Historical" || v === "Forecast" ? v : null;
 }
 
 function normalizeOilCountry(c: string | undefined): string {
@@ -93,7 +104,7 @@ export function fmtEvSales(v: number): string {
 
 export async function fetchEvSales(): Promise<EvRow[]> {
   const raw = await d3.csv(`${BASE}/data/ev_sales.csv`);
-  return raw.map(normalizeEvRow).filter((r) => r.region_country !== "" && r.year > 0);
+  return raw.map(normalizeEvRow).filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
@@ -101,73 +112,28 @@ export async function fetchEvData(): Promise<EvRow[]> {
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
   return (raw as Parameters<typeof normalizeEvRow>[0][])
     .map(normalizeEvRow)
-    .filter((r) => r.region_country !== "" && r.year > 0);
+    .filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
 }
 
 export async function fetchOilForecast(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/oil_forecast.csv`);
   return raw
-    .map((d) => ({
-      Country: normalizeOilCountry(d.Country),
-      Year: +(d.Year ?? 0),
-      Type: d.Type ?? "",
-      value: +(d["Oil Imports (KBD)"] ?? 0),
-      ciLow: parseCI(d["CI Low (KBD)"]),
-      ciHigh: parseCI(d["CI High (KBD)"]),
-    }))
+    .flatMap((d) => {
+      const Type = assertOilType(d.Type);
+      if (!Type) return [];
+      const value = +(d["Oil Imports (KBD)"] ?? 0);
+      return [{
+        Country: normalizeOilCountry(d.Country),
+        Year: +(d.Year ?? 0),
+        Type,
+        value: Number.isFinite(value) ? value : 0,
+        ciLow: parseCI(d["CI Low (KBD)"]),
+        ciHigh: parseCI(d["CI High (KBD)"]),
+      }];
+    })
     .filter((row) => row.Year > 1900 && row.Country !== "");
 }
 
-export interface EnergyAccessRow {
-  state: string;
-  year: number;
-  saidi: number;
-  saifi: number;
-  energy_burden_pct: number;
-  avg_price_cents_kwh: number;
-  est_annual_bill: number | null;
-  median_income_2024: number | null;
-  avg_customers: number | null;
-}
-
-export interface TargetRow {
-  country_code: string;
-  country_name: string;
-  capacity_target_gw: number;
-  share_target_pct: number | null;
-}
-
-export async function fetchEnergyAccess(): Promise<EnergyAccessRow[]> {
-  const raw = await d3.csv(`${BASE}/data/energy_access_with_burden.csv`);
-  return raw
-    // Hardcoded to 2024: SAIDI is only available for that year. When 2025 EIA reliability
-    // data is downloaded and the pipeline re-run, change to 2025 and verify SAIDI is non-null.
-    .filter((d) => +d.year === 2024 && d.state?.length === 2 && d.state !== "US" && d.state !== "DC"
-      && d.saidi !== "" && d.energy_burden_pct !== "" && d.avg_price_cents_kwh !== "")
-    .map((d) => ({
-      state: d.state ?? "",
-      year: +d.year,
-      saidi: parseCI(d.saidi) ?? 0,
-      saifi: parseCI(d.saifi) ?? 0,
-      energy_burden_pct: parseCI(d.energy_burden_pct) ?? 0,
-      avg_price_cents_kwh: parseCI(d.avg_price_cents_kwh) ?? 0,
-      est_annual_bill: parseCI(d.est_annual_bill),
-      median_income_2024: parseCI(d.median_income_2024),
-      avg_customers: parseCI(d.avg_customers),
-    }));
-}
-
-export async function fetchTargets(): Promise<TargetRow[]> {
-  const raw = await d3.csv(`${BASE}/data/merged_targets_clean.csv`);
-  return raw
-    .filter((d) => +d.capacity_target_gw > 0 && d.country_code !== "EU")
-    .map((d) => ({
-      country_code: d.country_code ?? "",
-      country_name: d.country_name ?? "",
-      capacity_target_gw: +d.capacity_target_gw,
-      share_target_pct: parseCI(d.share_target_pct),
-    }));
-}
 
 const NET_TRADE_NAMES: Record<string, string> = {
   Usa: "USA",
@@ -179,47 +145,57 @@ const NET_TRADE_NAMES: Record<string, string> = {
 export async function fetchNetTrade(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/net_trade_forecast.csv`);
   return raw
-    .map((d) => ({
-      Country: NET_TRADE_NAMES[d.Country ?? ""] ?? d.Country ?? "",
-      Year: +(d.Year ?? 0),
-      Type: d.Type ?? "",
-      value: +(d["Net_Trade"] ?? 0),
-      ciLow: parseCI(d["Net_CI_Low"]),
-      ciHigh: parseCI(d["Net_CI_High"]),
-    }))
+    .flatMap((d) => {
+      const Type = assertOilType(d.Type);
+      if (!Type) return [];
+      const value = +(d["Net_Trade"] ?? 0);
+      return [{
+        Country: NET_TRADE_NAMES[d.Country ?? ""] ?? d.Country ?? "",
+        Year: +(d.Year ?? 0),
+        Type,
+        value: Number.isFinite(value) ? value : 0,
+        ciLow: parseCI(d["Net_CI_Low"]),
+        ciHigh: parseCI(d["Net_CI_High"]),
+      }];
+    })
+    // IEA missing-2024 entries arrive as 0.0, not NaN — filter to avoid misleading chart drops
     .filter((row) => row.Country !== "" && row.Year > 1900 && !(row.value === 0 && row.Type === "Historical"));
 }
 
 export async function fetchOilExports(): Promise<OilRow[]> {
   const raw = await d3.csv(`${BASE}/data/exports.csv`);
   return raw
-    .map((d) => ({
-      Country: normalizeOilCountry(d.Country),
-      Year: +(d.Year ?? 0),
-      Type: d.Type ?? "",
-      value: +(d["Value"] ?? 0),
-      ciLow: parseCI(d["Lower_CI"]),
-      ciHigh: parseCI(d["Upper_CI"]),
-    }))
+    .flatMap((d) => {
+      const Type = assertOilType(d.Type);
+      if (!Type) return [];
+      const value = +(d["Value"] ?? 0);
+      return [{
+        Country: normalizeOilCountry(d.Country),
+        Year: +(d.Year ?? 0),
+        Type,
+        value: Number.isFinite(value) ? value : 0,
+        ciLow: parseCI(d["Lower_CI"]),
+        ciHigh: parseCI(d["Upper_CI"]),
+      }];
+    })
     .filter((row) => row.Year > 1900 && row.Country !== "");
 }
 
 export async function fetchGdpMeta(): Promise<GdpMeta[]> {
-  const raw = await d3.json<GdpMeta[]>(`${BASE}/data/gdp_country_meta.json`);
+  const raw = await d3.json<unknown[]>(`${BASE}/data/gdp_country_meta.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid GDP metadata");
-  if (raw.length > 0) {
-    const first = raw[0];
+  return raw.map((item, idx) => {
     if (
-      typeof first.country !== "string" ||
-      typeof first.region !== "string" ||
-      typeof first.gdp !== "number" ||
-      typeof first.oilImports !== "number" ||
-      typeof first.costPerBarrel !== "number"
+      typeof (item as GdpMeta).country !== "string" ||
+      typeof (item as GdpMeta).region !== "string" ||
+      typeof (item as GdpMeta).gdp !== "number" ||
+      typeof (item as GdpMeta).oilImports !== "number" ||
+      typeof (item as GdpMeta).costPerBarrel !== "number"
     ) {
-      throw new Error("Invalid GDP metadata shape");
+      throw new Error(`Invalid GDP metadata at row ${idx}`);
     }
-  }
-  return raw;
+    return item as GdpMeta;
+  });
 }
 
 export interface OilPriceRow {
@@ -231,8 +207,20 @@ export interface OilPriceRow {
 }
 
 export async function fetchOilPrices(): Promise<OilPriceRow[]> {
-  const raw = await d3.json<OilPriceRow[]>(`${BASE}/data/oil_prices.json`);
+  const raw = await d3.json<unknown[]>(`${BASE}/data/oil_prices.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid oil price data");
-  if (raw.length > 0 && typeof raw[0].year !== "number") throw new Error("Invalid oil price data shape");
-  return raw;
+  const isNullableNum = (v: unknown) => v === null || typeof v === "number";
+  return raw.map((item, idx) => {
+    const r = item as Record<string, unknown>;
+    if (
+      typeof r.year !== "number" ||
+      !isNullableNum(r.brent_nominal) ||
+      !isNullableNum(r.wti_nominal) ||
+      !isNullableNum(r.brent_real) ||
+      !isNullableNum(r.wti_real)
+    ) {
+      throw new Error(`Invalid oil price data at row ${idx}`);
+    }
+    return item as OilPriceRow;
+  });
 }

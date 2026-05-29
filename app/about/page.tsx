@@ -47,18 +47,18 @@ export default function AboutPage() {
               <table className="w-full">
                 <thead>
                   <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
-                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
-                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
-                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
-                    <th className={`text-left py-3 px-4 text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Source</th>
+                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
+                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
+                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
+                    <th className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Source</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
                     { name: "country", desc: "ISO country name / region identifier", unit: "—", tags: ["OIL", "EV"] },
                     { name: "year", desc: "Calendar year of observation", unit: "YYYY", tags: ["OIL", "EV"] },
-                    { name: "ev_sales", desc: "Total BEV + PHEV new vehicle sales in a given country and year", unit: "Vehicles (units)", tags: ["EV"] },
-                    { name: "ev_share", desc: "EV sales as a percentage of total new passenger car registrations", unit: "% (0–100)", tags: ["EV"] },
+                    { name: "ev_sales", desc: "Total BEV new vehicle sales in a given country and year", unit: "Vehicles (units)", tags: ["EV"] },
+                    { name: "ev_share", desc: "EV sales as a share of the selected countries' combined sales total. Computed from ev_sales — not stored in source data.", unit: "% (0–100)", tags: ["DERIVED"] },
                     { name: "ev_growth_rate", desc: "Year-over-year percentage change in EV sales volume", unit: "% change", tags: ["DERIVED"] },
                     { name: "oil_import", desc: "Total crude oil and petroleum product imports", unit: "kb/d", tags: ["OIL"] },
                     { name: "oil_export", desc: "Total crude oil and petroleum product exports", unit: "kb/d", tags: ["OIL"] },
@@ -101,56 +101,40 @@ export default function AboutPage() {
               {[
                 {
                   title: "IEA Oil Information Database",
-                  desc: "Historical oil import/export volumes by country (1977–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
-                  rows: "638 rows",
+                  desc: "Historical oil import/export volumes by country (1971–2024) with Log-ARIMA forecasts and 95% CI bands through 2030.",
+                  rows: "607 rows",
                   source: "International Energy Agency (IEA)",
                   license: "IEA Terms of Use",
-                  columns: "Country, Year, Type, Oil_Imports (kB/D), CI_Low (kB/D), CI_High (kB/D)",
+                  columns: "Country, Year, Type, Oil Imports (KBD), CI Low (KBD), CI High (KBD)",
                 },
                 {
                   title: "IEA Global EV Outlook — Sales",
-                  desc: "EV sales by country and year, including actual figures (2010–2023) and projections through 2035.",
-                  rows: "1,362 rows",
-                  source: "International Energy Agency (IEA) — Global EV Outlook 2024",
+                  desc: "EV sales by country and year, including actual figures (2010–2024) and projections through 2035.",
+                  rows: "1,302 rows",
+                  source: "International Energy Agency (IEA) — Global EV Outlook 2025",
                   license: "IEA Terms of Use",
-                  columns: "region_country, Year, ev_sales, Type",
+                  columns: "region_country, year, ev_sales, type",
                 },
                 {
                   title: "EV Forecast Data",
                   desc: "IEA Stated Policies Scenario (STEPS) projections of EV sales by region through 2035.",
-                  rows: "1,365 records",
-                  source: "International Energy Agency (IEA) — Global EV Outlook 2024 (Projection-STEPS)",
+                  rows: "1,302 records",
+                  source: "International Energy Agency (IEA) — Global EV Outlook 2025 (Projection-STEPS)",
                   license: "Open",
-                  columns: "region_country, year, ev_sales, Type",
+                  columns: "region_country, year, ev_sales, type",
                 },
                 {
                   title: "Net Trade Forecast",
-                  desc: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2030.",
-                  rows: "1,226 rows",
+                  desc: "Combined ARIMA forecasts for oil exports and imports with derived net trade position per country through 2031.",
+                  rows: "1,220 rows",
                   source: "Derived from IEA Oil Information Database — DS3 model",
                   license: "Open",
                   columns: "Country, Year, Type, Net_Trade, Net_CI_Low, Net_CI_High, Exports, Imports, Exports_Order, Imports_Order, Avg_MAPE",
                 },
                 {
-                  title: "US Energy Access & Burden",
-                  desc: "US state-level energy metrics including SAIDI, SAIFI reliability indices, electricity prices, and energy burden (2000–2025).",
-                  rows: "1,320 rows",
-                  source: "EIA (Energy Information Administration)",
-                  license: "Public Domain",
-                  columns: "state, year, saidi, saifi, energy_burden_pct, avg_price_cents_kwh, median_income_2024, est_annual_bill, avg_customers",
-                },
-                {
-                  title: "Global Renewable Targets 2030",
-                  desc: "88-country renewable energy capacity and generation share targets for 2030.",
-                  rows: "88 rows",
-                  source: "Ember — Global Electricity Review",
-                  license: "CC BY 4.0",
-                  columns: "country_code, country_name, capacity_target_gw, share_target_pct",
-                },
-                {
                   title: "Oil Exports Forecast",
-                  desc: "Historical oil export volumes by country (1987–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
-                  rows: "2,778 rows",
+                  desc: "Historical oil export volumes by country (1971–2024) with Log-ARIMA forecasts and 95% CI bands through 2031.",
+                  rows: "1,220 rows",
                   source: "International Energy Agency (IEA)",
                   license: "IEA Terms of Use",
                   columns: "Country, Year, Type, Value, Lower_CI, Upper_CI, ARIMA_Order, MAPE",
@@ -182,7 +166,7 @@ export default function AboutPage() {
 
             <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-gray-900"}`}>Dataset description</h4>
             <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-gray-700"}`}>
-              All charts draw on publicly available International Energy Agency (IEA) datasets. Coverage spans 50+ countries from 1971–2023 for oil trade and 2010–2030 for EV sales, with forecasts extending to 2035.
+              All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2024, with ARIMA forecasts extending to 2030–2031. EV sales data spans 56 regions from 2010–2024, with IEA STEPS projections through 2035.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
@@ -194,7 +178,7 @@ export default function AboutPage() {
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Oil Information" },
-                    { label: "COVERAGE", value: "2000–2023 (annual)" },
+                    { label: "COVERAGE", value: "1971–2030 (annual)" },
                     { label: "UNIT", value: "Thousand barrels per day (kb/d)" },
                     { label: "COUNTRIES", value: "50+ countries / regions" },
                     { label: "GRANULARITY", value: "Country-level, annual" },
@@ -218,9 +202,9 @@ export default function AboutPage() {
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Global EV Outlook" },
-                    { label: "COVERAGE", value: "2010–2023 (annual)" },
+                    { label: "COVERAGE", value: "2010–2035 (annual)" },
                     { label: "UNIT", value: "Vehicles sold; market share (%)" },
-                    { label: "COUNTRIES", value: "30+ countries / regions" },
+                    { label: "COUNTRIES", value: "56 countries / regions" },
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[100px_1fr] gap-2">
@@ -230,7 +214,7 @@ export default function AboutPage() {
                   ))}
                 </div>
                 <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>
-                  Captures annual battery electric vehicle (BEV) and plug-in hybrid (PHEV) sales figures alongside each market's overall new-vehicle sales, enabling calculation of EV market share and year-over-year growth rates.
+                  Captures annual battery electric vehicle (BEV) sales figures alongside each market's overall new-vehicle sales, enabling calculation of EV market share and year-over-year growth rates.
                 </p>
               </div>
             </div>
@@ -251,43 +235,43 @@ export default function AboutPage() {
                   num: "01",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
-                  title: "Import",
-                  body: <>Raw IEA files were downloaded in CSV format. Column names were standardised to <span className="font-mono text-xs">snake_case</span> and country names were mapped to ISO 3166-1 alpha-3 codes to ensure a consistent join key across datasets.</>,
+                  title: "Extract",
+                  body: <>Raw IEA files were loaded by Python notebooks in <span className="font-mono text-xs">analysis/oil_info/</span> and <span className="font-mono text-xs">eda/</span>. EV sales data comes from IEA Global EV Outlook 2025 (STEPS scenario); oil trade data from the IEA Oil Information Database (<span className="font-mono text-xs">OIWORLD.csv</span>).</>,
                 },
                 {
                   num: "02",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
                   title: "Clean",
-                  body: <>Rows with missing values in <span className="font-mono text-xs">oil_import</span>, <span className="font-mono text-xs">ev_sales</span>, or <span className="font-mono text-xs">year</span> were dropped. Outlier values (e.g., reporting artefacts) in crude data were capped to plausible thresholds based on domain expertise.</>,
+                  body: <>Country names were standardised across datasets — capitalisation anomalies corrected (e.g. <span className="font-mono text-xs">Usa → USA</span>), regional aggregate rows removed, and zero-value rows for years with missing data filtered out to prevent misleading drops in charts.</>,
                 },
                 {
                   num: "03",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
-                  title: "Filter",
-                  body: <>Countries were classified as oil exporters if their average <span className="font-mono text-xs">net_oil_import</span> over 2015–2023 was negative (i.e. exports exceeded imports). These countries — such as Saudi Arabia, Russia, and Norway — were excluded from the core analysis to isolate the relationship between EV adoption and import dependency.</>,
+                  title: "Forecast (Oil)",
+                  body: <>A Log-ARIMA model was fitted per country using grid search over <span className="font-mono text-xs">(p, d, q)</span> with AIC selection (<span className="font-mono text-xs">d ≤ 1</span>). Each model produces a point forecast and 95% confidence intervals through 2030–2031. MAPE is stored per country in the output CSV.</>,
                 },
                 {
                   num: "04",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
-                  title: "Merge",
-                  body: <>The cleaned oil and EV datasets were joined on <span className="font-mono text-xs">(country_ISO3, year)</span>. An inner join was used, retaining only country-year observations present in both datasets. This ensured coverage to approximately 30 countries from 2010 onward.</>,
+                  title: "Forecast (EV)",
+                  body: <>EV projections use IEA{"'"}s STEPS scenario directly — no model was fitted. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Data covers 56 regions through 2035.</>,
                 },
                 {
                   num: "05",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
-                  title: "Derive",
-                  body: <>Calculated fields — <span className="font-mono text-xs">net_oil_import</span>, <span className="font-mono text-xs">oil_import_delta</span>, <span className="font-mono text-xs">ev_growth_rate</span>, and <span className="font-mono text-xs">estimated_savings</span> — were computed from the merged dataset. Savings estimates use reference Brent crude price data and the total oil-equivalent volume displaced applied to the barrels-per-day reduction attributable to the EV fleet.</>,
+                  title: "Export",
+                  body: <>Each notebook outputs a standalone file to <span className="font-mono text-xs">public/data/</span>. No single merged analytical dataset exists — each chart reads its own file independently at runtime.</>,
                 },
                 {
                   num: "06",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
-                  title: "Normalise",
-                  body: <>For cross-country comparisons, <span className="font-mono text-xs">oil_import</span> values were also normalised by population (kb/d per capita) and GDP (in purchase-power parity dollars). Population data for the corresponding years was sourced from World Bank development indicators.</>,
+                  title: "Derive (client-side)",
+                  body: <>Oil displacement, estimated savings, and GDP impact percentages are computed in the browser using the adoption-rate and year sliders on the EV GDP Impact page — they are not stored in any data file.</>,
                 },
               ].map(({ num, bgLight, bgDark, textLight, textDark, title, body }) => (
                 <div key={num} className="flex gap-3 items-start">

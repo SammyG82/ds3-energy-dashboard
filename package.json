@@ -8,7 +8,8 @@
     "build": "next build",
     "serve": "npx serve out",
     "typecheck": "tsc --noEmit",
-    "clean": "rm -rf .next"
+    "lint": "next lint",
+    "clean": "rm -rf .next out"
   },
   "dependencies": {
     "d3": "^7.9.0",

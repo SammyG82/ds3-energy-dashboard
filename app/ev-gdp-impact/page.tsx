@@ -133,7 +133,7 @@ export default function EvGdpImpactPage() {
       netTrade.find((d) => d.Type === "Forecast") ??
       exportsData.find((d) => d.Type === "Forecast")
     )?.Year;
-    return boundary !== undefined ? boundary - 1 : undefined;
+    return boundary !== undefined ? boundary - 1 : 2023;
   }, [imports, netTrade, exportsData]);
 
   return (
@@ -151,17 +151,15 @@ export default function EvGdpImpactPage() {
           {evReady ? (
             <>
               {evErrors.oilPrices && (
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-                  <ErrorMessage message={evErrors.oilPrices} />
-                </div>
+                <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />
               )}
               <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
             </>
           ) : anyEvError ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-2">
-              {evErrors.evData    && <ErrorMessage message={evErrors.evData} />}
-              {evErrors.gdpMeta   && <ErrorMessage message={evErrors.gdpMeta} />}
-              {evErrors.oilPrices && <ErrorMessage message={evErrors.oilPrices} />}
+            <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
+              {evErrors.evData    && <ErrorMessage message={evErrors.evData} isDark={isDark} />}
+              {evErrors.gdpMeta   && <ErrorMessage message={evErrors.gdpMeta} isDark={isDark} />}
+              {evErrors.oilPrices && <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />}
             </div>
           ) : (
             <LoadingPlaceholder text="Loading data…" />
@@ -170,7 +168,7 @@ export default function EvGdpImpactPage() {
 
         {/* Oil Explorer chart */}
         <FadeIn delay={100}>
-        <div id="oil-import-forecasts" className={`rounded-2xl p-6 flex flex-col gap-6 scroll-mt-24 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
+        <div id="oil-import-forecasts" className={`rounded-2xl p-6 flex flex-col gap-6 scroll-mt-24 border ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
 
           <div>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>Oil Explorer</h2>
@@ -178,8 +176,8 @@ export default function EvGdpImpactPage() {
           </div>
 
           <div className="flex flex-col gap-2">
-            <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Dataset</p>
-            <div className="flex gap-2 flex-wrap">
+            <p id="oil-dataset-label" className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Dataset</p>
+            <div className="flex gap-2 flex-wrap" role="group" aria-labelledby="oil-dataset-label">
               {DATASETS.map((d) => (
                 <button
                   type="button"
@@ -188,7 +186,7 @@ export default function EvGdpImpactPage() {
                   aria-pressed={dataset === d.id}
                   className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                     dataset === d.id
-                      ? "bg-slate-900 text-white border-slate-900"
+                      ? isDark ? "bg-white text-black border-white" : "bg-slate-900 text-white border-slate-900"
                       : isDark
                       ? "bg-white/10 text-white/70 border-white/10 hover:border-white/30"
                       : "bg-white text-slate-600 border-slate-200 hover:border-slate-400"
@@ -201,17 +199,17 @@ export default function EvGdpImpactPage() {
             <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>{activeMeta.description}</p>
           </div>
 
-          <div className={`rounded-2xl p-6 border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-6 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             {active.length > 0 ? (
               <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} isDark={isDark} />
             ) : activeError ? (
-              <ErrorMessage message={activeError} />
+              <ErrorMessage message={activeError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
           </div>
 
-          <div className={`p-6 rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"}`}>
+          <div className={`p-6 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
             <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
             <div className="space-y-4">
               <div>

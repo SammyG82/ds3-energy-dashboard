@@ -59,10 +59,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
-  const forecastBoundary = useMemo(
-    () => data.find((d) => d.type === "Forecast")?.year ?? Infinity,
-    [data]
-  );
+  const forecastBoundary = useMemo(() => {
+    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return years.length > 0 ? Math.min(...years) : Infinity;
+  }, [data]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !filtered.length || containerWidth === 0) return;
@@ -72,7 +72,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
     const totalW = containerWidth;
     const margin = { top: 8, right: 52, bottom: 8, left: preview ? 105 : 115 };
-    const barH = preview ? 28 : 28;
+    const barH = 28;
     const gap = 4;
     const height = filtered.length * (barH + gap);
     const width = totalW - margin.left - margin.right;
@@ -111,7 +111,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     barsSel
       .on("mouseover", function (event, d) {
         barsSel.attr("opacity", 0.3).attr("stroke", "none");
-        d3.select(this).attr("opacity", 1.0).attr("stroke", "#1e293b").attr("stroke-width", 1.5);
+        d3.select(this).attr("opacity", 1.0).attr("stroke", isDarkRef.current ? "#94a3b8" : "#1e293b").attr("stroke-width", 1.5);
         const rank = filtered.findIndex((r) => r.region_country === d.region_country) + 1;
         setTooltip({ country: dn(d.region_country), sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank });
         const [mx, my] = d3.pointer(event, containerRef.current);
@@ -189,7 +189,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         className="flex-1 accent-teal-500 focus:outline-none focus:ring-2 focus:ring-slate-500"
         aria-label="Select year"
       />
-      <span className="text-sm font-bold text-teal-500 w-10 text-right">{year}</span>
+      <span className="text-sm font-mono font-bold text-teal-500 w-10 text-right">{year}</span>
       <ForecastBadge isForecast={isProjected} isDark={isDark} />
     </div>
   ) : null;

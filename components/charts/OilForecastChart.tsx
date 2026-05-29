@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, useId } from "react";
 import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
@@ -34,6 +34,7 @@ const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 export default function OilForecastChart({ data, preview = false, isDark = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const clipId = `oil-ci-clip-${useId().replace(/:/g, "")}`;
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<Pinned | null>(null);
@@ -65,14 +66,16 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     setPreviewTooltipPos(null);
   }, [data, selected, containerWidth]);
 
-  const latestHistYear = forecastBoundary !== undefined
-    ? forecastBoundary - 1
-    : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
-  const statDisplayYear = statYear ?? latestHistYear;
+  const { latestHistYear, statDisplayYear } = useMemo(() => {
+    const histYear = forecastBoundary !== undefined
+      ? forecastBoundary - 1
+      : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
+    return { latestHistYear: histYear, statDisplayYear: statYear ?? histYear };
+  }, [data, forecastBoundary, statYear]);
 
   const { latestTotal, leader } = useMemo(() => {
     const latest = data.filter((d) => d.Year === statDisplayYear && selectedSet.has(d.Country));
-    const total = latest.reduce((s, d) => s + d.value, 0);
+    const total = latest.reduce((s, d) => s + (Number.isFinite(d.value) ? d.value : 0), 0);
     const top = [...latest].sort((a, b) => b.value - a.value)[0];
     return { latestTotal: total, leader: top };
   }, [data, selectedSet, statDisplayYear]);
@@ -139,25 +142,21 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const [minYear = 1971, maxYear = 2030] = d3.extent(data, (d) => d.Year);
     const x = d3.scaleLinear()
-      .domain(d3.extent(data, (d) => d.Year) as [number, number])
+      .domain([minYear, maxYear])
       .range([0, width]);
 
-    const yMax = d3.max(activeData, (d) => (d.ciHigh ?? d.value) * 1.05) ?? 1;
-    const yScaleMin = Math.min(0, d3.min(activeData, (d) => (d.ciLow ?? d.value) * 1.05) ?? 0);
+    const yMax = Math.max(0, d3.max(activeData, (d) => d.value * 1.05) ?? 1);
+    const yScaleMin = Math.min(0, d3.min(activeData, (d) => d.value * 1.05) ?? 0);
     const y = d3.scaleLinear().domain([yScaleMin, yMax]).nice().range([height, 0]);
 
-    drawHorizontalGridLines(g, y, width);
+    g.append("defs").append("clipPath").attr("id", clipId)
+      .append("rect").attr("width", width).attr("height", height);
 
-    g.append("line")
-      .attr("x1", x(forecastBoundary)).attr("x2", x(forecastBoundary))
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
+    drawHorizontalGridLines(g, y, width, 5, isDark);
 
-    g.append("text")
-      .attr("x", x(forecastBoundary) + 4).attr("y", 12)
-      .attr("font-size", "10px")
-      .attr("fill", "#94a3b8").text("Forecast →");
+    drawForecastBoundary(g, x, forecastBoundary, height);
 
     activeCountries.forEach((country) => {
       const rows = activeData.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
@@ -174,7 +173,9 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           .y1((d) => y(d.ciHigh!))
           .curve(d3.curveMonotoneX);
         g.append("path").datum(forecastWithCI)
-          .attr("fill", color).attr("opacity", 0.1).attr("d", area);
+          .attr("fill", color).attr("opacity", 0.1)
+          .attr("clip-path", `url(#${clipId})`)
+          .attr("d", area);
       }
 
       const line = d3.line<OilRow>()
@@ -204,18 +205,20 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .selectAll("text").attr("fill", isDark ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => {
         const n = +v;
         if (n === 0) return "0";
         return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${Math.round(n)}`;
-      }).ticks(5));
+      }).ticks(5))
+      .selectAll("text").attr("fill", isDark ? "#94a3b8" : "#64748b");
 
     const crosshair = g.append("line")
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .attr("stroke", isDark ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
     const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
