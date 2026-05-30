@@ -12,8 +12,8 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 
-const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false });
-const OilForecastChart   = dynamic(() => import("@/components/charts/OilForecastChart"),   { ssr: false });
+const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: () => <LoadingPlaceholder /> });
+const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: () => <LoadingPlaceholder /> });
 
 type Dataset = "imports" | "net_trade" | "exports";
 
@@ -115,20 +115,16 @@ export default function EvGdpImpactPage() {
   }, []);
 
   const evReady  = evData.length > 0 && gdpMeta.length > 0;
-  const anyEvError = evErrors.evData || evErrors.gdpMeta || evErrors.oilPrices;
+  const anyEvError = evErrors.evData || evErrors.gdpMeta;
 
   const active      = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
   const activeMeta  = DATASETS.find((d) => d.id === dataset) ?? DATASETS[0];
   const activeError = oilErrors[dataset];
 
   const sharedStatYear = useMemo(() => {
-    const boundary = (
-      imports.find((d) => d.Type === "Forecast") ??
-      netTrade.find((d) => d.Type === "Forecast") ??
-      exportsData.find((d) => d.Type === "Forecast")
-    )?.Year;
+    const boundary = imports.find((d) => d.Type === "Forecast")?.Year;
     return boundary !== undefined ? boundary - 1 : 2023;
-  }, [imports, netTrade, exportsData]);
+  }, [imports]);
 
   return (
     <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
@@ -143,17 +139,11 @@ export default function EvGdpImpactPage() {
         {/* GDP Impact chart */}
         <FadeIn>
           {evReady ? (
-            <>
-              {evErrors.oilPrices && (
-                <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />
-              )}
-              <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
-            </>
+            <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
           ) : anyEvError ? (
             <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
-              {evErrors.evData    && <ErrorMessage message={evErrors.evData} isDark={isDark} />}
-              {evErrors.gdpMeta   && <ErrorMessage message={evErrors.gdpMeta} isDark={isDark} />}
-              {evErrors.oilPrices && <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />}
+              {evErrors.evData  && <ErrorMessage message={evErrors.evData}  isDark={isDark} />}
+              {evErrors.gdpMeta && <ErrorMessage message={evErrors.gdpMeta} isDark={isDark} />}
             </div>
           ) : (
             <LoadingPlaceholder text="Loading data…" />

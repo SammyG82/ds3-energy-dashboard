@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, COUNTRY_COLORS, dn, AGGREGATES } from "@/lib/data";
-import { tooltipStyle, useContainerSize } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, useThemeRef } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 
@@ -30,8 +30,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const [tooltip, setTooltip] = useState<Tooltip | null>(null);
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
-  const isDarkRef = useRef(isDark);
-  useEffect(() => { isDarkRef.current = isDark; }, [isDark]);
+  const isDarkRef = useThemeRef(isDark);
 
   const topN = preview ? 10 : 20;
 
@@ -48,7 +47,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   useEffect(() => {
     setTooltip(null);
     setTooltipPos(null);
-  }, [year, data, containerWidth]);
+  }, [year, data, containerWidth, containerHeight, excluded]);
 
   useEffect(() => {
     setExcluded(new Set());
@@ -66,8 +65,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
   const forecastBoundary = useMemo(() => {
-    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return years.length > 0 ? Math.min(...years) : Infinity;
+    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return d3.min(fcYears) ?? Infinity;
   }, [data]);
 
   useEffect(() => {
@@ -86,9 +85,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     svg.attr("width", totalW).attr("height", height + margin.top + margin.bottom);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const displayName = new Map(filtered.map((d) => [d.region_country, dn(d.region_country)]));
     const x = d3.scaleLinear().domain([0, d3.max(filtered, (d) => d.ev_sales) ?? 1]).range([0, width]);
     const y = d3.scaleBand()
-      .domain(filtered.map((d) => dn(d.region_country)))
+      .domain(filtered.map((d) => displayName.get(d.region_country)!))
       .range([0, height])
       .padding(0.15);
 
@@ -107,7 +107,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .append("rect")
       .attr("class", "bar")
       .attr("x", 0)
-      .attr("y", (d) => y(dn(d.region_country)) ?? 0)
+      .attr("y", (d) => y(displayName.get(d.region_country)!) ?? 0)
       .attr("height", y.bandwidth())
       .attr("rx", 3)
       .attr("fill", (d) => COUNTRY_COLORS[d.region_country] ?? DEFAULT_COLOR)
@@ -149,7 +149,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .append("text")
       .attr("class", "bar-label")
       .attr("x", 0)
-      .attr("y", (d) => (y(dn(d.region_country)) ?? 0) + y.bandwidth() / 2)
+      .attr("y", (d) => (y(displayName.get(d.region_country)!) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", "11px")
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")

@@ -12,12 +12,14 @@ interface Props {
 export default function FadeIn({ children, className = "", delay = 0 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) {
+      setPrefersReducedMotion(true);
       setVisible(true);
       return;
     }
@@ -31,7 +33,12 @@ export default function FadeIn({ children, className = "", delay = 0 }: Props) {
       { threshold: 0.08, rootMargin: "0px 0px -40px 0px" }
     );
     observer.observe(el);
-    const onMotionChange = (e: MediaQueryListEvent) => { if (e.matches) setVisible(true); };
+    const onMotionChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setPrefersReducedMotion(true);
+        setVisible(true);
+      }
+    };
     mq.addEventListener("change", onMotionChange);
     return () => {
       observer.disconnect();
@@ -45,7 +52,7 @@ export default function FadeIn({ children, className = "", delay = 0 }: Props) {
       className={className}
       style={{
         opacity: visible ? 1 : 0,
-        transition: `opacity 0.6s ease ${delay}ms`,
+        transition: prefersReducedMotion ? undefined : `opacity 0.6s ease ${delay}ms`,
       }}
     >
       {children}

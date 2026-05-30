@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import { TOP_5_MARKETS } from "@/lib/data";
@@ -38,6 +38,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   const onSelectionChangeRef = useRef(onSelectionChange);
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
+  const isDarkRef = useThemeRef(isDark);
   const [pinned, setPinned] = useState<PinnedState | null>(null);
   const [previewTooltip, setPreviewTooltip] = useState<PinnedState | null>(null);
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
@@ -64,8 +65,8 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   }, [allRegions, preview]);
 
   const forecastBoundary = useMemo(() => {
-    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return years.length > 0 ? Math.min(...years) : Infinity;
+    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return d3.min(fcYears) ?? Infinity;
   }, [data]);
 
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
@@ -99,7 +100,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected, containerWidth, data]);
-  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
+  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth, containerHeight]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
@@ -126,7 +127,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       .nice()
       .range([height, 0]);
 
-    drawHorizontalGridLines(g, y, width, 5, isDark);
+    drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
     if (isFinite(forecastBoundary)) {
       drawForecastBoundary(g, x, forecastBoundary, height);
@@ -141,10 +142,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       const color = colorMap[region];
       const actual = values.filter((d) => d.year <= forecastBoundary);
       const forecast = values.filter((d) => d.year >= forecastBoundary);
-      if (actual.length > 1)
+      if (actual.length >= 1)
         g.append("path").datum(actual)
           .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2).attr("d", line);
-      if (forecast.length > 1)
+      if (forecast.length >= 1)
         g.append("path").datum(forecast)
           .attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
@@ -153,25 +154,30 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
     regionData.forEach(({ region, values }) => {
       const color = colorMap[region];
+      const byYr = new Map(values.map((d) => [d.year, d]));
       tickYears.forEach((yr) => {
-        const row = values.find((d) => d.year === yr);
+        const row = byYr.get(yr);
         if (!row) return;
         g.append("circle")
+          .attr("class", "tick-dot")
           .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
-          .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+          .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
           .style("pointer-events", "none");
       });
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     const crosshair = g.append("line")
+      .attr("class", "chart-crosshair")
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
     g.append("rect")
@@ -192,7 +198,6 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
             value: values.find((d) => d.year === year)?.ev_sales ?? 0,
             color: colorMap[region],
           }))
-          .filter((e) => e.value > 0)
           .sort((a, b) => b.value - a.value);
 
         if (!entries.length) {
@@ -220,7 +225,12 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           onYearChangeRef.current?.(null);
         }
       });
-  }, [regionData, data, preview, isDark, colorMap, forecastBoundary, containerWidth]);
+  }, [regionData, data, preview, colorMap, forecastBoundary, containerWidth]);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    applyThemeToChart(d3.select(svgRef.current), isDark);
+  }, [isDark]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -238,7 +248,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
               })
             }
             onSelectGroup={(regions) => {
-              const next = regions.length > 0 ? regions : allRegions.slice(0, 1);
+              const next = regions.length > 0 ? regions : defaultRegions.length > 0 ? defaultRegions : allRegions.slice(0, 5);
               setSelected(next);
               onSelectionChangeRef.current?.(next);
             }}

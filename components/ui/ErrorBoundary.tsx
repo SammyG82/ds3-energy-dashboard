@@ -12,10 +12,13 @@ export default class ErrorBoundary extends Component<Props, State> {
   static getDerivedStateFromError(error: Error): State {
     return { error };
   }
+  componentDidCatch(error: Error, info: { componentStack: string }): void {
+    if (process.env.NODE_ENV !== "production") console.error(error, info);
+  }
   render() {
     if (this.state.error) {
       return (
-        <div role="alert" className="flex items-center justify-center min-h-32 text-red-500 text-sm px-4 text-center">
+        <div role="alert" className="flex items-center justify-center min-h-32 text-red-500 dark:text-red-400 text-sm px-4 text-center">
           Something went wrong loading this section.
         </div>
       );

@@ -30,7 +30,8 @@ export interface OilRow {
 function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?: unknown; type?: unknown }): EvRow | null {
   const type = String(d.type ?? "");
   if (type !== "Actual" && type !== "Forecast") return null;
-  const evSales = +(d.ev_sales ?? 0);
+  if (d.ev_sales == null) return null;
+  const evSales = +d.ev_sales;
   if (!Number.isFinite(evSales)) return null;
   const year = +(d.year ?? 0);
   if (!Number.isFinite(year)) return null;
@@ -132,12 +133,15 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
     .flatMap((d) => {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
-      const value = +(d["Oil Imports (KBD)"] ?? 0);
+      const rawVal = d["Oil Imports (KBD)"];
+      if (!rawVal) return [];
+      const value = +rawVal;
+      if (!Number.isFinite(value)) return [];
       return [{
         Country: normalizeOilCountry(d.Country),
         Year: +(d.Year ?? 0),
         Type,
-        value: Number.isFinite(value) ? value : 0,
+        value,
         ciLow: parseCI(d["CI Low (KBD)"]),
         ciHigh: parseCI(d["CI High (KBD)"]),
       }];
@@ -152,12 +156,15 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
     .flatMap((d) => {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
-      const value = +(d["Net_Trade"] ?? 0);
+      const rawVal = d["Net_Trade"];
+      if (!rawVal) return [];
+      const value = +rawVal;
+      if (!Number.isFinite(value)) return [];
       return [{
-        Country: d.Country ?? "",
+        Country: normalizeOilCountry(d.Country),
         Year: +(d.Year ?? 0),
         Type,
-        value: Number.isFinite(value) ? value : 0,
+        value,
         ciLow: parseCI(d["Net_CI_Low"]),
         ciHigh: parseCI(d["Net_CI_High"]),
       }];
@@ -172,12 +179,15 @@ export async function fetchOilExports(): Promise<OilRow[]> {
     .flatMap((d) => {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
-      const value = +(d["Value"] ?? 0);
+      const rawVal = d["Value"];
+      if (!rawVal) return [];
+      const value = +rawVal;
+      if (!Number.isFinite(value)) return [];
       return [{
         Country: normalizeOilCountry(d.Country),
         Year: +(d.Year ?? 0),
         Type,
-        value: Number.isFinite(value) ? value : 0,
+        value,
         ciLow: parseCI(d["Lower_CI"]),
         ciHigh: parseCI(d["Upper_CI"]),
       }];

@@ -10,9 +10,9 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 
-const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
-const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
-const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false });
+const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
+const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
+const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
 
 const stats = [
   { value: "~18%", label: "Global EV new-car share", accent: "text-blue-600" },

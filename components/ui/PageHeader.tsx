@@ -18,9 +18,9 @@ const badgeColors = {
 };
 
 const badgeColorsDark = {
-  teal:  "bg-teal-900/40 text-teal-400 border-teal-700",
-  amber: "bg-amber-900/40 text-amber-400 border-amber-700",
-  blue:  "bg-blue-900/40 text-blue-400 border-blue-700",
+  teal:  "bg-teal-500/20 text-teal-300 border-teal-400/40",
+  amber: "bg-amber-500/20 text-amber-300 border-amber-400/40",
+  blue:  "bg-blue-500/20 text-blue-300 border-blue-400/40",
 };
 
 export default function PageHeader({ title, titleAccent, subtitle, badges, isDark = false }: PageHeaderProps) {

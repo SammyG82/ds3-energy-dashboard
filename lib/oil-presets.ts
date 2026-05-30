@@ -15,8 +15,8 @@ export const OIL_IMPORT_PRESETS: PresetItem[] = [
   },
   {
     label: "All Countries",
-    description: "All 10 countries in the imports dataset",
-    detail: "All 10 major oil importing nations tracked in the IEA dataset.",
+    description: "All countries in the imports dataset",
+    detail: "All major oil importing nations tracked in the IEA dataset.",
     regions: null,
   },
 ];

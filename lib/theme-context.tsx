@@ -14,7 +14,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
   useLayoutEffect(() => {
-    const dark = localStorage.getItem("ds3-theme") === "dark";
+    const stored = localStorage.getItem("ds3-theme");
+    const dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
     setIsDark(dark);
     document.documentElement.classList.toggle("dark", dark);
   }, []);

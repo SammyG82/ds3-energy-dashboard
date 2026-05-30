@@ -13,9 +13,9 @@ import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import { useDataFetch } from "@/lib/ui-utils";
 import { TOP_5_MARKETS } from "@/lib/data";
 
-const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false });
-const EvShareChart = dynamic(() => import("@/components/charts/EvShareChart"), { ssr: false });
-const EvTrendChart = dynamic(() => import("@/components/charts/EvTrendChart"), { ssr: false });
+const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
+const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
+const EvTrendChart    = dynamic(() => import("@/components/charts/EvTrendChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
 
 const HEADER_HEIGHT_PX = 96;
 

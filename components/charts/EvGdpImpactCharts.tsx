@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
-import { useContainerSize } from "@/lib/ui-utils";
+import { useContainerSize, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 
 interface Props {
@@ -33,12 +33,14 @@ type Benchmark = "brent" | "wti";
 export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark = false }: Props) {
   const priceSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth } = useContainerSize(containerRef);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const yScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const chartHRef = useRef(0);
   const refLineRef = useRef<SVGLineElement | null>(null);
   const refLabelRef = useRef<SVGTextElement | null>(null);
+  const priceInitialisedRef = useRef(false);
+  const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const years = useMemo(
@@ -60,7 +62,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
   const meta = useMemo(() => gdpMeta.find((m) => m.country === country), [gdpMeta, country]);
 
-  useEffect(() => { setPricePinnedYear(null); }, [oilPrices, year, benchmark, containerWidth]);
+  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, containerWidth, containerHeight]);
 
   const forecastBoundary = useMemo(() => {
     const fYears = evData.filter((d) => d.type === "Forecast").map((d) => d.year);
@@ -73,7 +75,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
   // Initialise each benchmark's custom price once when oil price data loads
   useEffect(() => {
-    if (!oilPrices.length) return;
+    if (priceInitialisedRef.current || !oilPrices.length) return;
+    priceInitialisedRef.current = true;
     const lastRow = oilPrices[oilPrices.length - 1];
     setCustomBrentPrice(Math.max(40, Math.min(150, lastRow.brent_nominal ?? FALLBACK_PRICE)));
     setCustomWtiPrice(Math.max(40, Math.min(150, lastRow.wti_nominal ?? FALLBACK_PRICE)));
@@ -101,10 +104,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     [meta, year, adoption, evData, currentOilPrice]
   );
 
-  const priceSvgLabel = useMemo(
-    () => `Historical ${benchmark === "brent" ? "Brent" : "WTI"} crude oil prices: nominal and inflation-adjusted, through ${latestDataYear}.`,
-    [benchmark, latestDataYear]
-  );
+  const priceSvgLabel = useMemo(() => {
+    const lastRow = oilPrices.length ? oilPrices[oilPrices.length - 1] : null;
+    const lastNominal = lastRow ? (benchmark === "brent" ? lastRow.brent_nominal : lastRow.wti_nominal) : null;
+    const name = benchmark === "brent" ? "Brent" : "WTI";
+    return `Historical ${name} crude oil prices: nominal and inflation-adjusted${lastNominal !== null ? ` (${name} nominal $${lastNominal.toFixed(0)}/bbl in ${latestDataYear})` : ""}.`;
+  }, [benchmark, latestDataYear, oilPrices]);
 
   const pinnedPriceRow = useMemo(
     () => pricePinnedYear !== null ? oilPrices.find((r) => r.year === pricePinnedYear) ?? null : null,
@@ -118,8 +123,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     const svg = d3.select(priceSvg.current);
     svg.selectAll("*").remove();
 
-    const chartData = oilPrices.filter((r) => r.year >= 2017);
-    if (!chartData.length) return;
+    const chartData = oilPrices;
 
     const totalW = containerWidth - 32;
     const margin = { top: 16, right: 24, bottom: 28, left: 52 };
@@ -142,10 +146,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     yScaleRef.current = y;
     chartHRef.current = height;
 
-    const gridColor = isDark ? "#1e293b" : "#e2e8f0";
+    const gridColor = isDarkRef.current ? "#1e293b" : "#e2e8f0";
     g.selectAll(".grid-h")
       .data(y.ticks(4))
       .enter().append("line")
+      .attr("class", "grid-h")
       .attr("x1", 0).attr("x2", width)
       .attr("y1", (d: number) => y(d)).attr("y2", (d: number) => y(d))
       .attr("stroke", gridColor).attr("stroke-dasharray", "3").attr("opacity", 0.7);
@@ -201,15 +206,17 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     }
 
     const tickYears = chartData.map((d) => d.year).filter((yr) => yr % 2 === 0);
+    const tickByYear = new Map(chartData.map((d) => [d.year, d]));
     for (const { nomKey, label, color } of series) {
       const active = label === benchmark;
       const opacity = active ? 1 : 0.3;
       tickYears.forEach((yr) => {
-        const row = chartData.find((d) => d.year === yr);
+        const row = tickByYear.get(yr);
         if (!row || row[nomKey] === null) return;
         g.append("circle")
+          .attr("class", "tick-dot")
           .attr("cx", x(yr)).attr("cy", y(row[nomKey] as number)).attr("r", 3)
-          .attr("fill", isDark ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
+          .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
           .attr("opacity", opacity)
           .style("pointer-events", "none");
       });
@@ -217,16 +224,19 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
     const refLine = g.append("line")
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2");
+      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .style("visibility", "hidden");
     refLineRef.current = refLine.node();
 
-    const refLabel = g.append("text").attr("font-size", "11px");
+    const refLabel = g.append("text").attr("font-size", "11px").style("visibility", "hidden");
     refLabelRef.current = refLabel.node();
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6));
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`));
+      .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`))
+      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     const crosshair = g.append("line")
       .attr("y1", 0).attr("y2", height)
@@ -245,9 +255,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       })
       .on("mouseleave", function () {
         crosshair.style("visibility", "hidden");
-        setPricePinnedYear(null);
       });
-  }, [oilPrices, benchmark, containerWidth, isDark]);
+  }, [oilPrices, benchmark, containerWidth]);
+
+  useEffect(() => {
+    if (!priceSvg.current) return;
+    applyThemeToChart(d3.select(priceSvg.current), isDark);
+  }, [isDark]);
 
   useEffect(() => {
     if (!xScaleRef.current || !yScaleRef.current || !oilPrices.length) return;
@@ -262,7 +276,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     if (refLineRef.current) {
       d3.select(refLineRef.current)
         .attr("x1", x(refYear)).attr("x2", x(refYear))
-        .attr("y1", 0).attr("y2", height);
+        .attr("y1", 0).attr("y2", height)
+        .style("visibility", "visible");
     }
     if (refLabelRef.current) {
       const sel = d3.select(refLabelRef.current);
@@ -276,9 +291,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
           .attr("text-anchor", flipLeft ? "end" : "start")
           .attr("y", labelY < 10 ? labelY + 18 : labelY)
           .attr("fill", benchmark === "brent" ? "#d97706" : "#0891b2")
-          .text(`$${refPrice.toFixed(0)}`);
+          .text(`$${refPrice.toFixed(0)}`)
+          .style("visibility", "visible");
       } else {
-        sel.text("");
+        sel.text("").style("visibility", "hidden");
       }
     }
   }, [oilPrices, year, benchmark, containerWidth]);

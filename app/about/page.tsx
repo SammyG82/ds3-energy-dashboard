@@ -66,7 +66,7 @@ export default function AboutPage() {
                     { name: "oil_import_delta", desc: "Year-over-year change in oil import volume", unit: "kb/d (Δ)", tags: ["DERIVED"] },
                     { name: "estimated_savings", desc: "Estimated financial value of oil import reduction attributed to EV adoption, at a reference oil price.", unit: "USD billions", tags: ["DERIVED"] },
                   ].map((row, i, arr) => (
-                    <tr key={row.name} className={i < arr.length - 1 ? `border-b ${isDark ? "border-white/5" : "border-gray-100"}` : ""}>
+                    <tr key={row.name} className={i < arr.length - 1 ? `border-b ${isDark ? "border-white/5" : "border-slate-100"}` : ""}>
                       <td className={`py-3 px-4 text-sm font-mono ${isDark ? "text-teal-400" : "text-teal-600"}`}>{row.name}</td>
                       <td className={`py-3 px-4 text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{row.desc}</td>
                       <td className={`py-3 px-4 text-sm ${isDark ? "text-white/60" : "text-black/60"}`}>{row.unit}</td>

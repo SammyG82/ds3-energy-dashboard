@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 
@@ -23,10 +23,9 @@ interface Pinned {
 export default function EvTrendChart({ data, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth } = useContainerSize(containerRef);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
-  const isDarkRef = useRef(isDark);
-  useEffect(() => { isDarkRef.current = isDark; }, [isDark]);
+  const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(
     () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => !AGGREGATES.has(c)).sort(),
@@ -39,7 +38,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
   }, [countries, country]);
 
-  useEffect(() => { setPinned(null); }, [country, data, containerWidth]);
+  useEffect(() => { setPinned(null); }, [country, data, containerWidth, containerHeight]);
 
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
@@ -96,7 +95,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       .y1((d) => y(d.ev_sales))
       .curve(d3.curveMonotoneX);
 
-    if (history.length > 1) {
+    if (history.length >= 1) {
       g.append("path").datum(history)
         .attr("fill", "#0d9488").attr("opacity", 0.08)
         .attr("d", area);
@@ -106,7 +105,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         .attr("stroke-width", 2).attr("d", line);
     }
 
-    if (forecast.length > 1) {
+    if (forecast.length >= 1) {
       g.append("path").datum(forecast)
         .attr("fill", "none").attr("stroke", "#0d9488")
         .attr("stroke-width", 2).attr("stroke-dasharray", "6 3")
@@ -164,11 +163,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
 
   useEffect(() => {
     if (!svgRef.current) return;
-    const svg = d3.select(svgRef.current);
-    svg.selectAll(".grid-h").attr("stroke", isDark ? "#334155" : "#e2e8f0");
-    svg.selectAll(".tick-dot").attr("fill", isDark ? "#000" : "#fff");
-    svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
-    svg.selectAll(".chart-crosshair").attr("stroke", isDark ? "#94a3b8" : "#64748b");
+    applyThemeToChart(d3.select(svgRef.current), isDark);
   }, [isDark]);
 
   const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);
