@@ -1,220 +1,220 @@
 [
   {
     "year": 1986,
-    "brent_nominal": null,
+    "brent_nominal": 14.43,
     "wti_nominal": 15.05,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 41.3,
+    "wti_real": 43.08
   },
   {
     "year": 1987,
     "brent_nominal": 18.53,
     "wti_nominal": 19.2,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 51.17,
+    "wti_real": 53.02
   },
   {
     "year": 1988,
     "brent_nominal": 14.91,
     "wti_nominal": 15.97,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 39.54,
+    "wti_real": 42.35
   },
   {
     "year": 1989,
     "brent_nominal": 18.23,
     "wti_nominal": 19.64,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 46.12,
+    "wti_real": 49.69
   },
   {
     "year": 1990,
     "brent_nominal": 23.76,
     "wti_nominal": 24.53,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 57.03,
+    "wti_real": 58.88
   },
   {
     "year": 1991,
     "brent_nominal": 20.04,
     "wti_nominal": 21.54,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 46.16,
+    "wti_real": 49.61
   },
   {
     "year": 1992,
     "brent_nominal": 19.32,
     "wti_nominal": 20.58,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 43.2,
+    "wti_real": 46.02
   },
   {
     "year": 1993,
     "brent_nominal": 17.01,
     "wti_nominal": 18.43,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 36.93,
+    "wti_real": 40.01
   },
   {
     "year": 1994,
     "brent_nominal": 15.86,
     "wti_nominal": 17.2,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 33.57,
+    "wti_real": 36.41
   },
   {
     "year": 1995,
     "brent_nominal": 17.02,
     "wti_nominal": 18.43,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 35.03,
+    "wti_real": 37.94
   },
   {
     "year": 1996,
     "brent_nominal": 20.64,
     "wti_nominal": 22.12,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 41.27,
+    "wti_real": 44.23
   },
   {
     "year": 1997,
     "brent_nominal": 19.11,
     "wti_nominal": 20.61,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 37.35,
+    "wti_real": 40.28
   },
   {
     "year": 1998,
     "brent_nominal": 12.76,
     "wti_nominal": 14.42,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 24.56,
+    "wti_real": 27.75
   },
   {
     "year": 1999,
     "brent_nominal": 17.9,
     "wti_nominal": 19.34,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 33.7,
+    "wti_real": 36.42
   },
   {
     "year": 2000,
     "brent_nominal": 28.66,
     "wti_nominal": 30.38,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 52.21,
+    "wti_real": 55.34
   },
   {
     "year": 2001,
     "brent_nominal": 24.46,
     "wti_nominal": 25.98,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 43.33,
+    "wti_real": 46.02
   },
   {
     "year": 2002,
     "brent_nominal": 24.99,
     "wti_nominal": 26.18,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 43.58,
+    "wti_real": 45.65
   },
   {
     "year": 2003,
     "brent_nominal": 28.85,
     "wti_nominal": 31.08,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 49.19,
+    "wti_real": 52.99
   },
   {
     "year": 2004,
     "brent_nominal": 38.26,
     "wti_nominal": 41.51,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 63.54,
+    "wti_real": 68.93
   },
   {
     "year": 2005,
     "brent_nominal": 54.57,
     "wti_nominal": 56.64,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 87.65,
+    "wti_real": 90.98
   },
   {
     "year": 2006,
     "brent_nominal": 65.16,
     "wti_nominal": 66.05,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 101.39,
+    "wti_real": 102.78
   },
   {
     "year": 2007,
     "brent_nominal": 72.44,
     "wti_nominal": 72.34,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 109.62,
+    "wti_real": 109.47
   },
   {
     "year": 2008,
     "brent_nominal": 96.94,
     "wti_nominal": 99.67,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 141.25,
+    "wti_real": 145.22
   },
   {
     "year": 2009,
     "brent_nominal": 61.74,
     "wti_nominal": 61.95,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 90.29,
+    "wti_real": 90.6
   },
   {
     "year": 2010,
     "brent_nominal": 79.61,
     "wti_nominal": 79.48,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 114.51,
+    "wti_real": 114.32
   },
   {
     "year": 2011,
     "brent_nominal": 111.26,
     "wti_nominal": 94.88,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 155.19,
+    "wti_real": 132.34
   },
   {
     "year": 2012,
     "brent_nominal": 111.57,
     "wti_nominal": 94.05,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 152.44,
+    "wti_real": 128.5
   },
   {
     "year": 2013,
     "brent_nominal": 108.56,
     "wti_nominal": 97.98,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 146.16,
+    "wti_real": 131.92
   },
   {
     "year": 2014,
     "brent_nominal": 98.97,
     "wti_nominal": 93.17,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 131.17,
+    "wti_real": 123.48
   },
   {
     "year": 2015,
     "brent_nominal": 52.32,
     "wti_nominal": 48.66,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 69.25,
+    "wti_real": 64.41
   },
   {
     "year": 2016,
     "brent_nominal": 43.64,
     "wti_nominal": 43.29,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 57.04,
+    "wti_real": 56.58
   },
   {
     "year": 2017,
@@ -276,14 +276,14 @@
     "year": 2025,
     "brent_nominal": 69.14,
     "wti_nominal": 65.39,
-    "brent_real": null,
-    "wti_real": null
+    "brent_real": 67.67,
+    "wti_real": 64.0
   },
   {
     "year": 2026,
-    "brent_nominal": 91.94,
-    "wti_nominal": 82.96,
-    "brent_real": null,
-    "wti_real": null
+    "brent_nominal": 93.91,
+    "wti_nominal": 84.16,
+    "brent_real": 89.59,
+    "wti_real": 80.29
   }
 ]

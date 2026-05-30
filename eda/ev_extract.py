@@ -39,9 +39,13 @@ ev_hist = ev_hist[ev_hist["year"] <= 2024]
 
 # ── Exclude aggregate/regional groupings ─────────────────────────────────────
 EXCLUDE_REGIONS = {
-    "Africa", "Asia Pacific", "EU27", "Europe",
+    "Africa", "Asia Pacific", "Europe",
     "Middle East and Caspian", "North America",
+    "Rest of the world",
 }
+
+# Aggregates kept in the output but not fitted with an S-curve.
+SKIP_FORECAST: set[str] = set()
 ev_hist = ev_hist[~ev_hist["region_country"].isin(EXCLUDE_REGIONS)]
 
 ev_hist = ev_hist.sort_values(["region_country", "year"]).reset_index(drop=True)
@@ -62,10 +66,12 @@ for country in ev_hist["region_country"].unique():
 
     if len(ydata) < 3: # need at least 3 points to fit a curve
         continue
-    
+    if country in SKIP_FORECAST:
+        continue
+
     current_max = ydata.max()
     lower_k = current_max * 1.2 # ensure K is at least 1.2x the current max to prevent "Flatlines"
-    upper_k = current_max * 10 # cap K at 10x the current max to prevent "Explosions"
+    upper_k = current_max * 10  # cap K at 10x the current max to prevent "Explosions"
     p0 = [lower_k * 2, 0.3, 2030]
 
     try:
@@ -108,8 +114,8 @@ print(f"ev_data.json written — {len(records)} records")
 # ── Sanity checks ─────────────────────────────────────────────────────────────
 n_regions = ev_out["region_country"].nunique()
 n_forecast = ev_out[ev_out["type"] == "Forecast"]["region_country"].nunique()
-print(f"Distinct regions: {n_regions}  (expected: 56)")
-print(f"Regions with S-curve forecast: {n_forecast}")
+print(f"Distinct regions: {n_regions}  (expected: 56 — 55 countries + EU27 aggregate)")
+print(f"Regions with S-curve forecast: {n_forecast}  (expected: 55 — Uzbekistan has <3 data points)")
 if n_regions < 55:
     print("WARNING: fewer regions than expected — some may have LDV data only, not Cars.")
     print("Consider changing mode filter to 'LDV' or checking IEA data structure.")

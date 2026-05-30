@@ -121,7 +121,7 @@ export default function LandingPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  EV Share by Country{" "}
+                  EV Sales Rankings{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 10 Countries)</span>
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>

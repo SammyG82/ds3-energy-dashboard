@@ -67,7 +67,7 @@ export default function EvForecastPage() {
       <PageHeader
         title="EV"
         titleAccent="Forecast"
-        subtitle="Historical EV sales from 2010 across 50+ countries, with IEA Stated Policies Scenario projections through 2035"
+        subtitle="Historical EV sales from 2010 across 50+ countries, with DS3 logistic S-curve projections through 2035"
         isDark={isDark}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
@@ -75,8 +75,8 @@ export default function EvForecastPage() {
         <FadeIn>
           <div id="ev-sales-by-country" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
-              <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales by Country</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>
+              <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Rankings</h2>
+              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Drag to see how rankings shift from 2010 to 2035. EU shown as a regional aggregate.</p>
             </div>
             {salesData.length > 0 ? (
               <EvShareChart data={salesData} isDark={isDark} />
@@ -108,7 +108,7 @@ export default function EvForecastPage() {
               <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
               <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
               <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                IEA Stated Policies Scenario (STEPS) projections from Global EV Outlook 2025. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show STEPS projections through 2035. The APS (Announced Pledges Scenario) is excluded to avoid duplicate region/year pairs.
+                DS3 logistic S-curve model fitted per country to IEA historical BEV sales data, projected through 2035 and constrained to 1.2–10× the observed peak. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show S-curve projections. Uzbekistan is excluded (fewer than 3 data points to fit).
               </p>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function EvForecastPage() {
           <div className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and IEA-projected growth through 2035</p>
+              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and projected growth through 2035</p>
             </div>
             {salesData.length > 0 ? (
               <EvTrendChart data={salesData} isDark={isDark} />
@@ -143,7 +143,7 @@ export default function EvForecastPage() {
                 <div>
                   <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Peak Year &amp; 2030 Forecast</h4>
                   <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                    Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from the IEA's Stated Policies Scenario (STEPS) in the Global EV Outlook 2025, modelling adoption under currently enacted policies.
+                    Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from DS3's logistic S-curve model, fitted to each country's IEA historical data and projected through 2035.
                   </p>
                 </div>
               </div>

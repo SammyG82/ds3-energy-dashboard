@@ -117,11 +117,19 @@ export default function AboutPage() {
                 },
                 {
                   title: "EV Forecast Data",
-                  desc: "IEA Stated Policies Scenario (STEPS) projections of EV sales by region through 2035.",
+                  desc: "Logistic S-curve projections of BEV sales per country through 2035, fitted to IEA historical data using scipy.optimize.curve_fit.",
                   rows: "1,297 records",
-                  source: "International Energy Agency (IEA) — Global EV Outlook 2025 (Projection-STEPS)",
+                  source: "IEA Global EV Outlook 2025 (historical) + DS3 logistic S-curve model (projections)",
                   license: "Open",
                   columns: "region_country, year, ev_sales, type",
+                },
+                {
+                  title: "Historical Crude Oil Prices",
+                  desc: "Annual average Brent and WTI spot prices (1986–2026), with inflation-adjusted real prices in 2024 USD using BLS CPI-U deflation.",
+                  rows: "41 rows",
+                  source: "EIA (RBRTE / RWTC series) · Energy Institute Statistical Review (1986 Brent) · BLS CPI-U (deflation)",
+                  license: "Public domain",
+                  columns: "year, brent_nominal, wti_nominal, brent_real, wti_real",
                 },
                 {
                   title: "Net Trade Forecast",
@@ -166,7 +174,7 @@ export default function AboutPage() {
 
             <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset description</h4>
             <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
-              All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with IEA STEPS projections through 2035.
+              All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with logistic S-curve projections through 2035.
             </p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
@@ -250,14 +258,14 @@ export default function AboutPage() {
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
                   title: "Forecast (Oil)",
-                  body: <>A Log-ARIMA model was fitted per country using grid search over <span className="font-mono text-xs">(p, d, q)</span> with AIC selection (<span className="font-mono text-xs">d ≤ 1</span>). Each model produces a point forecast and 95% confidence intervals through 2030–2031. MAPE is stored per country in the output CSV.</>,
+                  body: <>A Log-ARIMA model was fitted per country using grid search over <span className="font-mono text-xs">(p, d, q)</span> with AIC selection (<span className="font-mono text-xs">d ≤ 1</span>). Each model produces a point forecast and 95% confidence intervals through 2030. MAPE is stored per country in the output CSV.</>,
                 },
                 {
                   num: "04",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
                   title: "Forecast (EV)",
-                  body: <>EV projections use IEA&apos;s STEPS scenario directly — no model was fitted. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Data covers 56 regions through 2035.</>,
+                  body: <>A logistic S-curve model is fitted per country using <span className="font-mono text-xs">scipy.optimize.curve_fit</span> on IEA historical BEV sales. The model projects adoption through 2035, constrained to 1.2–10× the historical peak. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Uzbekistan is skipped (fewer than 3 data points).</>,
                 },
                 {
                   num: "05",

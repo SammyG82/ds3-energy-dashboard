@@ -66,12 +66,13 @@ export const EV_DISPLAY_NAMES: Record<string, string> = {
   "World": "Global Total",
   "Rest of the world": "Other Countries",
   "United Kingdom": "UK",
+  "EU27": "EU",
 };
 
 export const dn = (r: string): string => EV_DISPLAY_NAMES[r] ?? r;
 
 // Raw region keys only — do not call AGGREGATES.has(dn(r))
-export const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America"]);
+export const AGGREGATES = new Set(["World", "Rest of the world", "Central and South America", "EU27"]);
 
 export const COUNTRY_COLORS: Record<string, string> = {
   // EV + shared countries — EV palette is canonical
@@ -79,7 +80,7 @@ export const COUNTRY_COLORS: Record<string, string> = {
   Japan: "#0891b2", "United Kingdom": "#db2777", UK: "#db2777", France: "#ca8a04",
   Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea", Australia: "#0284c7",
   Sweden: "#15803d", Canada: "#b45309", Spain: "#be185d", Brazil: "#0d9488",
-  Italy: "#f97316", World: "#64748b",
+  Italy: "#f97316", World: "#64748b", EU27: "#003399",
   // European EV markets not in the canonical shared list
   Belgium: "#4338ca", Denmark: "#0369a1", Finland: "#be123c", Austria: "#5b21b6",
   Switzerland: "#0c4a6e", "Czech Republic": "#78350f", Poland: "#9a3412",

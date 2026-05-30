@@ -2088,6 +2088,162 @@
     "type": "Forecast"
   },
   {
+    "region_country": "EU27",
+    "year": 2010,
+    "ev_sales": 1100.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2011,
+    "ev_sales": 7100.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2012,
+    "ev_sales": 12000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2013,
+    "ev_sales": 21000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2014,
+    "ev_sales": 33000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2015,
+    "ev_sales": 49000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2016,
+    "ev_sales": 54000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2017,
+    "ev_sales": 84000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2018,
+    "ev_sales": 130000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2019,
+    "ev_sales": 250000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2020,
+    "ev_sales": 540000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2021,
+    "ev_sales": 890000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2022,
+    "ev_sales": 1100000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2023,
+    "ev_sales": 1600000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2024,
+    "ev_sales": 1500000.0,
+    "type": "Actual"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2025,
+    "ev_sales": 1778831.1785454778,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2026,
+    "ev_sales": 1847206.4005820302,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2027,
+    "ev_sales": 1883150.0910717428,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2028,
+    "ev_sales": 1901523.1971570163,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2029,
+    "ev_sales": 1910780.450516207,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2030,
+    "ev_sales": 1915410.825609879,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2031,
+    "ev_sales": 1917718.443742497,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2032,
+    "ev_sales": 1918866.3870862992,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2033,
+    "ev_sales": 1919436.9232368304,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2034,
+    "ev_sales": 1919720.3560425134,
+    "type": "Forecast"
+  },
+  {
+    "region_country": "EU27",
+    "year": 2035,
+    "ev_sales": 1919861.1291833192,
+    "type": "Forecast"
+  },
+  {
     "region_country": "Estonia",
     "year": 2015,
     "ev_sales": 34.0,
@@ -5523,162 +5679,6 @@
     "region_country": "Portugal",
     "year": 2035,
     "ev_sales": 82108.06703270364,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2010,
-    "ev_sales": 450.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2011,
-    "ev_sales": 570.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2012,
-    "ev_sales": 1200.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2013,
-    "ev_sales": 490.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2014,
-    "ev_sales": 1300.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2015,
-    "ev_sales": 1600.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2016,
-    "ev_sales": 1800.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2017,
-    "ev_sales": 4700.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2018,
-    "ev_sales": 8000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2019,
-    "ev_sales": 14000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2020,
-    "ev_sales": 29000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2021,
-    "ev_sales": 50000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2022,
-    "ev_sales": 82000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2023,
-    "ev_sales": 130000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2024,
-    "ev_sales": 190000.0,
-    "type": "Actual"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2025,
-    "ev_sales": 251986.58157363685,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2026,
-    "ev_sales": 306029.0313690024,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2027,
-    "ev_sales": 346078.81447749486,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2028,
-    "ev_sales": 372374.53374258144,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2029,
-    "ev_sales": 388294.37300292106,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2030,
-    "ev_sales": 397463.40300649597,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2031,
-    "ev_sales": 402593.15327570244,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2032,
-    "ev_sales": 405416.52502272854,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2033,
-    "ev_sales": 406956.51262313576,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2034,
-    "ev_sales": 407792.35116653563,
-    "type": "Forecast"
-  },
-  {
-    "region_country": "Rest of the world",
-    "year": 2035,
-    "ev_sales": 408244.79282576597,
     "type": "Forecast"
   },
   {

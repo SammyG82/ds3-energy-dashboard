@@ -19,6 +19,7 @@ interface Tooltip {
   sales: number;
   sharePct: number;
   rank: number;
+  isAggregate?: boolean;
 }
 
 const DEFAULT_COLOR = "#94a3b8";
@@ -62,6 +63,21 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     [data, year, topN, excluded]
   );
 
+  // EU27 injected separately so it appears in its natural rank position without
+  // being counted in the stat card totals (it overlaps with individual EU countries).
+  const eu27Row = useMemo(
+    () => !excluded.has("EU27")
+      ? (data.find((d) => d.year === year && d.region_country === "EU27") ?? null)
+      : null,
+    [data, year, excluded]
+  );
+
+  const displayRows = useMemo(() => {
+    if (!eu27Row) return filtered;
+    return [...filtered, eu27Row].sort((a, b) => b.ev_sales - a.ev_sales);
+  }, [filtered, eu27Row]);
+
+  // total intentionally excludes EU27 — it overlaps with individual EU country bars
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
   const forecastBoundary = useMemo(() => {
@@ -70,7 +86,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   }, [data]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || !filtered.length || containerWidth === 0) return;
+    if (!svgRef.current || !containerRef.current || !displayRows.length || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -79,16 +95,16 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     const margin = { top: 8, right: 52, bottom: 8, left: preview ? 105 : 115 };
     const barH = 28;
     const gap = 4;
-    const height = filtered.length * (barH + gap);
+    const height = displayRows.length * (barH + gap);
     const width = totalW - margin.left - margin.right;
 
     svg.attr("width", totalW).attr("height", height + margin.top + margin.bottom);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const displayName = new Map(filtered.map((d) => [d.region_country, dn(d.region_country)]));
-    const x = d3.scaleLinear().domain([0, d3.max(filtered, (d) => d.ev_sales) ?? 1]).range([0, width]);
+    const displayName = new Map(displayRows.map((d) => [d.region_country, dn(d.region_country)]));
+    const x = d3.scaleLinear().domain([0, d3.max(displayRows, (d) => d.ev_sales) ?? 1]).range([0, width]);
     const y = d3.scaleBand()
-      .domain(filtered.map((d) => displayName.get(d.region_country)!))
+      .domain(displayRows.map((d) => displayName.get(d.region_country)!))
       .range([0, height])
       .padding(0.15);
 
@@ -101,8 +117,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("y1", 0).attr("y2", height)
       .attr("stroke", isDarkRef.current ? "#334155" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.6);
 
+    const euColor = isDarkRef.current ? "#6699ff" : (COUNTRY_COLORS["EU27"] ?? "#003399");
+
     const barsSel = g.selectAll<SVGRectElement, EvRow>(".bar")
-      .data(filtered)
+      .data(displayRows)
       .enter()
       .append("rect")
       .attr("class", "bar")
@@ -110,17 +128,25 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("y", (d) => y(displayName.get(d.region_country)!) ?? 0)
       .attr("height", y.bandwidth())
       .attr("rx", 3)
-      .attr("fill", (d) => COUNTRY_COLORS[d.region_country] ?? DEFAULT_COLOR)
-      .attr("opacity", 0.85)
+      .attr("fill", (d) => d.region_country === "EU27" ? euColor : (COUNTRY_COLORS[d.region_country] ?? DEFAULT_COLOR))
+      .attr("fill-opacity", (d) => d.region_country === "EU27" ? 0.15 : 0.85)
+      .attr("stroke", (d) => d.region_country === "EU27" ? euColor : "none")
+      .attr("stroke-width", (d) => d.region_country === "EU27" ? 2 : 0)
       .attr("width", 0);
 
     barsSel
       .attr("cursor", "pointer")
       .on("mouseover", function (event, d) {
-        barsSel.attr("opacity", 0.3).attr("stroke", "none");
-        d3.select(this).attr("opacity", 1.0).attr("stroke", isDarkRef.current ? "#94a3b8" : "#1e293b").attr("stroke-width", 1.5);
-        const rank = filtered.findIndex((r) => r.region_country === d.region_country) + 1;
-        setTooltip({ country: dn(d.region_country), sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank });
+        const isEU = d.region_country === "EU27";
+        barsSel
+          .attr("fill-opacity", (r) => r.region_country === "EU27" ? 0.08 : 0.3)
+          .attr("stroke", (r) => r.region_country === "EU27" ? euColor : "none");
+        d3.select(this)
+          .attr("fill-opacity", isEU ? 0.3 : 1.0)
+          .attr("stroke", isDarkRef.current ? "#94a3b8" : "#1e293b")
+          .attr("stroke-width", isEU ? 2 : 1.5);
+        const rank = displayRows.findIndex((r) => r.region_country === d.region_country) + 1;
+        setTooltip({ country: dn(d.region_country), sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank, isAggregate: isEU });
         const [mx, my] = d3.pointer(event, containerRef.current);
         setTooltipPos({ x: mx, y: my });
       })
@@ -129,7 +155,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         setTooltipPos({ x: mx, y: my });
       })
       .on("mouseleave", function () {
-        barsSel.attr("opacity", 0.85).attr("stroke", "none");
+        barsSel
+          .attr("fill-opacity", (d) => d.region_country === "EU27" ? 0.15 : 0.85)
+          .attr("stroke", (d) => d.region_country === "EU27" ? euColor : "none")
+          .attr("stroke-width", (d) => d.region_country === "EU27" ? 2 : 0);
         setTooltip(null);
         setTooltipPos(null);
       })
@@ -144,7 +173,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("width", (d) => x(d.ev_sales));
 
     g.selectAll(".bar-label")
-      .data(filtered)
+      .data(displayRows)
       .enter()
       .append("text")
       .attr("class", "bar-label")
@@ -170,14 +199,14 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
       .attr("cursor", "pointer")
       .on("click", (_event, countryDisplay) => {
-        const row = filtered.find((d) => dn(d.region_country) === countryDisplay);
+        const row = displayRows.find((d) => dn(d.region_country) === countryDisplay);
         if (row) {
           setTooltip(null);
           setTooltipPos(null);
           setExcluded((prev) => new Set([...prev, row.region_country]));
         }
       });
-  }, [filtered, preview, containerWidth, total]);
+  }, [displayRows, preview, containerWidth, total]);
 
   // Update only colours when theme changes — no redraw, no animation restart
   useEffect(() => {
@@ -186,17 +215,30 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     svg.selectAll(".chart-grid-line").attr("stroke", isDark ? "#334155" : "#e2e8f0");
     svg.selectAll<SVGTextElement, unknown>(".bar-label").attr("fill", isDark ? "#94a3b8" : "#64748b");
     svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
+    const euColor = isDark ? "#6699ff" : (COUNTRY_COLORS["EU27"] ?? "#003399");
+    svg.selectAll<SVGRectElement, EvRow>(".bar")
+      .filter((d) => d.region_country === "EU27")
+      .attr("fill", euColor)
+      .attr("stroke", euColor);
   }, [isDark]);
+
+  // Keep excluded-count label accurate for EU27
+  const excludedCountries = useMemo(
+    () => [...excluded].filter((r) => r !== "EU27"),
+    [excluded]
+  );
+  const eu27Hidden = excluded.has("EU27");
 
   const leader = filtered[0];
 
   const ariaLabel = useMemo(() => {
     if (!leader) return "EV sales rankings: no data available.";
-    return `EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} combined: ${fmtEvSales(total)}.`;
-  }, [year, leader, topN, total]);
+    const eu27Note = eu27Row ? ` EU regional total: ${fmtEvSales(eu27Row.ev_sales)}.` : "";
+    return `EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} countries combined: ${fmtEvSales(total)}.${eu27Note}`;
+  }, [year, leader, topN, total, eu27Row]);
 
   const isProjected = year >= forecastBoundary;
-  const excludedLabel = excluded.size > 0 ? ` (excl. ${excluded.size})` : "";
+  const excludedLabel = excludedCountries.length > 0 ? ` (excl. ${excludedCountries.length})` : "";
 
   const yearSlider = years.length > 0 ? (
     <div className="flex items-center gap-3">
@@ -226,10 +268,13 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         <StatCard size="xl" label={`${isProjected ? "Projected " : ""}Leader Share of Top ${topN}${excludedLabel}`} value={leader && total ? ((leader.ev_sales / total) * 100).toFixed(0) + "%" : "—"} accent="amber" isDark={isDark} />
       </div>
 
-      {excluded.size > 0 && (
-        <div className="flex items-center gap-2">
+      {(excludedCountries.length > 0 || eu27Hidden) && (
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-            {excluded.size === 1 ? "1 country hidden" : `${excluded.size} countries hidden`} — click a bar or name to hide, or
+            {[
+              excludedCountries.length > 0 && `${excludedCountries.length} ${excludedCountries.length === 1 ? "country" : "countries"} hidden`,
+              eu27Hidden && "EU hidden",
+            ].filter(Boolean).join(" · ")} — click a bar or name to hide, or
           </span>
           <button
             onClick={() => setExcluded(new Set())}
@@ -261,14 +306,25 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           >
             <div className="flex items-center justify-between gap-3">
               <span className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{tooltip.country}</span>
-              <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
+              <div className="flex items-center gap-1.5">
+                {tooltip.isAggregate && (
+                  <span className="text-xs px-2 py-0.5 rounded font-medium bg-blue-500/15 text-blue-500">Aggregate</span>
+                )}
+                <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
+              </div>
             </div>
             <p className="text-blue-500 font-bold text-base mt-0.5">
               {fmtEvSales(tooltip.sales)} <span className={`text-xs font-normal ${isDark ? "text-white/40" : "text-slate-400"}`}>vehicles</span>
             </p>
-            <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-              {tooltip.sharePct.toFixed(1)}% of top {topN} countries' combined sales
-            </p>
+            {tooltip.isAggregate ? (
+              <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                Regional aggregate — overlaps with individual EU countries shown
+              </p>
+            ) : (
+              <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                {tooltip.sharePct.toFixed(1)}% of top {topN} countries' combined sales
+              </p>
+            )}
           </div>
         )}
       </div>

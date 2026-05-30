@@ -347,6 +347,32 @@ Denmark,2032,208264.1407336453,Forecast
 Denmark,2033,209131.53071156426,Forecast
 Denmark,2034,209598.40189964327,Forecast
 Denmark,2035,209848.95141420653,Forecast
+EU27,2010,1100.0,Actual
+EU27,2011,7100.0,Actual
+EU27,2012,12000.0,Actual
+EU27,2013,21000.0,Actual
+EU27,2014,33000.0,Actual
+EU27,2015,49000.0,Actual
+EU27,2016,54000.0,Actual
+EU27,2017,84000.0,Actual
+EU27,2018,130000.0,Actual
+EU27,2019,250000.0,Actual
+EU27,2020,540000.0,Actual
+EU27,2021,890000.0,Actual
+EU27,2022,1100000.0,Actual
+EU27,2023,1600000.0,Actual
+EU27,2024,1500000.0,Actual
+EU27,2025,1778831.1785454778,Forecast
+EU27,2026,1847206.4005820302,Forecast
+EU27,2027,1883150.0910717428,Forecast
+EU27,2028,1901523.1971570163,Forecast
+EU27,2029,1910780.450516207,Forecast
+EU27,2030,1915410.825609879,Forecast
+EU27,2031,1917718.443742497,Forecast
+EU27,2032,1918866.3870862992,Forecast
+EU27,2033,1919436.9232368304,Forecast
+EU27,2034,1919720.3560425134,Forecast
+EU27,2035,1919861.1291833192,Forecast
 Estonia,2015,34.0,Actual
 Estonia,2016,35.0,Actual
 Estonia,2017,26.0,Actual
@@ -920,32 +946,6 @@ Portugal,2032,81494.2309633796,Forecast
 Portugal,2033,81819.20308358084,Forecast
 Portugal,2034,82003.65568507776,Forecast
 Portugal,2035,82108.06703270364,Forecast
-Rest of the world,2010,450.0,Actual
-Rest of the world,2011,570.0,Actual
-Rest of the world,2012,1200.0,Actual
-Rest of the world,2013,490.0,Actual
-Rest of the world,2014,1300.0,Actual
-Rest of the world,2015,1600.0,Actual
-Rest of the world,2016,1800.0,Actual
-Rest of the world,2017,4700.0,Actual
-Rest of the world,2018,8000.0,Actual
-Rest of the world,2019,14000.0,Actual
-Rest of the world,2020,29000.0,Actual
-Rest of the world,2021,50000.0,Actual
-Rest of the world,2022,82000.0,Actual
-Rest of the world,2023,130000.0,Actual
-Rest of the world,2024,190000.0,Actual
-Rest of the world,2025,251986.58157363685,Forecast
-Rest of the world,2026,306029.0313690024,Forecast
-Rest of the world,2027,346078.81447749486,Forecast
-Rest of the world,2028,372374.53374258144,Forecast
-Rest of the world,2029,388294.37300292106,Forecast
-Rest of the world,2030,397463.40300649597,Forecast
-Rest of the world,2031,402593.15327570244,Forecast
-Rest of the world,2032,405416.52502272854,Forecast
-Rest of the world,2033,406956.51262313576,Forecast
-Rest of the world,2034,407792.35116653563,Forecast
-Rest of the world,2035,408244.79282576597,Forecast
 Romania,2015,24.0,Actual
 Romania,2016,74.0,Actual
 Romania,2017,190.0,Actual

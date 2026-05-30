@@ -1,3 +1,4 @@
+import re
 import pandas as pd
 import numpy as np
 
@@ -5,6 +6,11 @@ import numpy as np
 INPUT_FILE = "Reliability_2024.xlsx"  # Rename your file to this, or change path
 OUTPUT_UTILITY = "reliability_by_utility.csv"
 OUTPUT_STATE = "reliability_by_state_2024.csv"
+
+# Extract year from filename so the 'year' column in the output reflects the actual data year.
+# Pattern: "Reliability_YYYY.xlsx" → year = YYYY. Falls back to 2024 if no 4-digit year found.
+_year_match = re.search(r"(\d{4})", INPUT_FILE)
+DATA_YEAR = int(_year_match.group(1)) if _year_match else 2024
 
 def main():
     print(f"Reading {INPUT_FILE}...")
@@ -82,7 +88,7 @@ def main():
         })
     ).reset_index()
     
-    state_agg['year'] = 2024
+    state_agg['year'] = DATA_YEAR
     state_agg = state_agg[['state', 'year', 'saidi_with_med', 'saifi_with_med', 
                            'saidi_wo_med', 'saifi_wo_med', 'total_customers', 'utility_count']]
     

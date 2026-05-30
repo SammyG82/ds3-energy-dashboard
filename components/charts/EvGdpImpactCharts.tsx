@@ -37,8 +37,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
   const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const yScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
   const chartHRef = useRef(0);
-  const refLineRef = useRef<SVGLineElement | null>(null);
-  const refLabelRef = useRef<SVGTextElement | null>(null);
   const priceInitialisedRef = useRef(false);
   const isDarkRef = useThemeRef(isDark);
 
@@ -126,7 +124,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     const chartData = oilPrices;
 
     const totalW = containerWidth - 32;
-    const margin = { top: 16, right: 24, bottom: 28, left: 52 };
+    const margin = { top: 16, right: 40, bottom: 28, left: 52 };
     const totalH = 220;
     const width  = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
@@ -134,9 +132,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const [minYear = 2017, maxYear = 2024] = d3.extent(chartData, (d) => d.year);
+    const [minYear = 1986, maxYear = 2026] = d3.extent(chartData, (d) => d.year);
     const x = d3.scaleLinear()
-      .domain([minYear, maxYear])
+      .domain([minYear, maxYear + 0.5])
       .range([0, width]);
 
     const allVals = chartData.flatMap((d) => [d.brent_nominal, d.wti_nominal, d.brent_real, d.wti_real]).filter((v): v is number => v !== null);
@@ -222,15 +220,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       });
     }
 
-    const refLine = g.append("line")
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
-      .style("visibility", "hidden");
-    refLineRef.current = refLine.node();
-
-    const refLabel = g.append("text").attr("font-size", "11px").style("visibility", "hidden");
-    refLabelRef.current = refLabel.node();
-
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
@@ -273,30 +262,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     const refRow = oilPrices.find((r) => r.year === refYear) ?? oilPrices[oilPrices.length - 1];
     const refPrice = (benchmark === "brent" ? refRow.brent_nominal : refRow.wti_nominal) ?? null;
 
-    if (refLineRef.current) {
-      d3.select(refLineRef.current)
-        .attr("x1", x(refYear)).attr("x2", x(refYear))
-        .attr("y1", 0).attr("y2", height)
-        .style("visibility", "visible");
-    }
-    if (refLabelRef.current) {
-      const sel = d3.select(refLabelRef.current);
-      if (refPrice !== null) {
-        const labelY = y(refPrice) - 8;
-        const xPos = x(refYear);
-        const chartW = x.range()[1];
-        const flipLeft = xPos > chartW - 40;
-        sel
-          .attr("x", flipLeft ? xPos - 5 : xPos + 5)
-          .attr("text-anchor", flipLeft ? "end" : "start")
-          .attr("y", labelY < 10 ? labelY + 18 : labelY)
-          .attr("fill", benchmark === "brent" ? "#d97706" : "#0891b2")
-          .text(`$${refPrice.toFixed(0)}`)
-          .style("visibility", "visible");
-      } else {
-        sel.text("").style("visibility", "hidden");
-      }
-    }
   }, [oilPrices, year, benchmark, containerWidth]);
 
   return (
@@ -433,7 +398,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
             </span>
             <span className="flex items-center gap-1.5">
               <svg width="20" height="8" aria-hidden="true"><line x1="0" y1="4" x2="20" y2="4" stroke="#94a3b8" strokeWidth="1.5" strokeDasharray="4 3" /></svg>
-              Real (2024 USD)
+              Real
             </span>
           </div>
         </div>
@@ -477,7 +442,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
             },
             {
               title: "Historical oil prices & inflation adjustment",
-              body: (<>Brent and WTI spot prices come from FRED (Federal Reserve Bank of St Louis), averaged from daily to annual figures. The dashed line and shaded area on the price chart show inflation-adjusted prices in real 2024 USD, using the US Consumer Price Index from the IMF (2017–2024). The deflation formula is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${isDark ? "bg-white/10" : "bg-black/5"}`}>real = nominal × (CPI₂₀₂₄ ÷ CPI_year)</span>{" "}— so a $54 barrel in 2017 becomes ~$69 in today&apos;s dollars. The shaded gap between the lines represents purchasing power lost to inflation. Real prices are only shown where CPI data is available (2017–2024).</>),
+              body: (<>Brent and WTI spot prices come from EIA, averaged to annual figures. The dashed line and shaded area show inflation-adjusted prices in real 2024 USD, using the US Consumer Price Index (BLS CPI-U) from 1986 to 2026. The deflation formula is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${isDark ? "bg-white/10" : "bg-black/5"}`}>real = nominal × (CPI₂₀₂₄ ÷ CPI_year)</span>{" "}— so a $97 barrel in 2008 becomes ~$141 in today&apos;s dollars. The shaded gap between the lines represents purchasing power lost to inflation.</>),
             },
           ].map(({ title, body }) => (
             <div key={title}>
