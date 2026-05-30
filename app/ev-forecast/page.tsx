@@ -5,13 +5,12 @@ import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
 import FadeIn from "@/components/ui/FadeIn";
-import { fetchEvData, fetchEvSales, fmtEvSales, dn, AGGREGATES } from "@/lib/data";
+import { fetchEvData, fetchEvSales, fmtEvSales, dn, AGGREGATES, TOP_5_MARKETS } from "@/lib/data";
 import { useTheme } from "@/lib/theme-context";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import { useDataFetch } from "@/lib/ui-utils";
-import { TOP_5_MARKETS } from "@/lib/data";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
 const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
@@ -43,7 +42,7 @@ export default function EvForecastPage() {
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
   const forecastBoundary = useMemo(() => {
     const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return years.length > 0 ? Math.min(...years) : 2025;
+    return Math.min(...years);
   }, [data]);
 
   const effectiveYear = useMemo(() => {

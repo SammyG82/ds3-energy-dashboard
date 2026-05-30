@@ -3,11 +3,10 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
-import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn } from "@/lib/data";
+import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
 import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
-import { TOP_5_MARKETS } from "@/lib/data";
 
 interface Props {
   data: EvRow[];

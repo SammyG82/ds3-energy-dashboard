@@ -8,7 +8,7 @@ A data-driven dashboard exploring whether rising electric vehicle adoption measu
 
 ## Overview
 
-This project combines IEA oil import/export data with global EV sales figures across 50+ countries, spanning 1971–2023 for oil trade and 2010–2035 for EV sales. Oil forecasts extend through 2030 using Log-ARIMA models. EV projections come from IEA's Stated Policies Scenario (STEPS) through 2035.
+This project combines IEA oil import/export data with global EV sales figures across 50+ countries, spanning 1971–2023 for oil trade and 2010–2035 for EV sales. Oil forecasts extend through 2030 using Log-ARIMA models. EV projections use a DS3 logistic S-curve model fitted per country to IEA historical data. The dashboard supports light and dark modes.
 
 ## Key Metrics
 
@@ -24,21 +24,22 @@ This project combines IEA oil import/export data with global EV sales figures ac
 | Page | Description |
 |---|---|
 | **Landing** (`/`) | Summary statistics, preview charts, and project goals |
-| **EV Forecast** (`/ev-forecast/`) | Top EV markets ranked by year; single-country trend; multi-region IEA STEPS projections through 2035 |
+| **EV Forecast** (`/ev-forecast/`) | Top EV markets ranked by year; single-country trend; multi-region DS3 S-curve projections through 2035 |
 | **EV GDP Impact** (`/ev-gdp-impact/`) | EV adoption's economic impact — displaced barrels, cost savings, and GDP share by country; Oil Explorer with import, export, and net trade forecasts |
 | **About** (`/about/`) | Project background, methodology, and dataset documentation |
 
 ## Data Sources
 
-- **Oil data**: IEA Oil Information Database — import/export volumes by country, 1971–2023
-- **EV data**: IEA Global EV Outlook 2025 — sales and market share figures, 2010–2035
-- **US energy data**: EIA (Energy Information Administration) — state reliability, prices, and energy burden
+- **Oil imports/exports**: IEA Oil Information Database — trade volumes by country, 1971–2023
+- **EV sales**: IEA Global EV Outlook 2025 — historical sales and market share, 2010–2024
+- **Oil price history**: EIA (RBRTE/RWTC series) and Energy Institute — annual Brent and WTI spot prices, 1986–2024, inflation-adjusted using BLS CPI-U
+- **GDP metadata**: World Bank Open Data 2023 — GDP, oil import volumes, and cost-per-barrel for 13 countries
 
 ## Methodology
 
 - Oil forecasts use Log-ARIMA models fitted per country (grid search over (p,d,q) by AIC, 95% CI bands through 2030)
-- EV projections use IEA's Stated Policies Scenario (STEPS) directly — no model fitted
-- GDP impact estimates apply oil price to displaced barrels and scale to per-capita infrastructure benchmarks
+- EV projections use a DS3 logistic S-curve model fitted per country to IEA historical BEV sales data, constrained to 1.2–10× the observed peak, projected through 2035
+- GDP impact estimates multiply displaced barrels by a reference oil price and express the result as a share of GDP
 
 ## Project Structure
 
@@ -50,8 +51,7 @@ ds3-energy-dashboard/
 │   ├── charts/                          # D3.js chart components
 │   ├── layout/                          # Header and Footer
 │   └── ui/                              # Reusable UI components
-├── lib/
-│   └── data.ts                          # Typed data fetching utilities
+├── lib/                                 # Data fetching, shared utilities, and theme context
 └── analysis/                            # Python notebooks and raw IEA data
 ```
 
@@ -108,7 +108,7 @@ d. Open a pull request on GitHub:
 - The live site is at https://sammyg82.github.io/ds3-energy-dashboard/ — any push to `main` auto-deploys
 - All frontend data files are in `public/data/` — charts read from there, never from `analysis/`
 - Chart components are in `components/charts/`, one file per chart
-- All data fetching is in `lib/data.ts`
+- All data fetching and shared EV utilities are in `lib/data.ts`
 - Never edit files in `analysis/`, `eda/`, or `eia_extraction/` without checking with the team first
 
 ---
@@ -119,4 +119,4 @@ Oil demand is shaped by industry, heating, and shipping — not just cars. This 
 
 ## License
 
-Data sourced from the International Energy Agency (IEA) and the US Energy Information Administration (EIA). All data is subject to their respective terms of use.
+Data sourced from the International Energy Agency (IEA), the US Energy Information Administration (EIA), the Energy Institute, and the World Bank. All data is subject to their respective terms of use.

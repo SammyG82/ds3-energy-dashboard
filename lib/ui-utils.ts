@@ -40,7 +40,7 @@ export function drawHorizontalGridLines(
   gridSel.enter().append("line").attr("class", "grid-h").merge(gridSel)
     .attr("x1", 0).attr("x2", width)
     .attr("y1", (d) => yScale(d)).attr("y2", (d) => yScale(d))
-    .attr("stroke", isDark ? "#1e293b" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    .attr("stroke", isDark ? "#334155" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
 }
 
 export function drawForecastBoundary(

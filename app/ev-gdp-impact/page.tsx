@@ -92,8 +92,8 @@ export default function EvGdpImpactPage() {
   const [evData,    setEvData]    = useState<EvRow[]>([]);
   const [gdpMeta,   setGdpMeta]   = useState<GdpMeta[]>([]);
   const [oilPrices, setOilPrices] = useState<OilPriceRow[]>([]);
-  const [evErrors,  setEvErrors]  = useState<{ evData: string | null; gdpMeta: string | null; oilPrices: string | null }>({
-    evData: null, gdpMeta: null, oilPrices: null,
+  const [evErrors,  setEvErrors]  = useState<{ evData: string | null; gdpMeta: string | null }>({
+    evData: null, gdpMeta: null,
   });
 
   // Oil Explorer data
@@ -108,7 +108,7 @@ export default function EvGdpImpactPage() {
   useEffect(() => {
     fetchEvData().then(setEvData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
     fetchGdpMeta().then(setGdpMeta).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
-    fetchOilPrices().then(setOilPrices).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
+    fetchOilPrices().then(setOilPrices).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); });
     fetchOilForecast().then(setImports).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
     fetchNetTrade().then(setNetTrade).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
     fetchOilExports().then(setExportsData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });

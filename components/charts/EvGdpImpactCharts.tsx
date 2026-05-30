@@ -34,9 +34,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
   const priceSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
-  const xScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
-  const yScaleRef = useRef<d3.ScaleLinear<number, number> | null>(null);
-  const chartHRef = useRef(0);
   const priceInitialisedRef = useRef(false);
   const isDarkRef = useThemeRef(isDark);
 
@@ -60,7 +57,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
   const meta = useMemo(() => gdpMeta.find((m) => m.country === country), [gdpMeta, country]);
 
-  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, containerWidth, containerHeight]);
+  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth, containerHeight]);
 
   const forecastBoundary = useMemo(() => {
     const fYears = evData.filter((d) => d.type === "Forecast").map((d) => d.year);
@@ -140,11 +137,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     const allVals = chartData.flatMap((d) => [d.brent_nominal, d.wti_nominal, d.brent_real, d.wti_real]).filter((v): v is number => v !== null);
     const y = d3.scaleLinear().domain([0, d3.max(allVals) ?? 100]).nice().range([height, 0]);
 
-    xScaleRef.current = x;
-    yScaleRef.current = y;
-    chartHRef.current = height;
-
-    const gridColor = isDarkRef.current ? "#1e293b" : "#e2e8f0";
+    const gridColor = isDarkRef.current ? "#334155" : "#e2e8f0";
     g.selectAll(".grid-h")
       .data(y.ticks(4))
       .enter().append("line")
@@ -228,8 +221,9 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     const crosshair = g.append("line")
+      .attr("class", "chart-crosshair")
       .attr("y1", 0).attr("y2", height)
-      .attr("stroke", "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
       .style("visibility", "hidden").style("pointer-events", "none");
 
     g.append("rect")
@@ -252,17 +246,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     applyThemeToChart(d3.select(priceSvg.current), isDark);
   }, [isDark]);
 
-  useEffect(() => {
-    if (!xScaleRef.current || !yScaleRef.current || !oilPrices.length) return;
-    const x = xScaleRef.current;
-    const y = yScaleRef.current;
-    const height = chartHRef.current;
-    const priceChartLastYear = oilPrices[oilPrices.length - 1].year;
-    const refYear = Math.min(year, priceChartLastYear);
-    const refRow = oilPrices.find((r) => r.year === refYear) ?? oilPrices[oilPrices.length - 1];
-    const refPrice = (benchmark === "brent" ? refRow.brent_nominal : refRow.wti_nominal) ?? null;
-
-  }, [oilPrices, year, benchmark, containerWidth]);
 
   return (
     <div ref={containerRef} className={`border rounded-2xl p-6 flex flex-col gap-6 transition-colors ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
