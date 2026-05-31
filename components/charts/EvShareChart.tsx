@@ -140,7 +140,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         const isEU = d.region_country === "EU27";
         barsSel
           .attr("fill-opacity", (r) => r.region_country === "EU27" ? 0.08 : 0.3)
-          .attr("stroke", (r) => r.region_country === "EU27" ? euColor : "none");
+          .attr("stroke", (r) => r.region_country === "EU27" ? euColor : "none")
+          .attr("stroke-width", (r) => r.region_country === "EU27" ? 2 : 0);
         d3.select(this)
           .attr("fill-opacity", isEU ? 0.3 : 1.0)
           .attr("stroke", isDarkRef.current ? "#94a3b8" : "#1e293b")
@@ -205,6 +206,15 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           setTooltipPos(null);
           setExcluded((prev) => new Set([...prev, row.region_country]));
         }
+      })
+      .each(function () {
+        if (this.textContent !== dn("EU27")) return;
+        d3.select(this)
+          .append("tspan")
+          .attr("dy", "-1px")
+          .attr("dx", "1px")
+          .attr("font-size", "14px")
+          .text("*");
       });
   }, [displayRows, preview, containerWidth, total]);
 
@@ -301,6 +311,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         )}
         {tooltip && tooltipPos && (
           <div
+            aria-hidden="true"
             className={`absolute rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
             style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >

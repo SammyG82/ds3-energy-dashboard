@@ -65,7 +65,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     setPinned(null);
     setPreviewTooltip(null);
     setPreviewTooltipPos(null);
-  }, [data, containerWidth]);
+  }, [data, selectedSet, containerWidth]);
 
   const { latestHistYear, statDisplayYear } = useMemo(() => {
     const histYear = forecastBoundary !== undefined
@@ -97,8 +97,8 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const topImporter = importerRows.filter((d) => d.Year === maxImporterYear).sort((a, b) => a.value - b.value)[0] ?? null;
     const topExporter = exporterRows.filter((d) => d.Year === maxExporterYear).sort((a, b) => b.value - a.value)[0] ?? null;
     const baseYear = Math.max(maxImporterYear, maxExporterYear);
-    const deficit = Math.abs(importerRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0));
-    const surplus = exporterRows.filter((d) => d.Year === baseYear).reduce((s, d) => s + d.value, 0);
+    const deficit = Math.abs(importerRows.filter((d) => d.Year === maxImporterYear).reduce((s, d) => s + d.value, 0));
+    const surplus = exporterRows.filter((d) => d.Year === maxExporterYear).reduce((s, d) => s + d.value, 0);
     return { netLargestImporter: topImporter, netLargestExporter: topExporter, netBaseYear: baseYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
   }, [data, selectedSet, statDisplayYear]);
 
@@ -123,7 +123,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     ? pinned.entries.filter((e) => e.value > 0).reduce((s, e) => s + e.value, 0)
     : staticNetSurplus;
   const netDisplayYear = pinned ? pinned.year : netBaseYear;
-  const hasImporters = displayNetDeficit >= displayNetSurplus;
+  const hasImporters = displayNetDeficit > 0 && displayNetDeficit >= displayNetSurplus;
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || forecastBoundary === undefined) return;
@@ -192,11 +192,11 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       const line = d3.line<OilRow>()
         .x((d) => x(d.Year)).y((d) => y(d.value)).curve(d3.curveMonotoneX);
 
-      if (history.length >= 1)
+      if (history.length >= 2)
         g.append("path").datum(history).attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("clip-path", `url(#${clipId})`).attr("d", line);
 
-      if (forecast.length >= 1)
+      if (forecast.length >= 2)
         g.append("path").datum(forecast).attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("clip-path", `url(#${clipId})`).attr("d", line);
     });

@@ -30,12 +30,28 @@ export default function EvForecastPage() {
     const hash = window.location.hash;
     if (!hash) return;
     scrolledRef.current = true;
-    setTimeout(() => {
+
+    const doScroll = () => {
       const el = document.querySelector(hash);
-      if (!el) return;
-      const top = window.scrollY + el.getBoundingClientRect().top - HEADER_HEIGHT_PX;
-      window.scrollTo({ top, behavior: "smooth" });
-    }, 300);
+      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - HEADER_HEIGHT_PX, behavior: "instant" });
+    };
+
+    // Poll until D3 has drawn into the first chart section (svg > g appended).
+    // 50ms interval keeps any visible wrong-position window imperceptible.
+    const isChartDrawn = () => !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
+
+    if (isChartDrawn()) { doScroll(); return; }
+
+    const intervalId = setInterval(() => {
+      if (isChartDrawn()) {
+        clearInterval(intervalId);
+        clearTimeout(safeTid);
+        doScroll();
+      }
+    }, 50);
+    const safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
+
+    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
   }, [data, salesData]);
 
 
@@ -114,7 +130,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <div className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-over-time" className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and projected growth through 2035</p>

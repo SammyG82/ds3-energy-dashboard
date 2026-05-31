@@ -28,7 +28,7 @@ export default function AboutPage() {
               { title: "Caveats", body: "Oil demand is shaped by many factors beyond passenger vehicles — industry, shipping, and heating. These estimates are indicative, not causal: GDP growth and energy-mix shifts are not controlled for. The analysis focuses specifically on light-vehicle transport fuel displacement." },
             ].map(({ title, body }) => (
               <div key={title} className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
-                <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
+                <h3 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-black/70"}`}>{body}</p>
               </div>
             ))}
@@ -160,7 +160,7 @@ export default function AboutPage() {
                   key={title}
                   className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}
                 >
-                  <h5 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h5>
+                  <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
                   <p className={`text-sm mb-3 ${isDark ? "text-white/60" : "text-black/70"}`}>{desc}</p>
                   <div className={`text-xs space-y-1 ${isDark ? "text-white/60" : "text-black/60"}`}>
                     <div><span className="font-medium">Rows:</span> {rows}</div>
@@ -172,7 +172,7 @@ export default function AboutPage() {
               ))}
             </div>
 
-            <h4 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset description</h4>
+            <h3 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset description</h3>
             <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
               All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with logistic S-curve projections through 2035.
             </p>
@@ -287,7 +287,7 @@ export default function AboutPage() {
                     <span className={`text-xs font-semibold ${isDark ? textDark : textLight}`}>{num}</span>
                   </div>
                   <div className="flex-1">
-                    <h4 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h4>
+                    <h3 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>
                     <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>{body}</p>
                   </div>
                 </div>

@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: 'if(localStorage.getItem("ds3-theme")==="dark")document.documentElement.classList.add("dark");history.scrollRestoration="manual";document.documentElement.classList.add("page-loading");var s=document.createElement("style");s.textContent="html.page-loading header{opacity:0}";document.head.appendChild(s);' }} />
+        <script dangerouslySetInnerHTML={{ __html: 'try{if(localStorage.getItem("ds3-theme")==="dark")document.documentElement.classList.add("dark");}catch(e){}history.scrollRestoration="manual";document.documentElement.classList.add("page-loading");var s=document.createElement("style");s.textContent="html.page-loading header{opacity:0}";document.head.appendChild(s);' }} />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col bg-white dark:bg-black text-slate-900 overscroll-none`}>
         <a

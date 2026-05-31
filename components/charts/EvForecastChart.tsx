@@ -102,7 +102,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth, containerHeight]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length || !isFinite(forecastBoundary)) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -141,10 +141,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       const color = colorMap[region];
       const actual = values.filter((d) => d.year <= forecastBoundary);
       const forecast = values.filter((d) => d.year >= forecastBoundary);
-      if (actual.length >= 1)
+      if (actual.length >= 2)
         g.append("path").datum(actual)
           .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2).attr("d", line);
-      if (forecast.length >= 1)
+      if (forecast.length >= 2)
         g.append("path").datum(forecast)
           .attr("fill", "none").attr("stroke", color)
           .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
@@ -192,11 +192,11 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         crosshair.style("visibility", "visible").attr("x1", px).attr("x2", px);
 
         const entries = regionData
-          .map(({ region, values }) => ({
-            region,
-            value: values.find((d) => d.year === year)?.ev_sales ?? 0,
-            color: colorMap[region],
-          }))
+          .flatMap(({ region, values }) => {
+            const row = values.find((d) => d.year === year);
+            if (!row) return [];
+            return [{ region, value: row.ev_sales, color: colorMap[region] }];
+          })
           .sort((a, b) => b.value - a.value);
 
         if (!entries.length) {
@@ -296,7 +296,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       </div>
 
       {!preview && (
-        <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-slate-800" : "border-slate-200 bg-white"}`}>
+        <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}>
           {pinned ? (
             <>
               <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>

@@ -30,7 +30,7 @@ export interface OilRow {
 function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?: unknown; type?: unknown }): EvRow | null {
   const type = String(d.type ?? "");
   if (type !== "Actual" && type !== "Forecast") return null;
-  if (d.ev_sales == null) return null;
+  if (d.ev_sales == null || d.ev_sales === "") return null;
   const evSales = +d.ev_sales;
   if (!Number.isFinite(evSales)) return null;
   const year = +(d.year ?? 0);
@@ -135,7 +135,7 @@ export async function fetchOilForecast(): Promise<OilRow[]> {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
       const rawVal = d["Oil Imports (KBD)"];
-      if (!rawVal) return [];
+      if (rawVal === undefined || rawVal === "") return [];
       const value = +rawVal;
       if (!Number.isFinite(value)) return [];
       return [{
@@ -158,7 +158,7 @@ export async function fetchNetTrade(): Promise<OilRow[]> {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
       const rawVal = d["Net_Trade"];
-      if (!rawVal) return [];
+      if (rawVal === undefined || rawVal === "") return [];
       const value = +rawVal;
       if (!Number.isFinite(value)) return [];
       return [{
@@ -181,7 +181,7 @@ export async function fetchOilExports(): Promise<OilRow[]> {
       const Type = assertOilType(d.Type);
       if (!Type) return [];
       const rawVal = d["Value"];
-      if (!rawVal) return [];
+      if (rawVal === undefined || rawVal === "") return [];
       const value = +rawVal;
       if (!Number.isFinite(value)) return [];
       return [{
@@ -200,12 +200,16 @@ export async function fetchGdpMeta(): Promise<GdpMeta[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/gdp_country_meta.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid GDP metadata");
   return raw.map((item, idx) => {
+    if (item === null || typeof item !== "object") {
+      throw new Error(`Invalid GDP metadata at row ${idx}`);
+    }
+    const obj = item as Record<string, unknown>;
     if (
-      typeof (item as GdpMeta).country !== "string" ||
-      typeof (item as GdpMeta).region !== "string" ||
-      typeof (item as GdpMeta).gdp !== "number" ||
-      typeof (item as GdpMeta).oilImports !== "number" ||
-      typeof (item as GdpMeta).costPerBarrel !== "number"
+      typeof obj.country !== "string" ||
+      typeof obj.region !== "string" ||
+      !Number.isFinite(obj.gdp) ||
+      !Number.isFinite(obj.oilImports) ||
+      !Number.isFinite(obj.costPerBarrel)
     ) {
       throw new Error(`Invalid GDP metadata at row ${idx}`);
     }

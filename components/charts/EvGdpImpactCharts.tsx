@@ -38,10 +38,14 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
   const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
-  const years = useMemo(
-    () => Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= 2024 && y <= 2030).sort(),
-    [evData]
-  );
+  const forecastBoundary = useMemo(() => {
+    const fYears = evData.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return fYears.length > 0 ? Math.min(...fYears) : Infinity;
+  }, [evData]);
+  const years = useMemo(() => {
+    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : 2024;
+    return Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= lb && y <= lb + 6).sort();
+  }, [evData, forecastBoundary]);
 
   const [country,          setCountry]          = useState(() => countries[0] ?? "");
   const [year,             setYear]             = useState(() => years[0] ?? 2024);
@@ -57,12 +61,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
   const meta = useMemo(() => gdpMeta.find((m) => m.country === country), [gdpMeta, country]);
 
-  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth, containerHeight]);
+  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth]);
 
-  const forecastBoundary = useMemo(() => {
-    const fYears = evData.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return fYears.length > 0 ? Math.min(...fYears) : Infinity;
-  }, [evData]);
   const isProjected = year >= forecastBoundary;
 
   const latestDataYear = useMemo(() => oilPrices.length ? oilPrices[oilPrices.length - 1].year : 2024, [oilPrices]);
@@ -129,7 +129,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const [minYear = 1986, maxYear = 2026] = d3.extent(chartData, (d) => d.year);
+    const [minYear, maxYear] = d3.extent(chartData, (d) => d.year) as [number, number];
     const x = d3.scaleLinear()
       .domain([minYear, maxYear + 0.5])
       .range([0, width]);
@@ -232,7 +232,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       .on("mousemove", function (event) {
         const [mx] = d3.pointer(event);
         const [xMin, xMax] = x.domain();
-        const yr = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
+        const yr = Math.min(maxYear, Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx)))));
         crosshair.style("visibility", "visible").attr("x1", x(yr)).attr("x2", x(yr));
         setPricePinnedYear(yr);
       })
@@ -291,7 +291,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
               step="1" value={year} aria-label="Analysis Year"
               onChange={(e) => setYear(parseInt(e.target.value))}
               className="w-full focus:outline-none focus:ring-2 focus:ring-slate-500" />
-            <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Select 2024 – 2030</p>
+            <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Select {years[0] ?? 2024} – {years[years.length - 1] ?? 2030}</p>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -327,7 +327,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
           <StatCard size="xl" isDark={isDark}
             label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData || !oilPrices.length ? "" : ` (${priceRefYear} avg)`}`}
             value={`$${currentOilPrice.toFixed(2)}/bbl`}
-            sub={beyondData ? "custom scenario assumption" : !oilPrices.length ? "estimate — data unavailable" : "nominal USD · FRED"}
+            sub={beyondData ? "custom scenario assumption" : !oilPrices.length ? "estimate — data unavailable" : "nominal USD · EIA"}
             accent="amber" />
 
           <div className={`border rounded-xl p-4 flex flex-col justify-between transition-opacity ${
@@ -389,7 +389,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
           ? <p className={`text-xs text-center py-8 ${isDark ? "text-white/30" : "text-slate-400"}`}>Oil price data unavailable</p>
           : <svg ref={priceSvg} className="w-full" role="img" aria-label={priceSvgLabel} />
         }
-        <div className={`border rounded-lg px-3 py-2 min-h-10 flex items-center mt-2 ${isDark ? "border-white/10 bg-white/5" : "border-slate-100 bg-slate-50"}`}>
+        <div className={`border rounded-lg px-3 py-2 min-h-10 flex items-center mt-2 ${isDark ? "border-white/10 bg-white/10" : "border-slate-100 bg-slate-50"}`}>
           {pinnedPriceRow ? (
             <span className={`text-xs flex flex-wrap gap-x-6 gap-y-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>
               <span className={`font-mono font-bold ${isDark ? "text-white" : ""}`}>{pinnedPriceRow.year}</span>
@@ -413,11 +413,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
             },
             {
               title: "Cost savings & GDP %",
-              body: "Displaced barrels are multiplied by the selected Brent or WTI crude oil price (sourced from FRED for historical years, or the custom slider beyond 2024) to get the savings in billion USD. That figure is then divided by the country's 2023 nominal GDP (World Bank) to produce the percentage shown.",
+              body: `Displaced barrels are multiplied by the selected Brent or WTI crude oil price (sourced from EIA for historical years through ${latestDataYear}, or the custom slider for later years) to get the savings in billion USD. That figure is then divided by the country's 2023 nominal GDP (World Bank) to produce the percentage shown.`,
             },
             {
               title: "Adoption rate slider",
-              body: "EV sales figures come from the IEA's Stated Policies Scenario (STEPS) projections. The slider scales those figures by the selected multiplier — at 100% it uses the IEA projection directly, at 50% it assumes half of projected EVs are actually adopted.",
+              body: "EV sales figures come from DS3's logistic S-curve model, fitted per country to IEA historical BEV sales data and projected through 2035. The slider scales those figures by the selected multiplier — at 1× it uses the model projection directly, at 0.5× it assumes half of projected EVs are actually adopted.",
             },
             {
               title: "Caveats",

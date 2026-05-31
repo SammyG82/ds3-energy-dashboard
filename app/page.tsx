@@ -50,9 +50,17 @@ export default function LandingPage() {
   });
 
   useEffect(() => {
-    fetchEvSales().then(setEvSales).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
-    fetchEvData().then(setEvData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
-    fetchOilForecast().then(setOilData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
+    let mounted = true;
+    fetchEvSales()
+      .then((d) => { if (mounted) setEvSales(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
+    fetchEvData()
+      .then((d) => { if (mounted) setEvData(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
+    fetchOilForecast()
+      .then((d) => { if (mounted) setOilData(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
+    return () => { mounted = false; };
   }, []);
 
 
@@ -145,7 +153,7 @@ export default function LandingPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  EV Sales Trajectory{" "}
+                  EV Sales Projections{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Markets)</span>
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
@@ -169,7 +177,7 @@ export default function LandingPage() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  Oil Import Forecasts{" "}
+                  Oil Explorer{" "}
                   <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Importers)</span>
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030</p>

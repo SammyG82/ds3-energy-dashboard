@@ -11,8 +11,8 @@ export function tooltipStyle(
 ): CSSProperties {
   return {
     position: 'absolute' as const,
-    left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - 150)) : undefined,
-    right: x >= containerWidth * 0.6 ? containerWidth - x + 14 : undefined,
+    left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - 220)) : undefined,
+    right: x >= containerWidth * 0.6 ? Math.max(0, containerWidth - x + 14) : undefined,
     top: Math.max(4, Math.min(y - 10, containerHeight - clampN)),
   };
 }
@@ -74,7 +74,7 @@ export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; er
     }).catch((err) => {
       if (mounted) {
         if (process.env.NODE_ENV === "development") console.error(err);
-        setError(err instanceof Error ? err.message : String(err) || "Failed to load data.");
+        setError(err instanceof Error ? err.message || "Failed to load data." : String(err) || "Failed to load data.");
       }
     });
     return () => { mounted = false; };

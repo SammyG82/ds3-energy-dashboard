@@ -28,7 +28,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
   const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(
-    () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => !AGGREGATES.has(c)).sort(),
+    () => Array.from(new Set(data.map((d) => d.region_country))).filter((c) => !AGGREGATES.has(c)).sort((a, b) => dn(a).localeCompare(dn(b))),
     [data]
   );
 
@@ -178,7 +178,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
       : null;
     const candidates2030 = countryData.filter((d) => d.year === 2030);
-    const forecast2030 = candidates2030.find((d) => d.type === "Forecast") ?? candidates2030[0] ?? null;
+    const forecast2030 = candidates2030.find((d) => d.type === "Forecast") ?? null;
     return { peak, latest, cagr, forecast2030 };
   }, [historicalRows, countryData]);
 

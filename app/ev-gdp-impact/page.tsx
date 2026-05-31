@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { useTheme } from "@/lib/theme-context";
@@ -106,13 +106,55 @@ export default function EvGdpImpactPage() {
   });
 
   useEffect(() => {
-    fetchEvData().then(setEvData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
-    fetchGdpMeta().then(setGdpMeta).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
-    fetchOilPrices().then(setOilPrices).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); });
-    fetchOilForecast().then(setImports).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
-    fetchNetTrade().then(setNetTrade).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
-    fetchOilExports().then(setExportsData).catch((err) => { if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
+    let mounted = true;
+    fetchEvData()
+      .then((d) => { if (mounted) setEvData(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
+    fetchGdpMeta()
+      .then((d) => { if (mounted) setGdpMeta(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
+    fetchOilPrices()
+      .then((d) => { if (mounted) setOilPrices(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); });
+    fetchOilForecast()
+      .then((d) => { if (mounted) setImports(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
+    fetchNetTrade()
+      .then((d) => { if (mounted) setNetTrade(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
+    fetchOilExports()
+      .then((d) => { if (mounted) setExportsData(d); })
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
+    return () => { mounted = false; };
   }, []);
+
+  const scrolledRef = useRef(false);
+  useEffect(() => {
+    if (scrolledRef.current || !evData.length || !gdpMeta.length) return;
+    const hash = window.location.hash;
+    if (!hash) return;
+    scrolledRef.current = true;
+
+    const doScroll = () => {
+      const el = document.querySelector(hash);
+      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 96, behavior: "instant" });
+    };
+
+    const isChartDrawn = () => !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
+
+    if (isChartDrawn()) { doScroll(); return; }
+
+    const intervalId = setInterval(() => {
+      if (isChartDrawn()) {
+        clearInterval(intervalId);
+        clearTimeout(safeTid);
+        doScroll();
+      }
+    }, 50);
+    const safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
+
+    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
+  }, [evData, gdpMeta]);
 
   const evReady  = evData.length > 0 && gdpMeta.length > 0;
   const anyEvError = evErrors.evData || evErrors.gdpMeta;
@@ -138,16 +180,18 @@ export default function EvGdpImpactPage() {
 
         {/* GDP Impact chart */}
         <FadeIn>
+          <div id="ev-gdp-section">
           {evReady ? (
             <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
           ) : anyEvError ? (
-            <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
+            <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
               {evErrors.evData  && <ErrorMessage message={evErrors.evData}  isDark={isDark} />}
               {evErrors.gdpMeta && <ErrorMessage message={evErrors.gdpMeta} isDark={isDark} />}
             </div>
           ) : (
             <LoadingPlaceholder text="Loading data…" />
           )}
+          </div>
         </FadeIn>
 
         {/* Oil Explorer chart */}
