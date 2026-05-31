@@ -236,7 +236,6 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     <div className="flex flex-col gap-4">
       {!preview && (
         <div className="flex flex-col gap-2">
-          <p className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Regions</p>
           <RegionPicker
             options={allRegions}
             selected={selected}

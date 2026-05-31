@@ -128,7 +128,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                 onSelectGroup(regions);
                 setShowCustom(false);
               }}
-              className={`px-3 py-3 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
                   : isDark
@@ -148,7 +148,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           aria-label="Select custom regions"
           aria-expanded={showCustom}
           aria-controls="region-picker-custom"
-          className={`px-3 py-3 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
               : isDark
@@ -213,7 +213,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-[44px] cursor-pointer select-none ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
                 >
                   <input
                     type="checkbox"
