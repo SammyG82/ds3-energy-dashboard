@@ -282,7 +282,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
         <>
           {datasetLabel === "Oil Imports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" isDark={isDark} />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
               <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Importer`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
             </div>
           )}
@@ -304,7 +304,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
           {datasetLabel === "Oil Exports (KBD)" && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()}`} sub="KBD" accent="blue" isDark={isDark} />
+              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
               <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Exporter`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
             </div>
           )}

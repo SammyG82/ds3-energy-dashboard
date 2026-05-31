@@ -213,7 +213,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard size="xl" label={`${latest?.year ?? "—"} Sales`} value={latest ? fmtEvSales(latest.ev_sales) : "—"} accent="teal" isDark={isDark} />
         <StatCard size="xl" label="Peak Year" value={peak ? String(peak.year) : "—"} accent="blue" isDark={isDark} />
-        <StatCard size="xl" label="Annual Growth Rate" value={cagr ? `${cagr}%` : "—"} sub="since first sale" accent="amber" isDark={isDark} />
+        <StatCard size="xl" label="Growth Rate (CAGR)" value={cagr ? `${cagr}%` : "—"} accent="amber" isDark={isDark} />
         <StatCard size="xl" label="2030 Forecast" value={forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"} accent="teal" isDark={isDark} />
       </div>
 
