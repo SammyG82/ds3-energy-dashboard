@@ -66,10 +66,11 @@ export default function Header() {
             : "bg-white border-b border-slate-200"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
           {/* Logo */}
           <Link
             href="/"
+            aria-label="DS3 Energy Dashboard — Home"
             onClick={(e) => {
               if (pathname === "/") {
                 e.preventDefault();
@@ -89,7 +90,7 @@ export default function Header() {
             />
             <span className={`inline-flex items-end gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
               <span className="text-3xl">DS<span className={isTransparent || isDark ? "text-white" : "text-cyan-500"}>3</span></span>
-              <span className="text-lg hidden sm:inline">Energy Dashboard</span>
+              <span className="text-lg hidden [@media(min-width:460px)]:inline">Energy Dashboard</span>
             </span>
           </Link>
 
@@ -128,7 +129,7 @@ export default function Header() {
               type="button"
               onClick={toggle}
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              className={`px-4 py-2.5 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
+              className={`px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
                 isTransparent
                   ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white/50"
                   : isDark
@@ -147,7 +148,7 @@ export default function Header() {
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className={`md:hidden px-2.5 py-2.5 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
+              className={`md:hidden px-3.5 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
                 isTransparent
                   ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white/50"
                   : isDark
@@ -176,7 +177,7 @@ export default function Header() {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`text-sm font-medium px-4 py-2.5 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
+                  className={`min-h-[44px] flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
                     active
                       ? isDark
                         ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-teal-400/50"

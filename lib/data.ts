@@ -123,7 +123,8 @@ export async function fetchEvSales(): Promise<EvRow[]> {
 export async function fetchEvData(): Promise<EvRow[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/ev_data.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
-  return (raw as Parameters<typeof normalizeEvRow>[0][])
+  return raw
+    .filter((item): item is Parameters<typeof normalizeEvRow>[0] => item !== null && typeof item === "object")
     .map(normalizeEvRow)
     .filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
 }
@@ -193,7 +194,8 @@ export async function fetchOilExports(): Promise<OilRow[]> {
         ciHigh: parseCI(d["Upper_CI"]),
       }];
     })
-    .filter((row) => row.Year > 1900 && row.Country !== "");
+    // IEA missing-2024 entries arrive as 0.0, not NaN — filter to avoid misleading chart drops
+    .filter((row) => row.Year > 1900 && row.Country !== "" && !(row.value === 0 && row.Type === "Historical"));
 }
 
 export async function fetchGdpMeta(): Promise<GdpMeta[]> {
@@ -228,8 +230,9 @@ export interface OilPriceRow {
 export async function fetchOilPrices(): Promise<OilPriceRow[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/oil_prices.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid oil price data");
-  const isNullableNum = (v: unknown) => v === null || typeof v === "number";
+  const isNullableNum = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v));
   return raw.map((item, idx) => {
+    if (item === null || typeof item !== "object") throw new Error(`Invalid oil price data at row ${idx}`);
     const r = item as Record<string, unknown>;
     if (
       typeof r.year !== "number" ||

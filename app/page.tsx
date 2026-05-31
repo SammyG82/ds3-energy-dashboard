@@ -83,7 +83,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-linear-to-b from-transparent from-30% via-white/40 via-70% to-white transition-opacity duration-300" style={{ opacity: isDark ? 0 : 1 }} />
         <div className="absolute inset-0 bg-linear-to-b from-black/20 from-30% via-black/60 via-70% to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
         {/* Hero copy */}
-        <div className="relative h-full flex flex-col items-start justify-center px-6 sm:px-12 md:px-24 py-32 min-h-screen text-white">
+        <div className="relative h-full flex flex-col items-start justify-center px-6 sm:px-12 md:px-24 py-16 sm:py-32 min-h-screen text-white">
           <h1 className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
             Does EV adoption reduce oil dependency?
           </h1>
@@ -122,11 +122,11 @@ export default function LandingPage() {
 
       {/* Preview charts */}
       <section>
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-6 sm:gap-10">
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-125 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex items-center justify-between mb-4">
+          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-125 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                   EV Sales Rankings{" "}
@@ -134,7 +134,7 @@ export default function LandingPage() {
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>
               </div>
-              <Link href="/ev-forecast/#ev-sales-by-country" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-forecast/#ev-sales-by-country" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
                 Full Explorer →
               </Link>
             </div>
@@ -149,8 +149,8 @@ export default function LandingPage() {
         </FadeIn>
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex items-center justify-between mb-4">
+          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                   EV Sales Projections{" "}
@@ -158,7 +158,7 @@ export default function LandingPage() {
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
               </div>
-              <Link href="/ev-forecast/#ev-sales-projections" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-forecast/#ev-sales-projections" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
                 Full Forecast →
               </Link>
             </div>
@@ -173,8 +173,8 @@ export default function LandingPage() {
         </FadeIn>
 
         <FadeIn>
-          <div className={`rounded-2xl p-6 border min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex items-center justify-between mb-4">
+          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
               <div>
                 <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
                   Oil Explorer{" "}
@@ -182,7 +182,7 @@ export default function LandingPage() {
                 </h2>
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030</p>
               </div>
-              <Link href="/ev-gdp-impact/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline">
+              <Link href="/ev-gdp-impact/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
                 Full Explorer →
               </Link>
             </div>

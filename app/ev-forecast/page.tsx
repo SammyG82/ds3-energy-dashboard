@@ -58,7 +58,7 @@ export default function EvForecastPage() {
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
   const forecastBoundary = useMemo(() => {
     const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return Math.min(...years);
+    return years.length > 0 ? Math.min(...years) : Infinity;
   }, [data]);
 
   const effectiveYear = useMemo(() => {
@@ -130,7 +130,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <div id="ev-sales-over-time" className={`border rounded-2xl p-6 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-over-time" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and projected growth through 2035</p>
@@ -149,7 +149,7 @@ export default function EvForecastPage() {
                   <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Annual Growth Rate</h4>
                   <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
                     Compound annual growth rate (CAGR) from the first year with recorded sales to the most recent historical year. Formula:{" "}
-                    <span className={`font-mono text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${isDark ? "bg-white/10 text-white/70" : "bg-slate-200"}`}>
+                    <span className={`font-mono text-xs px-1.5 py-0.5 rounded ${isDark ? "bg-white/10 text-white/70" : "bg-slate-200"}`}>
                       ((latest ÷ first)^(1 ÷ years) − 1) × 100
                     </span>
                     . It smooths year-to-year swings, so a market that grew slowly then spiked will show a lower rate than the spike alone suggests.

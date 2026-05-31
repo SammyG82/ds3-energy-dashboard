@@ -33,7 +33,7 @@ type Benchmark = "brent" | "wti";
 export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark = false }: Props) {
   const priceSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const priceInitialisedRef = useRef(false);
   const isDarkRef = useThemeRef(isDark);
 
@@ -61,7 +61,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
 
   const meta = useMemo(() => gdpMeta.find((m) => m.country === country), [gdpMeta, country]);
 
-  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth]);
+  useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth, oilPrices]);
 
   const isProjected = year >= forecastBoundary;
 
@@ -121,8 +121,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     const chartData = oilPrices;
 
     const totalW = containerWidth - 32;
-    const margin = { top: 16, right: 40, bottom: 28, left: 52 };
-    const totalH = 220;
+    const margin = { top: 16, right: 40, bottom: 28, left: containerWidth < 380 ? 38 : 52 };
+    const totalH = containerWidth < 480 ? 170 : 220;
     const width  = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -214,7 +214,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     }
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 420 ? 4 : 6))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`))
@@ -229,14 +229,14 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
-      .on("mousemove", function (event) {
+      .on("pointermove", function (event) {
         const [mx] = d3.pointer(event);
         const [xMin, xMax] = x.domain();
         const yr = Math.min(maxYear, Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx)))));
         crosshair.style("visibility", "visible").attr("x1", x(yr)).attr("x2", x(yr));
         setPricePinnedYear(yr);
       })
-      .on("mouseleave", function () {
+      .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
       });
   }, [oilPrices, benchmark, containerWidth]);
@@ -387,7 +387,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
         </div>
         {!oilPrices.length
           ? <p className={`text-xs text-center py-8 ${isDark ? "text-white/30" : "text-slate-400"}`}>Oil price data unavailable</p>
-          : <svg ref={priceSvg} className="w-full" role="img" aria-label={priceSvgLabel} />
+          : <svg ref={priceSvg} className="w-full" style={{ touchAction: "pan-y" }} role="img" aria-label={priceSvgLabel} />
         }
         <div className={`border rounded-lg px-3 py-2 min-h-10 flex items-center mt-2 ${isDark ? "border-white/10 bg-white/10" : "border-slate-100 bg-slate-50"}`}>
           {pinnedPriceRow ? (
@@ -397,7 +397,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
               <span><span className="text-cyan-500 font-semibold">WTI</span> {pinnedPriceRow.wti_nominal != null ? `$${pinnedPriceRow.wti_nominal.toFixed(2)}` : "—"} nominal · {pinnedPriceRow.wti_real != null ? `$${pinnedPriceRow.wti_real.toFixed(2)}` : "—"} real</span>
             </span>
           ) : (
-            <span className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>Hover the chart to see prices by year</span>
+            <span className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>Tap or hover the chart to see prices by year</span>
           )}
         </div>
       </div>
@@ -409,7 +409,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
           {[
             {
               title: "Oil displacement",
-              body: (<>Each EV is assumed to displace approximately 1,300 gallons of fuel per year — a mid-range estimate for a typical internal combustion vehicle. At 42 gallons per barrel, the total oil displaced is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${isDark ? "bg-white/10" : "bg-black/5"}`}>(EVs × 1,300) ÷ 42 ÷ 1,000,000</span>{" "}million barrels per year. This is an indicative estimate, not a measured figure.</>),
+              body: (<>Each EV is assumed to displace approximately 1,300 gallons of fuel per year — a mid-range estimate for a typical internal combustion vehicle. At 42 gallons per barrel, the total oil displaced is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded ${isDark ? "bg-white/10" : "bg-black/5"}`}>(EVs × 1,300) ÷ 42 ÷ 1,000,000</span>{" "}million barrels per year. This is an indicative estimate, not a measured figure.</>),
             },
             {
               title: "Cost savings & GDP %",
@@ -425,7 +425,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
             },
             {
               title: "Historical oil prices & inflation adjustment",
-              body: (<>Brent and WTI spot prices come from EIA, averaged to annual figures. The dashed line and shaded area show inflation-adjusted prices in real 2024 USD, using the US Consumer Price Index (BLS CPI-U) from 1986 to 2026. The deflation formula is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded whitespace-nowrap ${isDark ? "bg-white/10" : "bg-black/5"}`}>real = nominal × (CPI₂₀₂₄ ÷ CPI_year)</span>{" "}— so a $97 barrel in 2008 becomes ~$141 in today&apos;s dollars. The shaded gap between the lines represents purchasing power lost to inflation.</>),
+              body: (<>Brent and WTI spot prices come from EIA, averaged to annual figures. The dashed line and shaded area show inflation-adjusted prices in real 2024 USD, using the US Consumer Price Index (BLS CPI-U) from 1986 to 2026. The deflation formula is{" "}<span className={`font-mono text-xs px-1.5 py-0.5 rounded ${isDark ? "bg-white/10" : "bg-black/5"}`}>real = nominal × (CPI₂₀₂₄ ÷ CPI_year)</span>{" "}— so a $97 barrel in 2008 becomes ~$141 in today&apos;s dollars. The shaded gap between the lines represents purchasing power lost to inflation.</>),
             },
           ].map(({ title, body }) => (
             <div key={title}>

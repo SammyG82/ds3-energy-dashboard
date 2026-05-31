@@ -8,9 +8,9 @@ export default function AboutPage() {
 
   return (
     <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-black text-white" : "bg-white text-slate-900"}`}>
-      <div className="max-w-4xl mx-auto px-6 sm:px-12 py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-8 md:px-12 py-16">
         <FadeIn>
-          <h1 className={`text-5xl sm:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-slate-900"}`}>About</h1>
+          <h1 className={`text-4xl sm:text-5xl md:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-slate-900"}`}>About</h1>
         </FadeIn>
 
         {/* The Project */}
@@ -42,7 +42,7 @@ export default function AboutPage() {
             The table below lists the primary variables used across the project's data files. Each chart reads its own independent file at runtime — there is no single merged dataset. Derived columns are computed in the browser from source data.
           </p>
 
-          <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
+          <div className={`relative p-6 rounded-3xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -87,6 +87,7 @@ export default function AboutPage() {
                 </tbody>
               </table>
             </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-slate-50 dark:from-black to-transparent sm:hidden rounded-r-3xl" aria-hidden="true" />
           </div>
         </section></FadeIn>
 
@@ -97,7 +98,7 @@ export default function AboutPage() {
           <div className="mb-8">
             <h3 className={`text-lg font-medium mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset Sources</h3>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
               {[
                 {
                   title: "IEA Oil Information Database",
@@ -177,7 +178,7 @@ export default function AboutPage() {
               All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with logistic S-curve projections through 2035.
             </p>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
               <div className={`relative p-6 rounded-3xl border overflow-hidden backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
                 <div className="mb-4">
                   <h4 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Oil Import / Export Dataset</h4>
@@ -191,7 +192,7 @@ export default function AboutPage() {
                     { label: "COUNTRIES", value: "50+ countries / regions" },
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
-                    <div key={label} className="grid grid-cols-[100px_1fr] gap-2">
+                    <div key={label} className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-2">
                       <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>
@@ -215,7 +216,7 @@ export default function AboutPage() {
                     { label: "COUNTRIES", value: "56 countries / regions" },
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
-                    <div key={label} className="grid grid-cols-[100px_1fr] gap-2">
+                    <div key={label} className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-2">
                       <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>

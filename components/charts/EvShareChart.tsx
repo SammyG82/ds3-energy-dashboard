@@ -92,7 +92,9 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     svg.selectAll("*").remove();
 
     const totalW = containerWidth;
-    const margin = { top: 8, right: 52, bottom: 8, left: preview ? 105 : 115 };
+    const isNarrow = containerWidth < 420;
+    const margin = { top: 8, right: isNarrow ? 38 : 52, bottom: 8, left: isNarrow ? 95 : (preview ? 105 : 115) };
+    const axisFontSize = isNarrow ? "10px" : "11px";
     const barH = 28;
     const gap = 4;
     const height = displayRows.length * (barH + gap);
@@ -136,7 +138,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
     barsSel
       .attr("cursor", "pointer")
-      .on("mouseover", function (event, d) {
+      .on("pointerover", function (event, d) {
         const isEU = d.region_country === "EU27";
         barsSel
           .attr("fill-opacity", (r) => r.region_country === "EU27" ? 0.08 : 0.3)
@@ -151,11 +153,11 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         const [mx, my] = d3.pointer(event, containerRef.current);
         setTooltipPos({ x: mx, y: my });
       })
-      .on("mousemove", function (event) {
+      .on("pointermove", function (event) {
         const [mx, my] = d3.pointer(event, containerRef.current);
         setTooltipPos({ x: mx, y: my });
       })
-      .on("mouseleave", function () {
+      .on("pointerleave", function () {
         barsSel
           .attr("fill-opacity", (d) => d.region_country === "EU27" ? 0.15 : 0.85)
           .attr("stroke", (d) => d.region_country === "EU27" ? euColor : "none")
@@ -181,7 +183,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("x", 0)
       .attr("y", (d) => (y(displayName.get(d.region_country)!) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
-      .attr("font-size", "11px")
+      .attr("font-size", axisFontSize)
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
       .attr("opacity", 0)
       .attr("pointer-events", "none")
@@ -196,7 +198,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .call((ax) => ax.select(".domain").remove())
       .selectAll<SVGTextElement, string>("text")
       .attr("dx", -6)
-      .attr("font-size", "11px")
+      .attr("font-size", axisFontSize)
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
       .attr("cursor", "pointer")
       .on("click", (_event, countryDisplay) => {
@@ -207,8 +209,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           setExcluded((prev) => new Set([...prev, row.region_country]));
         }
       })
-      .each(function () {
-        if (this.textContent !== dn("EU27")) return;
+      .each(function (countryDisplay) {
+        if (countryDisplay !== dn("EU27")) return;
         d3.select(this)
           .append("tspan")
           .attr("dy", "-1px")
@@ -251,8 +253,12 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const excludedLabel = excludedCountries.length > 0 ? ` (excl. ${excludedCountries.length})` : "";
 
   const yearSlider = years.length > 0 ? (
-    <div className="flex items-center gap-3">
-      <span className="text-xs font-medium uppercase tracking-wider text-slate-400 whitespace-nowrap">Year</span>
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-medium uppercase tracking-wider text-slate-400">Year</span>
+        <span className="ml-auto text-sm font-mono font-bold text-teal-500 w-10 text-right">{year}</span>
+        <ForecastBadge isForecast={isProjected} isDark={isDark} />
+      </div>
       <input
         type="range"
         min={years[0]}
@@ -260,11 +266,9 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         step="1"
         value={year}
         onChange={(e) => setYear(Number(e.target.value))}
-        className="flex-1 focus:outline-none focus:ring-2 focus:ring-slate-500"
+        className="w-full focus:outline-none focus:ring-2 focus:ring-slate-500"
         aria-label="Select year"
       />
-      <span className="text-sm font-mono font-bold text-teal-500 w-10 text-right">{year}</span>
-      <ForecastBadge isForecast={isProjected} isDark={isDark} />
     </div>
   ) : null;
 
@@ -295,7 +299,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         </div>
       )}
 
-      <div ref={containerRef} className="w-full relative">
+      <div ref={containerRef} className="w-full relative" style={{ touchAction: "manipulation" }}>
         {filtered.length === 0 ? (
           <div className={`flex flex-col items-center justify-center gap-3 py-16 rounded-xl border ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"}`}>
             <span className="text-sm">All countries hidden.</span>
@@ -312,7 +316,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         {tooltip && tooltipPos && (
           <div
             aria-hidden="true"
-            className={`absolute rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-44 shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
+            className={`absolute rounded-xl px-4 py-3 flex flex-col gap-1 pointer-events-none min-w-36 shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
             style={tooltipStyle(tooltipPos.x, tooltipPos.y, containerWidth, containerHeight, 110)}
           >
             <div className="flex items-center justify-between gap-3">
@@ -321,7 +325,9 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
                 {tooltip.isAggregate && (
                   <span className="text-xs px-2 py-0.5 rounded font-medium bg-blue-500/15 text-blue-500">Aggregate</span>
                 )}
-                <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
+                {!tooltip.isAggregate && (
+                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
+                )}
               </div>
             </div>
             <p className="text-blue-500 font-bold text-base mt-0.5">

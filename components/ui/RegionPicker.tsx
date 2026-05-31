@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { TOP_5_MARKETS } from "@/lib/data";
 
 const EUROPE = [
@@ -63,11 +63,16 @@ interface Props {
 }
 
 export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS, isDark = false }: Props) {
-  const dn = useCallback((r: string) => displayNames[r] ?? r, [displayNames]);
+  const dn = (r: string) => displayNames[r] ?? r;
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [query, setQuery] = useState("");
   const customBtnRef = useRef<HTMLButtonElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (showCustom) searchInputRef.current?.focus();
+  }, [showCustom]);
 
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
@@ -87,7 +92,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
     if (!query.trim()) return options;
     const q = query.toLowerCase();
     return options.filter(
-      (r) => r.toLowerCase().includes(q) || (displayNames[r] ?? r).toLowerCase().includes(q)
+      (r) => r.toLowerCase().includes(q) || dn(r).toLowerCase().includes(q)
     );
   }, [options, query, displayNames]);
 
@@ -123,7 +128,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                 onSelectGroup(regions);
                 setShowCustom(false);
               }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+              className={`px-3 py-3 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
                   : isDark
@@ -142,7 +147,8 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           onClick={() => setShowCustom((v) => !v)}
           aria-label="Select custom regions"
           aria-expanded={showCustom}
-          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          aria-controls="region-picker-custom"
+          className={`px-3 py-3 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
               : isDark
@@ -159,7 +165,8 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           title="Why these presets?"
           aria-label="Why these presets?"
           aria-expanded={showInfo}
-          className={`w-6 h-6 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          aria-controls="region-picker-info"
+          className={`w-11 h-11 sm:w-8 sm:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : isDark
@@ -172,7 +179,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+        <div id="region-picker-info" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
           <p className={`text-xs uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>
@@ -184,15 +191,16 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       )}
 
       {showCustom && (
-        <div className="flex flex-col gap-2">
+        <div id="region-picker-custom" className="flex flex-col gap-2">
           <input
+            ref={searchInputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search regions"
-            className={`w-full pl-3 pr-3 py-1.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
+            className={`w-full pl-3 pr-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
           />
 
           <div

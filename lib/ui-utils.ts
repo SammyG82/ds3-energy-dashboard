@@ -7,12 +7,13 @@ export function tooltipStyle(
   y: number,
   containerWidth: number,
   containerHeight: number,
-  clampN: number
+  clampN: number,
+  tipWidth = 220
 ): CSSProperties {
   return {
     position: 'absolute' as const,
-    left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - 220)) : undefined,
-    right: x >= containerWidth * 0.6 ? Math.max(0, containerWidth - x + 14) : undefined,
+    left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - tipWidth)) : undefined,
+    right: x >= containerWidth * 0.6 ? Math.min(Math.max(0, containerWidth - x + 14), Math.max(0, containerWidth - tipWidth)) : undefined,
     top: Math.max(4, Math.min(y - 10, containerHeight - clampN)),
   };
 }

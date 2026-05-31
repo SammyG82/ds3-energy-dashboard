@@ -22,10 +22,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: 'try{if(localStorage.getItem("ds3-theme")==="dark")document.documentElement.classList.add("dark");}catch(e){}history.scrollRestoration="manual";document.documentElement.classList.add("page-loading");var s=document.createElement("style");s.textContent="html.page-loading header{opacity:0}";document.head.appendChild(s);' }} />
       </head>
-      <body className={`${inter.className} min-h-full flex flex-col bg-white dark:bg-black text-slate-900 overscroll-none`}>
+      <body className={`${inter.className} min-h-full flex flex-col bg-white dark:bg-black text-slate-900 overscroll-none overflow-x-hidden`}>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white px-4 py-2 text-sm font-semibold text-slate-900 rounded-lg border border-slate-300 z-[100]"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-300 dark:border-white/20 px-4 py-2 text-sm font-semibold rounded-lg border z-[100]"
         >
           Skip to content
         </a>

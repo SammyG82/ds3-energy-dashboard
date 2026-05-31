@@ -133,10 +133,11 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     const activeCountries = allCountries.filter((c) => selectedSet.has(c));
     const activeData = data.filter((d) => selectedSet.has(d.Country));
+    if (activeCountries.length === 0 || activeData.length === 0) return;
 
     const totalW = containerWidth;
-    const margin = { top: 12, right: 24, bottom: 32, left: 60 };
-    const totalH = preview ? 300 : 360;
+    const margin = { top: 12, right: 24, bottom: 32, left: containerWidth < 380 ? 44 : 60 };
+    const totalH = preview ? 300 : (containerWidth < 480 ? 280 : 360);
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -217,7 +218,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
@@ -239,7 +240,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
-      .on("mousemove", function (event) {
+      .on("pointermove", function (event) {
         const [mx] = d3.pointer(event);
         const [xMin, xMax] = x.domain();
         const year = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
@@ -261,7 +262,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           setPinned({ year, isForecast, entries });
         }
       })
-      .on("mouseleave", function () {
+      .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
         if (preview) {
           setPreviewTooltip(null);
@@ -312,7 +313,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
             options={allCountries}
             selected={selected}
             onToggle={toggle}
-            onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allCountries.slice(0, 1))}
+            onSelectGroup={(regions) => setSelected(regions.length > 0 ? regions : allCountries)}
             colorMap={COUNTRY_COLORS}
             displayNames={OIL_DISPLAY}
             presets={chartPresets ?? OIL_IMPORT_PRESETS}
@@ -340,12 +341,12 @@ export default function OilForecastChart({ data, preview = false, isDark = false
         </div>
       </div>
 
-      <div ref={containerRef} className="w-full relative">
+      <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
-            style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150)}
+            style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150, 240)}
           >
             <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
               <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
@@ -373,7 +374,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
                 <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
                 <div className="flex items-center gap-2">
                   <ForecastBadge isForecast={pinned.isForecast} isDark={isDark} />
-                  <span className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>Thousands of barrels per day</span>
+                  <span className={`text-xs hidden sm:inline ${isDark ? "text-white/40" : "text-slate-400"}`}>Thousands of barrels per day</span>
                 </div>
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
@@ -381,7 +382,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
                   <div key={country} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
                     <span className={`text-sm flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dn(country)}</span>
-                    <span className={`text-sm font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+                    <span className={`text-sm font-mono font-semibold whitespace-nowrap ${isDark ? "text-white" : "text-slate-900"}`}>
                       {Math.round(value).toLocaleString()}<span className={`text-xs font-normal ml-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
                     </span>
                   </div>
@@ -393,7 +394,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
             </>
           ) : (
             <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
-              Hover over the chart to explore oil volumes by year
+              Tap or hover the chart to explore oil volumes by year
             </p>
           )}
         </div>

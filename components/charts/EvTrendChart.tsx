@@ -60,8 +60,8 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     svg.selectAll("*").remove();
 
     const totalW = containerWidth;
-    const margin = { top: 16, right: 24, bottom: 32, left: 60 };
-    const totalH = 300;
+    const margin = { top: 16, right: 24, bottom: 32, left: containerWidth < 380 ? 44 : 60 };
+    const totalH = containerWidth < 480 ? 240 : 300;
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -124,7 +124,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
@@ -142,12 +142,12 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
-      .on("mousemove", function (event) {
+      .on("pointermove", function (event) {
         const [mx] = d3.pointer(event);
         const [xMin, xMax] = x.domain();
         const year = Math.round(Math.max(xMin, Math.min(xMax, x.invert(mx))));
         const currentRow = byYear.get(year);
-        if (!currentRow) { crosshair.style("visibility", "hidden"); setPinned(null); return; }
+        if (!currentRow) { crosshair.style("visibility", "hidden"); return; }
         crosshair.style("visibility", "visible").attr("x1", x(year)).attr("x2", x(year));
         const prevRow = byYear.get(year - 1);
         const sales = currentRow.ev_sales;
@@ -156,7 +156,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
           : null;
         setPinned({ year, sales, yoy, isForecast: year >= forecastBoundary });
       })
-      .on("mouseleave", function () {
+      .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
       });
   }, [countryData, forecastBoundary, containerWidth]);
@@ -232,7 +232,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         </div>
       </div>
 
-      <div ref={containerRef} className="w-full">
+      <div ref={containerRef} className="w-full" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
       </div>
 
@@ -254,7 +254,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
           </div>
         ) : (
           <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/30" : "text-slate-400"}`}>
-            Hover over the chart to explore sales by year
+            Tap or hover the chart to explore sales by year
           </p>
         )}
       </div>

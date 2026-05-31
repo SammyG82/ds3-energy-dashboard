@@ -14,7 +14,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState(false);
 
   useLayoutEffect(() => {
-    const stored = localStorage.getItem("ds3-theme");
+    let stored: string | null = null;
+    try { stored = localStorage.getItem("ds3-theme"); } catch { /* storage blocked */ }
     const dark = stored === "dark" || (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
     setIsDark(dark);
     document.documentElement.classList.toggle("dark", dark);
@@ -25,7 +26,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       isDark,
       toggle: () => setIsDark((d) => {
         const next = !d;
-        localStorage.setItem("ds3-theme", next ? "dark" : "light");
+        try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch { /* storage blocked */ }
         document.documentElement.classList.toggle("dark", next);
         return next;
       }),

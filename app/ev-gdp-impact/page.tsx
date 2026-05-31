@@ -92,8 +92,8 @@ export default function EvGdpImpactPage() {
   const [evData,    setEvData]    = useState<EvRow[]>([]);
   const [gdpMeta,   setGdpMeta]   = useState<GdpMeta[]>([]);
   const [oilPrices, setOilPrices] = useState<OilPriceRow[]>([]);
-  const [evErrors,  setEvErrors]  = useState<{ evData: string | null; gdpMeta: string | null }>({
-    evData: null, gdpMeta: null,
+  const [evErrors,  setEvErrors]  = useState<{ evData: string | null; gdpMeta: string | null; oilPrices: string | null }>({
+    evData: null, gdpMeta: null, oilPrices: null,
   });
 
   // Oil Explorer data
@@ -115,7 +115,7 @@ export default function EvGdpImpactPage() {
       .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
     fetchOilPrices()
       .then((d) => { if (mounted) setOilPrices(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); });
+      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
     fetchOilForecast()
       .then((d) => { if (mounted) setImports(d); })
       .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
@@ -140,7 +140,10 @@ export default function EvGdpImpactPage() {
       if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 96, behavior: "instant" });
     };
 
-    const isChartDrawn = () => !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
+    const isChartDrawn = () => {
+      if (hash === "#oil-import-forecasts") return !!document.getElementById("oil-import-forecasts");
+      return !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
+    };
 
     if (isChartDrawn()) { doScroll(); return; }
 
@@ -180,9 +183,12 @@ export default function EvGdpImpactPage() {
 
         {/* GDP Impact chart */}
         <FadeIn>
-          <div id="ev-gdp-section">
+          <div id="ev-gdp-section" className="scroll-mt-24">
           {evReady ? (
-            <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
+            <>
+              <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
+              {evErrors.oilPrices && <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />}
+            </>
           ) : anyEvError ? (
             <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
               {evErrors.evData  && <ErrorMessage message={evErrors.evData}  isDark={isDark} />}
@@ -212,7 +218,7 @@ export default function EvGdpImpactPage() {
                   key={d.id}
                   onClick={() => setDataset(d.id)}
                   aria-pressed={dataset === d.id}
-                  className={`text-sm font-semibold px-4 py-2 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+                  className={`text-sm font-semibold px-4 py-3 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
                     dataset === d.id
                       ? isDark ? "bg-white text-black border-white" : "bg-slate-900 text-white border-slate-900"
                       : isDark

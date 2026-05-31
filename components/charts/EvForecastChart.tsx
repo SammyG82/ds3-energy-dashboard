@@ -72,8 +72,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return "EV sales forecast: no regions selected.";
+    const [minYear, maxYear] = d3.extent(data, (d) => d.year);
+    const regionNames = selected.map(dn).join(", ");
     const histYear = isFinite(forecastBoundary) ? forecastBoundary - 1 : null;
-    if (histYear === null) return `EV sales forecast for ${selected.map(dn).join(", ")}. Data from 2010, projected to 2035.`;
+    if (histYear === null) return `EV sales forecast for ${regionNames}. Data from ${minYear ?? 2010}, projected to ${maxYear ?? 2035}.`;
     const leaderEntry = selected
       .map((r) => {
         const row = data.find((d) => d.region_country === r && d.year === histYear);
@@ -81,9 +83,8 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       })
       .filter((e): e is { region: string; value: number } => e !== null)
       .sort((a, b) => b.value - a.value)[0];
-    const regionNames = selected.map(dn).join(", ");
-    if (!leaderEntry) return `EV sales forecast for ${regionNames}. Data from 2010, projected to 2035.`;
-    return `EV sales forecast for ${regionNames}: ${dn(leaderEntry.region)} leads with ${fmtEvSales(leaderEntry.value)} vehicles in ${histYear}. Projected through 2035.`;
+    if (!leaderEntry) return `EV sales forecast for ${regionNames}. Data from ${minYear ?? 2010}, projected to ${maxYear ?? 2035}.`;
+    return `EV sales forecast for ${regionNames}: ${dn(leaderEntry.region)} leads with ${fmtEvSales(leaderEntry.value)} vehicles in ${histYear}. Projected to ${maxYear ?? 2035}.`;
   }, [data, selected, forecastBoundary]);
 
   const regionData = useMemo(
@@ -108,8 +109,8 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     svg.selectAll("*").remove();
 
     const totalW = containerWidth;
-    const margin = { top: 12, right: 24, bottom: 32, left: 56 };
-    const totalH = preview ? 300 : 340;
+    const margin = { top: 12, right: 24, bottom: 32, left: containerWidth < 380 ? 42 : 56 };
+    const totalH = preview ? 300 : (containerWidth < 480 ? 260 : 340);
     const width = totalW - margin.left - margin.right;
     const height = totalH - margin.top - margin.bottom;
 
@@ -166,7 +167,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(6))
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
     g.append("g").attr("class", "chart-axis")
@@ -182,7 +183,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "none").attr("pointer-events", "all")
-      .on("mousemove", function (event) {
+      .on("pointermove", function (event) {
         const [mx] = d3.pointer(event);
         const rawYear = x.invert(mx);
         const [xMin, xMax] = x.domain();
@@ -215,7 +216,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           onYearChangeRef.current?.(year);
         }
       })
-      .on("mouseleave", function () {
+      .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
         if (preview) {
           setPreviewTooltip(null);
@@ -273,12 +274,12 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         </div>
       </div>
 
-      <div ref={containerRef} className="w-full relative">
+      <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
           <div
             className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-800 border-white/10" : "bg-white border-slate-200"}`}
-            style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150)}
+            style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150, 240)}
           >
             <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
               <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
@@ -315,7 +316,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
             </>
           ) : (
             <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
-              Hover over the chart to explore values by year
+              Tap or hover the chart to explore values by year
             </p>
           )}
         </div>
