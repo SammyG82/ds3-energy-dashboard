@@ -4,9 +4,10 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
+import ChartLegend from "@/components/ui/ChartLegend";
 
 interface Props {
   data: EvRow[];
@@ -63,10 +64,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     return top5.length > 0 ? top5 : allRegions.slice(0, 5);
   }, [allRegions, preview]);
 
-  const forecastBoundary = useMemo(() => {
-    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return d3.min(fcYears) ?? Infinity;
-  }, [data]);
+  const forecastBoundary = useEvForecastBoundary(data);
 
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
@@ -100,7 +98,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
   useEffect(() => { setPinned(null); }, [selected, containerWidth, data]);
-  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth, containerHeight]);
+  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length || !isFinite(forecastBoundary)) return;
@@ -158,11 +156,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       tickYears.forEach((yr) => {
         const row = byYr.get(yr);
         if (!row) return;
-        g.append("circle")
-          .attr("class", "tick-dot")
-          .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
-          .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
-          .style("pointer-events", "none");
+        drawTickDot(g, x(yr), y(row.ev_sales), color, isDarkRef);
       });
     });
 
@@ -174,11 +168,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
-    const crosshair = g.append("line")
-      .attr("class", "chart-crosshair")
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
-      .style("visibility", "hidden").style("pointer-events", "none");
+    const crosshair = drawCrosshair(g, height, isDarkRef);
 
     g.append("rect")
       .attr("width", width).attr("height", height)
@@ -258,20 +248,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         </div>
       )}
 
-      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
-            Historical
-          </span>
-          <span className="flex items-center gap-1.5">
-            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
-              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
-            </svg>
-            IEA STEPS Forecast
-          </span>
-        </div>
-      </div>
+      <ChartLegend isDark={isDark} forecastLabel="IEA STEPS Forecast" />
 
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />

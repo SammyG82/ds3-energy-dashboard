@@ -4,8 +4,9 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
+import ChartLegend from "@/components/ui/ChartLegend";
 import StatCard from "@/components/ui/StatCard";
 
 interface Props {
@@ -38,7 +39,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     if (countries.length && !countries.includes(country)) setCountry(countries[0]);
   }, [countries, country]);
 
-  useEffect(() => { setPinned(null); }, [country, data, containerWidth, containerHeight]);
+  useEffect(() => { setPinned(null); }, [country, data, containerWidth]);
 
   const countryData = useMemo(
     () => data.filter((d) => d.region_country === country).sort((a, b) => a.year - b.year),
@@ -112,15 +113,12 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         .attr("d", line);
     }
 
+    const byYear = new Map(countryData.map((d) => [d.year, d]));
     const tickYears = Array.from(new Set(countryData.map((d) => d.year))).filter((yr) => yr % 5 === 0);
     tickYears.forEach((yr) => {
-      const row = countryData.find((d) => d.year === yr);
+      const row = byYear.get(yr);
       if (!row) return;
-      g.append("circle")
-        .attr("class", "tick-dot")
-        .attr("cx", x(yr)).attr("cy", y(row.ev_sales)).attr("r", 3)
-        .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", "#0d9488").attr("stroke-width", 2)
-        .style("pointer-events", "none");
+      drawTickDot(g, x(yr), y(row.ev_sales), "#0d9488", isDarkRef);
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
@@ -131,13 +129,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
-    const crosshair = g.append("line")
-      .attr("class", "chart-crosshair")
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
-      .style("visibility", "hidden").style("pointer-events", "none");
-
-    const byYear = new Map(countryData.map((d) => [d.year, d]));
+    const crosshair = drawCrosshair(g, height, isDarkRef);
 
     g.append("rect")
       .attr("width", width).attr("height", height)
@@ -217,20 +209,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         <StatCard size="xl" label="2030 Forecast" value={forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"} accent="teal" isDark={isDark} />
       </div>
 
-      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
-            Historical
-          </span>
-          <span className="flex items-center gap-1.5">
-            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
-              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
-            </svg>
-            IEA STEPS Forecast
-          </span>
-        </div>
-      </div>
+      <ChartLegend isDark={isDark} forecastLabel="IEA STEPS Forecast" />
 
       <div ref={containerRef} className="w-full" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />

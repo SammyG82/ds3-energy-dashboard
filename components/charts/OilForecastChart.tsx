@@ -5,9 +5,10 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
+import ChartLegend from "@/components/ui/ChartLegend";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 
 const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
@@ -209,11 +210,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       tickYears.forEach((yr) => {
         const row = rows.find((d) => d.Year === yr);
         if (!row) return;
-        g.append("circle")
-          .attr("class", "tick-dot")
-          .attr("cx", x(yr)).attr("cy", y(row.value)).attr("r", 3)
-          .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
-          .style("pointer-events", "none");
+        drawTickDot(g, x(yr), y(row.value), color, isDarkRef);
       });
     });
 
@@ -229,11 +226,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       }).ticks(5))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
-    const crosshair = g.append("line")
-      .attr("class", "chart-crosshair")
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
-      .style("visibility", "hidden").style("pointer-events", "none");
+    const crosshair = drawCrosshair(g, height, isDarkRef);
 
     const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
 
@@ -322,24 +315,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
         </>
       )}
 
-      <div className={`flex justify-end text-[11px] ${isDark ? "text-white/40" : "text-slate-400"}`}>
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1.5">
-            <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />
-            Historical
-          </span>
-          <span className="flex items-center gap-1.5">
-            <svg width="16" height="3" viewBox="0 0 16 3" className="shrink-0" aria-hidden="true">
-              <line x1="0" y1="1.5" x2="16" y2="1.5" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2.5" strokeLinecap="round" />
-            </svg>
-            Forecast
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="block w-4 h-2.5 rounded-sm bg-current opacity-20" aria-hidden="true" />
-            95% CI
-          </span>
-        </div>
-      </div>
+      <ChartLegend isDark={isDark} showCI />
 
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />

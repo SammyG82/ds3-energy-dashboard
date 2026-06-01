@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, type RefObject, type MutableRefObject } from "react";
+import { useState, useEffect, useRef, useMemo, type RefObject, type MutableRefObject } from "react";
 import type { CSSProperties } from "react";
 import type { Selection } from "d3";
+import type { EvRow } from "@/lib/data";
 
 export function tooltipStyle(
   x: number,
@@ -101,6 +102,43 @@ export function applyThemeToChart(svg: SVGRootSelection, isDark: boolean): void 
   svg.selectAll(".tick-dot").attr("fill", isDark ? "#000" : "#fff");
   svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
   svg.selectAll(".chart-crosshair").attr("stroke", isDark ? "#94a3b8" : "#64748b");
+}
+
+export function drawCrosshair(
+  g: GSelection,
+  height: number,
+  isDarkRef: MutableRefObject<boolean>
+) {
+  return g.append("line")
+    .attr("class", "chart-crosshair")
+    .attr("y1", 0).attr("y2", height)
+    .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b")
+    .attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
+    .style("visibility", "hidden").style("pointer-events", "none");
+}
+
+export function drawTickDot(
+  g: GSelection,
+  cx: number,
+  cy: number,
+  color: string,
+  isDarkRef: MutableRefObject<boolean>,
+  opacity?: number
+): void {
+  const dot = g.append("circle")
+    .attr("class", "tick-dot")
+    .attr("cx", cx).attr("cy", cy).attr("r", 3)
+    .attr("fill", isDarkRef.current ? "#000" : "#fff")
+    .attr("stroke", color).attr("stroke-width", 2)
+    .style("pointer-events", "none");
+  if (opacity !== undefined) dot.attr("opacity", opacity);
+}
+
+export function useEvForecastBoundary(data: EvRow[]): number {
+  return useMemo(() => {
+    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
+    return fcYears.length > 0 ? Math.min(...fcYears) : Infinity;
+  }, [data]);
 }
 
 export function useContainerSize(ref: RefObject<Element | null>): { width: number; height: number } {

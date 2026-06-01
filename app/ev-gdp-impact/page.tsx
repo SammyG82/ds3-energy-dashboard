@@ -11,6 +11,7 @@ import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
+import { useDataFetch } from "@/lib/ui-utils";
 
 const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: () => <LoadingPlaceholder /> });
 const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: () => <LoadingPlaceholder /> });
@@ -88,45 +89,13 @@ const DATASETS: { id: Dataset; label: string; description: string; chartLabel: "
 export default function EvGdpImpactPage() {
   const { isDark } = useTheme();
 
-  // EV GDP Impact data
-  const [evData,    setEvData]    = useState<EvRow[]>([]);
-  const [gdpMeta,   setGdpMeta]   = useState<GdpMeta[]>([]);
-  const [oilPrices, setOilPrices] = useState<OilPriceRow[]>([]);
-  const [evErrors,  setEvErrors]  = useState<{ evData: string | null; gdpMeta: string | null; oilPrices: string | null }>({
-    evData: null, gdpMeta: null, oilPrices: null,
-  });
-
-  // Oil Explorer data
-  const [imports,      setImports]      = useState<OilRow[]>([]);
-  const [netTrade,     setNetTrade]     = useState<OilRow[]>([]);
-  const [exportsData,  setExportsData]  = useState<OilRow[]>([]);
-  const [dataset,      setDataset]      = useState<Dataset>("imports");
-  const [oilErrors,    setOilErrors]    = useState<Record<Dataset, string | null>>({
-    imports: null, net_trade: null, exports: null,
-  });
-
-  useEffect(() => {
-    let mounted = true;
-    fetchEvData()
-      .then((d) => { if (mounted) setEvData(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, evData: "Failed to load EV data." })); });
-    fetchGdpMeta()
-      .then((d) => { if (mounted) setGdpMeta(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, gdpMeta: "Failed to load GDP metadata." })); });
-    fetchOilPrices()
-      .then((d) => { if (mounted) setOilPrices(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setEvErrors((e) => ({ ...e, oilPrices: "Failed to load oil price data." })); });
-    fetchOilForecast()
-      .then((d) => { if (mounted) setImports(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, imports: "Failed to load oil imports data." })); });
-    fetchNetTrade()
-      .then((d) => { if (mounted) setNetTrade(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, net_trade: "Failed to load net trade data." })); });
-    fetchOilExports()
-      .then((d) => { if (mounted) setExportsData(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setOilErrors((e) => ({ ...e, exports: "Failed to load exports data." })); });
-    return () => { mounted = false; };
-  }, []);
+  const { data: evData,      error: evDataError }    = useDataFetch<EvRow[]>(fetchEvData, []);
+  const { data: gdpMeta,     error: gdpMetaError }   = useDataFetch<GdpMeta[]>(fetchGdpMeta, []);
+  const { data: oilPrices,   error: oilPricesError } = useDataFetch<OilPriceRow[]>(fetchOilPrices, []);
+  const { data: imports,     error: importsError }   = useDataFetch<OilRow[]>(fetchOilForecast, []);
+  const { data: netTrade,    error: netTradeError }  = useDataFetch<OilRow[]>(fetchNetTrade, []);
+  const { data: exportsData, error: exportsError }   = useDataFetch<OilRow[]>(fetchOilExports, []);
+  const [dataset, setDataset] = useState<Dataset>("imports");
 
   const scrolledRef = useRef(false);
   useEffect(() => {
@@ -160,11 +129,11 @@ export default function EvGdpImpactPage() {
   }, [evData, gdpMeta]);
 
   const evReady  = evData.length > 0 && gdpMeta.length > 0;
-  const anyEvError = evErrors.evData || evErrors.gdpMeta;
+  const anyEvError = evDataError || gdpMetaError;
 
   const active      = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
   const activeMeta  = DATASETS.find((d) => d.id === dataset) ?? DATASETS[0];
-  const activeError = oilErrors[dataset];
+  const activeError = dataset === "imports" ? importsError : dataset === "net_trade" ? netTradeError : exportsError;
 
   const sharedStatYear = useMemo(() => {
     const boundary = imports.find((d) => d.Type === "Forecast")?.Year;
@@ -187,12 +156,12 @@ export default function EvGdpImpactPage() {
           {evReady ? (
             <>
               <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
-              {evErrors.oilPrices && <ErrorMessage message={evErrors.oilPrices} isDark={isDark} />}
+              {oilPricesError && <ErrorMessage message={oilPricesError} isDark={isDark} />}
             </>
           ) : anyEvError ? (
             <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
-              {evErrors.evData  && <ErrorMessage message={evErrors.evData}  isDark={isDark} />}
-              {evErrors.gdpMeta && <ErrorMessage message={evErrors.gdpMeta} isDark={isDark} />}
+              {evDataError  && <ErrorMessage message={evDataError}  isDark={isDark} />}
+              {gdpMetaError && <ErrorMessage message={gdpMetaError} isDark={isDark} />}
             </div>
           ) : (
             <LoadingPlaceholder text="Loading data…" />

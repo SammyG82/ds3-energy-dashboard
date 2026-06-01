@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, COUNTRY_COLORS, dn, AGGREGATES } from "@/lib/data";
-import { tooltipStyle, useContainerSize, useThemeRef } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, useThemeRef, useEvForecastBoundary } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 
@@ -48,7 +48,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   useEffect(() => {
     setTooltip(null);
     setTooltipPos(null);
-  }, [year, data, containerWidth, containerHeight, excluded]);
+  }, [year, data, containerWidth, excluded]);
 
   useEffect(() => {
     setExcluded(new Set());
@@ -80,10 +80,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   // total intentionally excludes EU27 — it overlaps with individual EU country bars
   const total = useMemo(() => d3.sum(filtered, (d) => d.ev_sales), [filtered]);
 
-  const forecastBoundary = useMemo(() => {
-    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return d3.min(fcYears) ?? Infinity;
-  }, [data]);
+  const forecastBoundary = useEvForecastBoundary(data);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !displayRows.length || containerWidth === 0) return;
@@ -172,6 +169,20 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       });
 
     barsSel
+      .attr("tabindex", "0")
+      .attr("role", "button")
+      .attr("aria-label", (d) => `${dn(d.region_country)}: ${fmtEvSales(d.ev_sales)} vehicles — click to hide`)
+      .on("keydown", function (event, d) {
+        const e = event as KeyboardEvent;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          setTooltip(null);
+          setTooltipPos(null);
+          setExcluded((prev) => new Set([...prev, d.region_country]));
+        }
+      });
+
+    barsSel
       .transition().duration(600).ease(d3.easeCubicOut)
       .attr("width", (d) => x(d.ev_sales));
 
@@ -201,12 +212,27 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("font-size", axisFontSize)
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
       .attr("cursor", "pointer")
+      .attr("tabindex", "0")
+      .attr("role", "button")
+      .attr("aria-label", (countryDisplay) => `Hide ${countryDisplay}`)
       .on("click", (_event, countryDisplay) => {
         const row = displayRows.find((d) => dn(d.region_country) === countryDisplay);
         if (row) {
           setTooltip(null);
           setTooltipPos(null);
           setExcluded((prev) => new Set([...prev, row.region_country]));
+        }
+      })
+      .on("keydown", function (event, countryDisplay) {
+        const e = event as KeyboardEvent;
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          const row = displayRows.find((d) => dn(d.region_country) === countryDisplay);
+          if (row) {
+            setTooltip(null);
+            setTooltipPos(null);
+            setExcluded((prev) => new Set([...prev, row.region_country]));
+          }
         }
       })
       .each(function (countryDisplay) {

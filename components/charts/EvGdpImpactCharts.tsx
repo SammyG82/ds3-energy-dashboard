@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
-import { useContainerSize, useThemeRef, applyThemeToChart } from "@/lib/ui-utils";
+import { useContainerSize, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 
 interface Props {
@@ -38,10 +38,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
   const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
-  const forecastBoundary = useMemo(() => {
-    const fYears = evData.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return fYears.length > 0 ? Math.min(...fYears) : Infinity;
-  }, [evData]);
+  const forecastBoundary = useEvForecastBoundary(evData);
   const years = useMemo(() => {
     const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : 2024;
     return Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= lb && y <= lb + 6).sort();
@@ -204,12 +201,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       tickYears.forEach((yr) => {
         const row = tickByYear.get(yr);
         if (!row || row[nomKey] === null) return;
-        g.append("circle")
-          .attr("class", "tick-dot")
-          .attr("cx", x(yr)).attr("cy", y(row[nomKey] as number)).attr("r", 3)
-          .attr("fill", isDarkRef.current ? "#000" : "#fff").attr("stroke", color).attr("stroke-width", 2)
-          .attr("opacity", opacity)
-          .style("pointer-events", "none");
+        drawTickDot(g, x(yr), y(row[nomKey] as number), color, isDarkRef, opacity);
       });
     }
 
@@ -220,11 +212,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, isDark =
       .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`))
       .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
 
-    const crosshair = g.append("line")
-      .attr("class", "chart-crosshair")
-      .attr("y1", 0).attr("y2", height)
-      .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b").attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
-      .style("visibility", "hidden").style("pointer-events", "none");
+    const crosshair = drawCrosshair(g, height, isDarkRef);
 
     g.append("rect")
       .attr("width", width).attr("height", height)

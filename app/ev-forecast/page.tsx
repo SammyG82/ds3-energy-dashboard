@@ -10,7 +10,7 @@ import { useTheme } from "@/lib/theme-context";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
-import { useDataFetch } from "@/lib/ui-utils";
+import { useDataFetch, useEvForecastBoundary } from "@/lib/ui-utils";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
 const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
@@ -36,9 +36,11 @@ export default function EvForecastPage() {
       if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - HEADER_HEIGHT_PX, behavior: "instant" });
     };
 
-    // Poll until D3 has drawn into the first chart section (svg > g appended).
-    // 50ms interval keeps any visible wrong-position window imperceptible.
-    const isChartDrawn = () => !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
+    const isChartDrawn = () => {
+      if (hash === "#ev-sales-projections") return !!document.getElementById("ev-sales-projections")?.querySelector("svg > g");
+      if (hash === "#ev-sales-over-time") return !!document.getElementById("ev-sales-over-time")?.querySelector("svg > g");
+      return !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
+    };
 
     if (isChartDrawn()) { doScroll(); return; }
 
@@ -56,10 +58,7 @@ export default function EvForecastPage() {
 
 
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
-  const forecastBoundary = useMemo(() => {
-    const years = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return years.length > 0 ? Math.min(...years) : Infinity;
-  }, [data]);
+  const forecastBoundary = useEvForecastBoundary(data);
 
   const effectiveYear = useMemo(() => {
     if (hoveredYear !== null) return hoveredYear;

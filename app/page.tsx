@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast, BASE } from "@/lib/data";
 import { useTheme } from "@/lib/theme-context";
+import { useDataFetch } from "@/lib/ui-utils";
 import type { OilRow, EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
@@ -42,26 +42,9 @@ const pillars = [
 
 export default function LandingPage() {
   const { isDark } = useTheme();
-  const [evSales, setEvSales] = useState<EvRow[]>([]);
-  const [evData, setEvData] = useState<EvRow[]>([]);
-  const [oilData, setOilData] = useState<OilRow[]>([]);
-  const [errors, setErrors] = useState<{ evSales: string | null; evData: string | null; oilData: string | null }>({
-    evSales: null, evData: null, oilData: null,
-  });
-
-  useEffect(() => {
-    let mounted = true;
-    fetchEvSales()
-      .then((d) => { if (mounted) setEvSales(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evSales: "Failed to load EV sales data." })); });
-    fetchEvData()
-      .then((d) => { if (mounted) setEvData(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, evData: "Failed to load EV forecast data." })); });
-    fetchOilForecast()
-      .then((d) => { if (mounted) setOilData(d); })
-      .catch((err) => { if (!mounted) return; if (process.env.NODE_ENV === "development") console.error(err); setErrors((e) => ({ ...e, oilData: "Failed to load oil forecast data." })); });
-    return () => { mounted = false; };
-  }, []);
+  const { data: evSales,  error: evSalesError }  = useDataFetch<EvRow[]>(fetchEvSales, []);
+  const { data: evData,   error: evDataError }   = useDataFetch<EvRow[]>(fetchEvData, []);
+  const { data: oilData,  error: oilDataError }  = useDataFetch<OilRow[]>(fetchOilForecast, []);
 
 
 
@@ -140,8 +123,8 @@ export default function LandingPage() {
             </div>
             {evSales.length > 0 ? (
               <EvShareChart data={evSales} preview isDark={isDark} />
-            ) : errors.evSales ? (
-              <ErrorMessage message={errors.evSales} isDark={isDark} />
+            ) : evSalesError ? (
+              <ErrorMessage message={evSalesError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -164,8 +147,8 @@ export default function LandingPage() {
             </div>
             {evData.length > 0 ? (
               <EvForecastChart data={evData} preview isDark={isDark} />
-            ) : errors.evData ? (
-              <ErrorMessage message={errors.evData} isDark={isDark} />
+            ) : evDataError ? (
+              <ErrorMessage message={evDataError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
@@ -188,8 +171,8 @@ export default function LandingPage() {
             </div>
             {oilData.length > 0 ? (
               <OilForecastChart data={oilData} preview isDark={isDark} />
-            ) : errors.oilData ? (
-              <ErrorMessage message={errors.oilData} isDark={isDark} />
+            ) : oilDataError ? (
+              <ErrorMessage message={oilDataError} isDark={isDark} />
             ) : (
               <LoadingPlaceholder text="Loading data…" />
             )}
