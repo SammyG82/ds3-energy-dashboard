@@ -90,7 +90,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
     const totalW = containerWidth;
     const isNarrow = containerWidth < 420;
-    const margin = { top: 8, right: isNarrow ? 38 : 52, bottom: 8, left: isNarrow ? 95 : (preview ? 105 : 115) };
+    const margin = { top: 8, right: isNarrow ? 46 : 52, bottom: 8, left: isNarrow ? 95 : (preview ? 105 : 115) };
     const axisFontSize = isNarrow ? "10px" : "11px";
     const barH = 28;
     const gap = 4;
@@ -103,7 +103,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     const displayName = new Map(displayRows.map((d) => [d.region_country, dn(d.region_country)]));
     const x = d3.scaleLinear().domain([0, d3.max(displayRows, (d) => d.ev_sales) ?? 1]).range([0, width]);
     const y = d3.scaleBand()
-      .domain(displayRows.map((d) => displayName.get(d.region_country)!))
+      .domain(displayRows.map((d) => displayName.get(d.region_country) ?? dn(d.region_country)))
       .range([0, height])
       .padding(0.15);
 
@@ -124,7 +124,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .append("rect")
       .attr("class", "bar")
       .attr("x", 0)
-      .attr("y", (d) => y(displayName.get(d.region_country)!) ?? 0)
+      .attr("y", (d) => y(displayName.get(d.region_country) ?? dn(d.region_country)) ?? 0)
       .attr("height", y.bandwidth())
       .attr("rx", 3)
       .attr("fill", (d) => d.region_country === "EU27" ? euColor : (COUNTRY_COLORS[d.region_country] ?? DEFAULT_COLOR))
@@ -192,7 +192,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .append("text")
       .attr("class", "bar-label")
       .attr("x", 0)
-      .attr("y", (d) => (y(displayName.get(d.region_country)!) ?? 0) + y.bandwidth() / 2)
+      .attr("y", (d) => (y(displayName.get(d.region_country) ?? dn(d.region_country)) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", axisFontSize)
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
@@ -271,9 +271,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
   const ariaLabel = useMemo(() => {
     if (!leader) return "EV sales rankings: no data available.";
+    const projected = year >= forecastBoundary ? "Projected " : "";
     const eu27Note = eu27Row ? ` EU regional total: ${fmtEvSales(eu27Row.ev_sales)}.` : "";
-    return `EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} countries combined: ${fmtEvSales(total)}.${eu27Note}`;
-  }, [year, leader, topN, total, eu27Row]);
+    return `${projected}EV sales rankings for ${year}: ${dn(leader.region_country)} leads with ${fmtEvSales(leader.ev_sales)} vehicles. Top ${topN} countries combined: ${fmtEvSales(total)}.${eu27Note}`;
+  }, [year, forecastBoundary, leader, topN, total, eu27Row]);
 
   const isProjected = year >= forecastBoundary;
   const excludedLabel = excludedCountries.length > 0 ? ` (excl. ${excludedCountries.length})` : "";

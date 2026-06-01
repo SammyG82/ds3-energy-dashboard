@@ -194,7 +194,7 @@ export async function fetchOilExports(): Promise<OilRow[]> {
         ciHigh: parseCI(d["Upper_CI"]),
       }];
     })
-    // IEA missing-2024 entries arrive as 0.0, not NaN — filter to avoid misleading chart drops
+    // Same missing-data-as-zero problem as net trade — exports.csv comes from the same notebook
     .filter((row) => row.Year > 1900 && row.Country !== "" && !(row.value === 0 && row.Type === "Historical"));
 }
 
@@ -227,10 +227,11 @@ export interface OilPriceRow {
   wti_real: number | null;
 }
 
+const isNullableNum = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v));
+
 export async function fetchOilPrices(): Promise<OilPriceRow[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/oil_prices.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid oil price data");
-  const isNullableNum = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v));
   return raw.map((item, idx) => {
     if (item === null || typeof item !== "object") throw new Error(`Invalid oil price data at row ${idx}`);
     const r = item as Record<string, unknown>;

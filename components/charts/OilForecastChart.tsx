@@ -5,10 +5,11 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 import ChartLegend from "@/components/ui/ChartLegend";
+import PreviewTooltip from "@/components/ui/PreviewTooltip";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 
 const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
@@ -85,8 +86,9 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return `${datasetLabel}: no countries selected.`;
     const regionNames = selected.map(dn).join(", ");
-    if (!leader) return `${datasetLabel} for ${regionNames}. Forecast with 95% confidence intervals through 2030.`;
-    return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through 2030.`;
+    const maxDataYear = Math.max(...data.map((d) => d.Year));
+    if (!leader) return `${datasetLabel} for ${regionNames}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
+    return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
   }, [datasetLabel, selected, leader, statDisplayYear, data]);
 
   const { netLargestImporter, netLargestExporter, netBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
@@ -246,6 +248,10 @@ export default function OilForecastChart({ data, preview = false, isDark = false
             return [{ country, value: row.value, color: COUNTRY_COLORS[country] ?? "#64748b" }];
           })
           .sort((a, b) => b.value - a.value);
+        if (!entries.length) {
+          crosshair.style("visibility", "hidden");
+          return;
+        }
         if (preview) {
           if (!containerRef.current) return;
           const [cmx, cmy] = d3.pointer(event, containerRef.current);
@@ -264,43 +270,33 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       });
   }, [data, selectedSet, preview, forecastBoundary, containerWidth, allCountries]);
 
-  useEffect(() => {
-    if (!svgRef.current) return;
-    applyThemeToChart(d3.select(svgRef.current), isDark);
-  }, [isDark]);
+  useChartTheme(svgRef, isDark);
 
   return (
     <div className="flex flex-col gap-4">
       {!preview && (
         <>
-          {datasetLabel === "Oil Imports (KBD)" && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Importer`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
-            </div>
-          )}
-
-          {datasetLabel === "Net Trade (KBD)" && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl"
-                label={`${displayIsForecast ? "Projected " : ""}${netDisplayYear} ${hasImporters ? "Import Deficit" : "Export Surplus"}`}
-                value={hasImporters
-                  ? (displayNetDeficit > 0 ? `${Math.round(displayNetDeficit).toLocaleString()} KBD` : "—")
-                  : (displayNetSurplus > 0 ? `${Math.round(displayNetSurplus).toLocaleString()} KBD` : "—")}
-                accent="blue" isDark={isDark} />
-              <StatCard size="xl"
-                label={`${displayIsForecast ? "Projected " : ""}${hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}`}
-                value={hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
-                accent="teal" isDark={isDark} />
-            </div>
-          )}
-
-          {datasetLabel === "Oil Exports (KBD)" && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
-              <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}Largest Exporter`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
-            </div>
-          )}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {datasetLabel === "Net Trade (KBD)" ? (
+              <>
+                <StatCard size="xl"
+                  label={`${displayIsForecast ? "Projected " : ""}${netDisplayYear} ${hasImporters ? "Import Deficit" : "Export Surplus"}`}
+                  value={hasImporters
+                    ? (displayNetDeficit > 0 ? `${Math.round(displayNetDeficit).toLocaleString()} KBD` : "—")
+                    : (displayNetSurplus > 0 ? `${Math.round(displayNetSurplus).toLocaleString()} KBD` : "—")}
+                  accent="blue" isDark={isDark} />
+                <StatCard size="xl"
+                  label={`${displayIsForecast ? "Projected " : ""}${hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}`}
+                  value={hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
+                  accent="teal" isDark={isDark} />
+              </>
+            ) : (
+              <>
+                <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
+                <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${datasetLabel === "Oil Exports (KBD)" ? "Largest Exporter" : "Largest Importer"}`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
+              </>
+            )}
+          </div>
 
           <RegionPicker
             options={allCountries}
@@ -320,25 +316,20 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
-          <div
-            className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-900 border-white/10" : "bg-white border-slate-200"}`}
+          <PreviewTooltip
+            year={previewTooltip.year}
+            isForecast={previewTooltip.isForecast}
+            entries={previewTooltip.entries.map(({ country, value, color }) => ({
+              key: country,
+              label: dn(country),
+              value: Math.round(value).toLocaleString(),
+              unit: "KBD",
+              color,
+            }))}
+            isDark={isDark}
+            footer="KBD = thousands of barrels/day"
             style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150, 240)}
-          >
-            <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
-              <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
-              <ForecastBadge isForecast={previewTooltip.isForecast} isDark={isDark} />
-            </div>
-            {previewTooltip.entries.map(({ country, value, color }) => (
-              <div key={country} className="flex items-center gap-2">
-                <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                <span className={`text-xs flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dn(country)}</span>
-                <span className={`text-xs font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  {Math.round(value).toLocaleString()}<span className={`font-normal ml-0.5 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
-                </span>
-              </div>
-            ))}
-            <p className={`text-xs border-t pt-1.5 mt-0.5 ${isDark ? "text-white/40 border-white/10" : "text-slate-400 border-slate-100"}`}>KBD = thousands of barrels/day</p>
-          </div>
+          />
         )}
       </div>
 

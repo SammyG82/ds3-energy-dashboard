@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
@@ -10,13 +10,11 @@ import { useTheme } from "@/lib/theme-context";
 import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
-import { useDataFetch, useEvForecastBoundary } from "@/lib/ui-utils";
+import { useDataFetch, useEvForecastBoundary, useHashScroll } from "@/lib/ui-utils";
 
-const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
-const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
-const EvTrendChart    = dynamic(() => import("@/components/charts/EvTrendChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
-
-const HEADER_HEIGHT_PX = 96;
+const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
+const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
+const EvTrendChart    = dynamic(() => import("@/components/charts/EvTrendChart"),    { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
 
 export default function EvForecastPage() {
   const { isDark } = useTheme();
@@ -24,37 +22,15 @@ export default function EvForecastPage() {
   const { data: salesData, error: salesError } = useDataFetch<EvRow[]>(fetchEvSales, []);
   const [hoveredYear, setHoveredYear] = useState<number | null>(null);
   const [selectedRegions, setSelectedRegions] = useState<string[]>(TOP_5_MARKETS);
-  const scrolledRef = useRef(false);
-  useEffect(() => {
-    if (scrolledRef.current || !data.length || !salesData.length) return;
-    const hash = window.location.hash;
-    if (!hash) return;
-    scrolledRef.current = true;
 
-    const doScroll = () => {
-      const el = document.querySelector(hash);
-      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - HEADER_HEIGHT_PX, behavior: "instant" });
-    };
-
-    const isChartDrawn = () => {
+  useHashScroll(
+    (hash) => {
       if (hash === "#ev-sales-projections") return !!document.getElementById("ev-sales-projections")?.querySelector("svg > g");
       if (hash === "#ev-sales-over-time") return !!document.getElementById("ev-sales-over-time")?.querySelector("svg > g");
       return !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
-    };
-
-    if (isChartDrawn()) { doScroll(); return; }
-
-    const intervalId = setInterval(() => {
-      if (isChartDrawn()) {
-        clearInterval(intervalId);
-        clearTimeout(safeTid);
-        doScroll();
-      }
-    }, 50);
-    const safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
-
-    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
-  }, [data, salesData]);
+    },
+    data.length > 0 && salesData.length > 0
+  );
 
 
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
@@ -87,7 +63,7 @@ export default function EvForecastPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
 
         <FadeIn>
-          <div id="ev-sales-by-country" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-by-country" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Rankings</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Drag to see how rankings shift from 2010 to 2035. EU shown as a regional aggregate.</p>
@@ -103,7 +79,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={100}>
-          <div id="ev-sales-projections" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-projections" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Projections</h2>
             <p className={`text-sm mb-6 ${isDark ? "text-white/50" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
@@ -129,7 +105,7 @@ export default function EvForecastPage() {
         </FadeIn>
 
         <FadeIn delay={200}>
-          <div id="ev-sales-over-time" className={`border rounded-2xl p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div id="ev-sales-over-time" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             <div className="mb-6">
               <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
               <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and projected growth through 2035</p>

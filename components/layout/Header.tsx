@@ -42,10 +42,22 @@ export default function Header() {
 
   useEffect(() => {
     if (!menuOpen) return;
+    const navEl = document.getElementById("mobile-nav");
+    const focusable = navEl ? Array.from(navEl.querySelectorAll<HTMLElement>("a[href]")) : [];
+    focusable[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
         hamburgerRef.current?.focus();
+        return;
+      }
+      if (e.key !== "Tab" || focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey) {
+        if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+      } else {
+        if (document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     };
     document.addEventListener("keydown", onKey);
@@ -90,7 +102,7 @@ export default function Header() {
             />
             <span className={`inline-flex items-end gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
               <span className="text-3xl">DS<span className={isTransparent || isDark ? "text-white" : "text-cyan-500"}>3</span></span>
-              <span className="text-lg hidden [@media(min-width:460px)]:inline">Energy Dashboard</span>
+              <span className="hidden [@media(min-width:375px)]:inline text-sm sm:text-lg">Energy Dashboard</span>
             </span>
           </Link>
 

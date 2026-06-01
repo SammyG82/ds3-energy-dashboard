@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
 import StatCard from "@/components/ui/StatCard";
@@ -24,7 +24,7 @@ interface Pinned {
 export default function EvTrendChart({ data, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const isDarkRef = useThemeRef(isDark);
 
@@ -46,10 +46,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     [data, country]
   );
 
-  const forecastBoundary = useMemo(
-    () => countryData.find((d) => d.type === "Forecast")?.year ?? Infinity,
-    [countryData]
-  );
+  const forecastBoundary = useEvForecastBoundary(countryData);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !countryData.length || containerWidth === 0) return;
@@ -153,10 +150,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       });
   }, [countryData, forecastBoundary, containerWidth]);
 
-  useEffect(() => {
-    if (!svgRef.current) return;
-    applyThemeToChart(d3.select(svgRef.current), isDark);
-  }, [isDark]);
+  useChartTheme(svgRef, isDark);
 
   const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);
 

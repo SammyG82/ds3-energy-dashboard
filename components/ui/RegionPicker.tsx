@@ -179,7 +179,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div id="region-picker-info" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+        <div id="region-picker-info" role="region" aria-label="Why these groups?" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
           <p className={`text-xs uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>

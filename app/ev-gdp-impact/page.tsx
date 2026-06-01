@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { useTheme } from "@/lib/theme-context";
@@ -11,7 +11,7 @@ import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
-import { useDataFetch } from "@/lib/ui-utils";
+import { useDataFetch, useHashScroll } from "@/lib/ui-utils";
 
 const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: () => <LoadingPlaceholder /> });
 const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: () => <LoadingPlaceholder /> });
@@ -97,36 +97,13 @@ export default function EvGdpImpactPage() {
   const { data: exportsData, error: exportsError }   = useDataFetch<OilRow[]>(fetchOilExports, []);
   const [dataset, setDataset] = useState<Dataset>("imports");
 
-  const scrolledRef = useRef(false);
-  useEffect(() => {
-    if (scrolledRef.current || !evData.length || !gdpMeta.length) return;
-    const hash = window.location.hash;
-    if (!hash) return;
-    scrolledRef.current = true;
-
-    const doScroll = () => {
-      const el = document.querySelector(hash);
-      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - 96, behavior: "instant" });
-    };
-
-    const isChartDrawn = () => {
-      if (hash === "#oil-import-forecasts") return !!document.getElementById("oil-import-forecasts");
+  useHashScroll(
+    (hash) => {
+      if (hash === "#oil-import-forecasts") return !!document.getElementById("oil-import-forecasts")?.querySelector("svg > g");
       return !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
-    };
-
-    if (isChartDrawn()) { doScroll(); return; }
-
-    const intervalId = setInterval(() => {
-      if (isChartDrawn()) {
-        clearInterval(intervalId);
-        clearTimeout(safeTid);
-        doScroll();
-      }
-    }, 50);
-    const safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
-
-    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
-  }, [evData, gdpMeta]);
+    },
+    evData.length > 0 && gdpMeta.length > 0 && (oilPrices.length > 0 || !!oilPricesError)
+  );
 
   const evReady  = evData.length > 0 && gdpMeta.length > 0;
   const anyEvError = evDataError || gdpMetaError;
@@ -154,10 +131,7 @@ export default function EvGdpImpactPage() {
         <FadeIn>
           <div id="ev-gdp-section" className="scroll-mt-24">
           {evReady ? (
-            <>
-              <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} isDark={isDark} />
-              {oilPricesError && <ErrorMessage message={oilPricesError} isDark={isDark} />}
-            </>
+            <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} oilPricesError={oilPricesError} isDark={isDark} />
           ) : anyEvError ? (
             <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
               {evDataError  && <ErrorMessage message={evDataError}  isDark={isDark} />}
@@ -171,7 +145,7 @@ export default function EvGdpImpactPage() {
 
         {/* Oil Explorer chart */}
         <FadeIn delay={100}>
-        <div id="oil-import-forecasts" className={`rounded-2xl p-6 flex flex-col gap-6 scroll-mt-24 border ${isDark ? "bg-black border-white/10" : "bg-white border-slate-200"}`}>
+        <div id="oil-import-forecasts" className={`rounded-2xl p-4 sm:p-6 flex flex-col gap-6 scroll-mt-24 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
 
           <div>
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>Oil Explorer</h2>
@@ -202,7 +176,7 @@ export default function EvGdpImpactPage() {
             <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>{activeMeta.description}</p>
           </div>
 
-          <div className={`rounded-2xl p-6 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-4 sm:p-6 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             {active.length > 0 ? (
               <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} isDark={isDark} />
             ) : activeError ? (

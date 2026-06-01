@@ -87,7 +87,7 @@ export default function AboutPage() {
                 </tbody>
               </table>
             </div>
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l from-slate-50 dark:from-black to-transparent sm:hidden rounded-r-3xl" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-y-0 right-6 w-12 bg-linear-to-l from-slate-50 dark:from-black to-transparent sm:hidden" aria-hidden="true" />
           </div>
         </section></FadeIn>
 
@@ -102,26 +102,18 @@ export default function AboutPage() {
               {[
                 {
                   title: "IEA Oil Information Database",
-                  desc: "Historical oil import/export volumes by country (1971–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
+                  desc: "Historical oil import volumes by country (1971–2023) with Log-ARIMA forecasts and 95% CI bands through 2030.",
                   rows: "600 rows",
                   source: "International Energy Agency (IEA)",
                   license: "IEA Terms of Use",
                   columns: "Country, Year, Type, Oil Imports (KBD), CI Low (KBD), CI High (KBD)",
                 },
                 {
-                  title: "IEA Global EV Outlook — Sales",
-                  desc: "EV sales by country and year, including actual figures (2010–2024) and projections through 2035.",
+                  title: "EV Sales & Forecast Data",
+                  desc: "BEV sales by country and year — historical figures (2010–2024) from the IEA Global EV Outlook plus DS3 logistic S-curve projections through 2035. Available as ev_sales.csv and ev_data.json; both files are identical in content.",
                   rows: "1,297 rows",
-                  source: "International Energy Agency (IEA) — Global EV Outlook 2025",
-                  license: "IEA Terms of Use",
-                  columns: "region_country, year, ev_sales, type",
-                },
-                {
-                  title: "EV Forecast Data",
-                  desc: "Logistic S-curve projections of BEV sales per country through 2035, fitted to IEA historical data using scipy.optimize.curve_fit.",
-                  rows: "1,297 records",
                   source: "IEA Global EV Outlook 2025 (historical) + DS3 logistic S-curve model (projections)",
-                  license: "Open",
+                  license: "IEA Terms of Use (historical data)",
                   columns: "region_country, year, ev_sales, type",
                 },
                 {
@@ -175,7 +167,7 @@ export default function AboutPage() {
 
             <h3 className={`text-lg font-medium mb-3 mt-8 ${isDark ? "text-white" : "text-slate-900"}`}>Dataset description</h3>
             <p className={`text-base leading-relaxed mb-6 ${isDark ? "text-white/60" : "text-slate-700"}`}>
-              All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data covers 50+ countries from 1971–2023, with ARIMA forecasts through 2030. EV sales data spans 56 regions from 2010–2024, with logistic S-curve projections through 2035.
+              All charts draw on publicly available International Energy Agency (IEA) datasets. Historical oil trade data spans 1971–2023, with ARIMA forecasts through 2030 — the imports model covers the top 10 importers by 2023 volume; exports and net trade cover 20 countries each. EV data spans 56 regions from 2010–2035: historical figures (2010–2024) from the IEA Global EV Outlook, extended through 2035 via DS3 logistic S-curve models fitted per country.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
@@ -189,7 +181,7 @@ export default function AboutPage() {
                     { label: "SOURCE", value: "IEA Oil Information" },
                     { label: "COVERAGE", value: "1971–2030 (annual)" },
                     { label: "UNIT", value: "Thousand barrels per day (kb/d)" },
-                    { label: "COUNTRIES", value: "50+ countries / regions" },
+                    { label: "COUNTRIES", value: "10 (imports), 20 (exports / net trade)" },
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-2">
@@ -210,7 +202,7 @@ export default function AboutPage() {
                 <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
                   {[
-                    { label: "SOURCE", value: "IEA Global EV Outlook 2025" },
+                    { label: "SOURCE", value: "IEA Global EV Outlook 2025 + DS3 S-curve (projections)" },
                     { label: "COVERAGE", value: "2010–2035 (annual)" },
                     { label: "UNIT", value: "Vehicles sold; market share (%)" },
                     { label: "COUNTRIES", value: "56 countries / regions" },
@@ -223,7 +215,7 @@ export default function AboutPage() {
                   ))}
                 </div>
                 <p className={`text-sm leading-relaxed ${isDark ? "text-white/60" : "text-black/60"}`}>
-                  Captures annual battery electric vehicle (BEV) sales figures alongside each market's overall new-vehicle sales, enabling calculation of EV market share and year-over-year growth rates.
+                  Captures annual BEV sales figures by country and region, enabling calculation of each market's EV growth trajectory and relative share across selected countries.
                 </p>
               </div>
             </div>
@@ -266,7 +258,7 @@ export default function AboutPage() {
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
                   textLight: "text-black/40", textDark: "text-white/50",
                   title: "Forecast (EV)",
-                  body: <>A logistic S-curve model is fitted per country using <span className="font-mono text-xs">scipy.optimize.curve_fit</span> on IEA historical BEV sales. The model projects adoption through 2035, constrained to 1.2–10× the historical peak. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Uzbekistan is skipped (fewer than 3 data points).</>,
+                  body: <>A logistic S-curve model is fitted per country using <span className="font-mono text-xs">scipy.optimize.curve_fit</span> on IEA historical BEV sales. The model projects adoption through 2035, constrained to 1.2–10× the historical peak. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Uzbekistan has fewer than 3 data points, so no S-curve forecast is generated for it; its historical rows are still included in the output.</>,
                 },
                 {
                   num: "05",

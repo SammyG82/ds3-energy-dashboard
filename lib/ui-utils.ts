@@ -1,7 +1,24 @@
 import { useState, useEffect, useRef, useMemo, type RefObject, type MutableRefObject } from "react";
 import type { CSSProperties } from "react";
+import * as d3 from "d3";
 import type { Selection } from "d3";
 import type { EvRow } from "@/lib/data";
+
+export const HEADER_HEIGHT_PX = 96;
+
+// Counts client-side pushState calls since module init. Resets to 0 on every hard
+// page reload (the module re-initialises). Stays > 0 through any client-side navigation.
+// useHashScroll reads this at component mount time to distinguish a hard load from a
+// Next.js Link navigation — the performance navigation API can't make this distinction
+// because it reflects the original hard-load type for the entire browser session.
+let _clientNavs = 0;
+if (typeof window !== "undefined") {
+  const _origPushState = history.pushState.bind(history);
+  history.pushState = function (...args: Parameters<typeof history.pushState>) {
+    _clientNavs++;
+    return _origPushState(...args);
+  };
+}
 
 export function tooltipStyle(
   x: number,
@@ -12,7 +29,6 @@ export function tooltipStyle(
   tipWidth = 220
 ): CSSProperties {
   return {
-    position: 'absolute' as const,
     left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - tipWidth)) : undefined,
     right: x >= containerWidth * 0.6 ? Math.min(Math.max(0, containerWidth - x + 14), Math.max(0, containerWidth - tipWidth)) : undefined,
     top: Math.max(4, Math.min(y - 10, containerHeight - clampN)),
@@ -160,4 +176,66 @@ export function useContainerSize(ref: RefObject<Element | null>): { width: numbe
     return () => { mounted = false; clearTimeout(tid); obs.disconnect(); };
   }, [ref]);
   return size;
+}
+
+// Scrolls to the URL hash once the chart is drawn after data loads.
+// `isChartDrawn` receives the hash string and returns true when the target
+// SVG content exists. `ready` should flip true when the minimum required
+// data has loaded.
+export function useHashScroll(
+  isChartDrawn: (hash: string) => boolean,
+  ready: boolean,
+  headerHeightPx = HEADER_HEIGHT_PX
+): void {
+  const scrolledRef = useRef(false);
+  const isChartDrawnRef = useRef(isChartDrawn);
+  isChartDrawnRef.current = isChartDrawn;
+  // Captured at mount time: any pushState before this component mounted means we
+  // arrived via a Next.js Link, not a hard page load. Hard reload resets _clientNavs
+  // to 0 (module re-initialises), so this is false only on genuine hard loads.
+  const arrivedViaClientNav = useRef(_clientNavs > 0);
+
+  useEffect(() => {
+    if (scrolledRef.current || !ready) return;
+    const hash = window.location.hash;
+    if (!arrivedViaClientNav.current) {
+      // Hard page load — on reload, return to top rather than jumping to the hash anchor.
+      const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+      if (navEntry?.type === "reload") {
+        scrolledRef.current = true;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+    }
+    if (!hash) return;
+    scrolledRef.current = true;
+
+    const doScroll = () => {
+      const el = document.querySelector(hash);
+      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
+    };
+
+    if (isChartDrawnRef.current(hash)) { doScroll(); return; }
+
+    let safeTid: ReturnType<typeof setTimeout> | undefined;
+    const intervalId = setInterval(() => {
+      if (isChartDrawnRef.current(hash)) {
+        clearInterval(intervalId);
+        clearTimeout(safeTid);
+        doScroll();
+      }
+    }, 50);
+    safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
+
+    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
+  }, [ready, headerHeightPx]);
+}
+
+// Applies theme colours to a chart SVG whenever `isDark` changes.
+// Covers the standard class set: .grid-h, .tick-dot, .chart-axis, .chart-crosshair.
+export function useChartTheme(svgRef: RefObject<SVGSVGElement | null>, isDark: boolean): void {
+  useEffect(() => {
+    if (!svgRef.current) return;
+    applyThemeToChart(d3.select(svgRef.current), isDark);
+  }, [svgRef, isDark]);
 }

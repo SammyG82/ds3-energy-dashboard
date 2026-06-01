@@ -4,10 +4,11 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, applyThemeToChart, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
+import PreviewTooltip from "@/components/ui/PreviewTooltip";
 
 interface Props {
   data: EvRow[];
@@ -101,7 +102,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length || !isFinite(forecastBoundary)) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -217,10 +218,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       });
   }, [regionData, data, preview, colorMap, forecastBoundary, containerWidth]);
 
-  useEffect(() => {
-    if (!svgRef.current) return;
-    applyThemeToChart(d3.select(svgRef.current), isDark);
-  }, [isDark]);
+  useChartTheme(svgRef, isDark);
 
   return (
     <div className="flex flex-col gap-4">
@@ -253,22 +251,18 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
         {preview && previewTooltip && previewTooltipPos && (
-          <div
-            className={`absolute rounded-xl px-3 py-2.5 flex flex-col gap-1.5 pointer-events-none shadow-sm border ${isDark ? "bg-slate-800 border-white/10" : "bg-white border-slate-200"}`}
+          <PreviewTooltip
+            year={previewTooltip.year}
+            isForecast={previewTooltip.year >= forecastBoundary}
+            entries={previewTooltip.entries.map(({ region, value, color }) => ({
+              key: region,
+              label: dn(region),
+              value: fmtEvSales(value),
+              color,
+            }))}
+            isDark={isDark}
             style={tooltipStyle(previewTooltipPos.x, previewTooltipPos.y, containerWidth, containerHeight, 150, 240)}
-          >
-            <div className={`flex items-center gap-2 border-b pb-1.5 mb-0.5 ${isDark ? "border-white/10" : "border-slate-100"}`}>
-              <p className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{previewTooltip.year}</p>
-              <ForecastBadge isForecast={previewTooltip.year >= forecastBoundary} isDark={isDark} />
-            </div>
-            {previewTooltip.entries.map(({ region, value, color }) => (
-              <div key={region} className="flex items-center gap-2">
-                <span aria-hidden="true" className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                <span className={`text-xs flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
-                <span className={`text-xs font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{fmtEvSales(value)}</span>
-              </div>
-            ))}
-          </div>
+          />
         )}
       </div>
 

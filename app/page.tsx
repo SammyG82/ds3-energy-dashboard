@@ -10,9 +10,9 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 
-const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder /> });
-const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
-const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder /> });
+const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
+const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
+const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
 
 const stats = [
   { value: "~18%", label: "Global EV new-car share", accent: "text-blue-600" },
@@ -67,7 +67,7 @@ export default function LandingPage() {
         <div className="absolute inset-0 bg-linear-to-b from-black/20 from-30% via-black/60 via-70% to-black transition-opacity duration-300" style={{ opacity: isDark ? 1 : 0 }} />
         {/* Hero copy */}
         <div className="relative h-full flex flex-col items-start justify-center px-6 sm:px-12 md:px-24 py-16 sm:py-32 min-h-screen text-white">
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-light tracking-tight mb-4 max-w-4xl drop-shadow-lg">
             Does EV adoption reduce oil dependency?
           </h1>
           <p className="text-xl md:text-2xl font-light max-w-2xl drop-shadow-md text-white/90">
@@ -94,7 +94,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
               {stats.map(({ value, label, accent }) => (
                 <div key={label} className={`rounded-xl p-4 border ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
-                  <p className={`text-2xl font-bold ${accent}`}>{value}</p>
+                  <p className={`text-xl sm:text-2xl font-bold ${accent}`}>{value}</p>
                   <p className={`text-xs mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>{label}</p>
                 </div>
               ))}
