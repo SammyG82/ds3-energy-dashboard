@@ -113,7 +113,8 @@ export default function EvGdpImpactPage() {
   const activeError = dataset === "imports" ? importsError : dataset === "net_trade" ? netTradeError : exportsError;
 
   const sharedStatYear = useMemo(() => {
-    const boundary = imports.find((d) => d.Type === "Forecast")?.Year;
+    const fYears = imports.filter((d) => d.Type === "Forecast").map((d) => d.Year);
+    const boundary = fYears.length ? Math.min(...fYears) : undefined;
     return boundary !== undefined ? boundary - 1 : 2023;
   }, [imports]);
 

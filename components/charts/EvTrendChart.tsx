@@ -21,10 +21,12 @@ interface Pinned {
   isForecast: boolean;
 }
 
+const FORECAST_TARGET_YEAR = 2030;
+
 export default function EvTrendChart({ data, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth } = useContainerSize(containerRef);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const isDarkRef = useThemeRef(isDark);
 
@@ -147,6 +149,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       })
       .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
+        // Intentional: pinned panel stays frozen at the last hovered year — do not call setPinned(null) here
       });
   }, [countryData, forecastBoundary, containerWidth]);
 
@@ -164,7 +167,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       ? (Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100
       : null;
     const cagr = cagrRaw !== null ? (Object.is(cagrRaw, -0) ? "0.0" : cagrRaw.toFixed(1)) : null;
-    const candidates2030 = countryData.filter((d) => d.year === 2030);
+    const candidates2030 = countryData.filter((d) => d.year === FORECAST_TARGET_YEAR);
     const forecast2030 = candidates2030.find((d) => d.type === "Forecast") ?? null;
     return { peak, latest, cagr, forecast2030 };
   }, [historicalRows, countryData]);
@@ -201,7 +204,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         <StatCard size="xl" label={`${latest?.year ?? "—"} Sales`} value={latest ? fmtEvSales(latest.ev_sales) : "—"} accent="teal" isDark={isDark} />
         <StatCard size="xl" label="Peak Year" value={peak ? String(peak.year) : "—"} accent="blue" isDark={isDark} />
         <StatCard size="xl" label="Growth Rate (CAGR)" value={cagr ? `${cagr}%` : "—"} accent="amber" isDark={isDark} />
-        <StatCard size="xl" label="2030 Forecast" value={forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"} accent="teal" isDark={isDark} />
+        <StatCard size="xl" label={`${FORECAST_TARGET_YEAR} Forecast`} value={forecast2030 ? fmtEvSales(forecast2030.ev_sales) : "—"} accent="teal" isDark={isDark} />
       </div>
 
       <ChartLegend isDark={isDark} forecastLabel="IEA STEPS Forecast" />

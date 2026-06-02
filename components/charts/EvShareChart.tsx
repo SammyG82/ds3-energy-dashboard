@@ -32,6 +32,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const [tooltipPos, setTooltipPos] = useState<{ x: number; y: number } | null>(null);
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const isDarkRef = useThemeRef(isDark);
+  const prevSvgParamsRef = useRef<{ containerWidth: number; preview: boolean; data: EvRow[] } | null>(null);
 
   const topN = preview ? 10 : 20;
 
@@ -84,6 +85,10 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !displayRows.length || containerWidth === 0) return;
+
+    const prev = prevSvgParamsRef.current;
+    const animate = !prev || prev.containerWidth !== containerWidth || prev.preview !== preview || prev.data !== data;
+    prevSvgParamsRef.current = { containerWidth, preview, data };
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -181,11 +186,12 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           setExcluded((prev) => new Set([...prev, d.region_country]));
         }
       })
-      .on("focus", function () { d3.select(this).style("outline", "2px solid #64748b").style("outline-offset", "2px"); })
+      .on("focus", function () { d3.select(this).style("outline", `2px solid ${isDarkRef.current ? "#94a3b8" : "#64748b"}`).style("outline-offset", "2px"); })
       .on("blur", function () { d3.select(this).style("outline", null).style("outline-offset", null); });
 
     barsSel
-      .transition().duration(600).ease(d3.easeCubicOut)
+      .attr("width", animate ? 0 : (d) => x(d.ev_sales))
+      .transition().duration(animate ? 600 : 0).ease(d3.easeCubicOut)
       .attr("width", (d) => x(d.ev_sales));
 
     g.selectAll(".bar-label")
@@ -193,15 +199,15 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .enter()
       .append("text")
       .attr("class", "bar-label")
-      .attr("x", 0)
+      .attr("x", animate ? 0 : (d) => x(d.ev_sales) + 5)
       .attr("y", (d) => (y(displayName.get(d.region_country) ?? dn(d.region_country)) ?? 0) + y.bandwidth() / 2)
       .attr("dy", "0.35em")
       .attr("font-size", axisFontSize)
       .attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b")
-      .attr("opacity", 0)
+      .attr("opacity", animate ? 0 : 1)
       .attr("pointer-events", "none")
       .text((d) => fmtEvSales(d.ev_sales))
-      .transition().duration(600).ease(d3.easeCubicOut)
+      .transition().duration(animate ? 600 : 0).ease(d3.easeCubicOut)
       .attr("x", (d) => x(d.ev_sales) + 5)
       .attr("opacity", 1);
 
@@ -237,7 +243,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           }
         }
       })
-      .on("focus", function () { d3.select(this).style("outline", "2px solid #64748b").style("outline-offset", "2px"); })
+      .on("focus", function () { d3.select(this).style("outline", `2px solid ${isDarkRef.current ? "#94a3b8" : "#64748b"}`).style("outline-offset", "2px"); })
       .on("blur", function () { d3.select(this).style("outline", null).style("outline-offset", null); })
       .each(function (countryDisplay) {
         if (countryDisplay !== dn("EU27")) return;
@@ -246,6 +252,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           .attr("dy", "-1px")
           .attr("dx", "1px")
           .attr("font-size", "14px")
+          .attr("aria-hidden", "true")
           .text("*");
       });
   }, [displayRows, preview, containerWidth, total]);
@@ -322,6 +329,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
             ].filter(Boolean).join(" · ")} — click a bar or name to hide, or
           </span>
           <button
+            type="button"
             onClick={() => setExcluded(new Set())}
             className={`text-xs font-medium px-2 py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
           >
@@ -335,6 +343,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           <div className={`flex flex-col items-center justify-center gap-3 py-16 rounded-xl border ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"}`}>
             <span className="text-sm">All countries hidden.</span>
             <button
+              type="button"
               onClick={() => setExcluded(new Set())}
               className={`text-xs font-medium px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >

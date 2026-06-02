@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
-import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, drawHorizontalGridLines, useEvForecastBoundary } from "@/lib/ui-utils";
+import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, useEvForecastBoundary } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
@@ -36,14 +36,14 @@ type Benchmark = "brent" | "wti";
 export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPricesError, isDark = false }: Props) {
   const priceSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth } = useContainerSize(containerRef);
+  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const priceInitialisedRef = useRef(false);
   const isDarkRef = useThemeRef(isDark);
 
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const forecastBoundary = useEvForecastBoundary(evData);
   const years = useMemo(() => {
-    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : 2024;
+    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : (d3.min(evData, (d) => d.year) ?? Infinity);
     return Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= lb).sort();
   }, [evData, forecastBoundary]);
 
@@ -163,16 +163,17 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
     for (const { nomKey, realKey, label, color } of series) {
       const active = label === benchmark;
-      const opacity = active ? 1 : 0.3;
 
       g.append("path")
         .datum(chartData)
+        .attr("class", `oil-area-${label}`)
         .attr("fill", color)
         .attr("opacity", active ? 0.12 : 0.05)
         .attr("d", makeArea(nomKey, realKey));
 
       g.append("path")
         .datum(chartData)
+        .attr("class", `oil-real-${label}`)
         .attr("fill", "none")
         .attr("stroke", color)
         .attr("stroke-width", active ? 1.5 : 1)
@@ -182,10 +183,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
       g.append("path")
         .datum(chartData)
+        .attr("class", `oil-nom-${label}`)
         .attr("fill", "none")
         .attr("stroke", color)
         .attr("stroke-width", active ? 2 : 1.5)
-        .attr("opacity", opacity)
+        .attr("opacity", active ? 1 : 0.3)
         .attr("d", makeLine(nomKey));
     }
 
@@ -193,11 +195,16 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
     const tickByYear = new Map(chartData.map((d) => [d.year, d]));
     for (const { nomKey, label, color } of series) {
       const active = label === benchmark;
-      const opacity = active ? 1 : 0.3;
       tickYears.forEach((yr) => {
         const row = tickByYear.get(yr);
         if (!row || row[nomKey] === null) return;
-        drawTickDot(g, x(yr), y(row[nomKey] as number), color, isDarkRef, opacity);
+        g.append("circle")
+          .attr("class", `tick-dot oil-tick-${label}`)
+          .attr("cx", x(yr)).attr("cy", y(row[nomKey] as number)).attr("r", 3)
+          .attr("fill", isDarkRef.current ? "#000" : "#fff")
+          .attr("stroke", color).attr("stroke-width", 2)
+          .attr("opacity", active ? 1 : 0.3)
+          .style("pointer-events", "none");
       });
     }
 
@@ -224,6 +231,19 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
         crosshair.style("visibility", "hidden");
       });
   }, [oilPrices, benchmark, containerWidth]);
+
+  // Benchmark toggle: only opacity/stroke-weight change — no redraw needed
+  useEffect(() => {
+    if (!priceSvg.current) return;
+    const svg = d3.select(priceSvg.current);
+    for (const label of ["brent", "wti"] as const) {
+      const active = label === benchmark;
+      svg.selectAll(`.oil-nom-${label}`).attr("opacity", active ? 1 : 0.3).attr("stroke-width", active ? 2 : 1.5);
+      svg.selectAll(`.oil-real-${label}`).attr("opacity", active ? 0.7 : 0.2).attr("stroke-width", active ? 1.5 : 1);
+      svg.selectAll(`.oil-area-${label}`).attr("opacity", active ? 0.12 : 0.05);
+      svg.selectAll(`.oil-tick-${label}`).attr("opacity", active ? 1 : 0.3);
+    }
+  }, [benchmark]);
 
   useChartTheme(priceSvg, isDark);
 
@@ -268,11 +288,11 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
             <span className="text-sm font-mono font-bold text-teal-500">{year}</span>
           </div>
           <input id="analysis-year" type="range"
-            min={years.length ? years[0] : 2024} max={years.length ? years[years.length - 1] : 2030}
+            min={years[0] ?? year} max={years[years.length - 1] ?? year}
             step="1" value={year} aria-label="Analysis Year"
             onChange={(e) => setYear(parseInt(e.target.value))}
             className="w-full focus:outline-none focus:ring-2 focus:ring-slate-500" />
-          <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Select {years[0] ?? 2024} – {years[years.length - 1] ?? 2030}</p>
+          {years.length > 0 && <p className={`text-xs mt-1 ${isDark ? "text-white/30" : "text-slate-400"}`}>Select {years[0]} – {years[years.length - 1]}</p>}
         </div>
 
         <div className="flex flex-col gap-2">

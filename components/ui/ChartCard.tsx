@@ -50,7 +50,7 @@ export default function ChartCard({
               )}
             </div>
             <Link href={linkHref} className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
-              {linkLabel} →
+              {linkLabel} <span aria-hidden="true">→</span>
             </Link>
           </div>
         ) : (

@@ -23,13 +23,6 @@ interface PinnedState {
   entries: { region: string; value: number; color: string }[];
 }
 
-const REGION_COLORS = [
-  "#2563eb", "#0891b2", "#7c3aed", "#e85d04",
-  "#059669", "#db2777", "#ca8a04", "#dc2626",
-  "#0284c7", "#9333ea", "#16a34a", "#ea580c",
-  "#0d9488", "#be185d", "#d97706", "#b91c1c",
-  "#1d4ed8", "#0e7490", "#6d28d9", "#065f46",
-];
 
 export default function EvForecastChart({ data, preview = false, isDark = false, onYearChange, onSelectionChange }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -49,14 +42,9 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     [data]
   );
 
-  const colorScale = useMemo(
-    () => d3.scaleOrdinal<string>().domain(allRegions).range(REGION_COLORS),
-    [allRegions]
-  );
-
   const colorMap = useMemo(
-    () => Object.fromEntries(allRegions.map((r) => [r, COUNTRY_COLORS[r] ?? colorScale(r)])),
-    [allRegions, colorScale]
+    () => Object.fromEntries(allRegions.map((r) => [r, COUNTRY_COLORS[r] ?? "#94a3b8"])),
+    [allRegions]
   );
 
   const defaultRegions = useMemo(() => {
@@ -95,6 +83,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   );
 
   useEffect(() => {
+    if (!defaultRegions.length) return;
     setSelected(defaultRegions);
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
@@ -194,7 +183,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         if (!entries.length) {
           crosshair.style("visibility", "hidden");
           if (preview) { setPreviewTooltip(null); setPreviewTooltipPos(null); }
-          else { setPinned(null); onYearChangeRef.current?.(null); }
+          // Non-preview: keep pinned frozen at last valid year — do not reset
           return;
         }
 

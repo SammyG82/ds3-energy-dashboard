@@ -69,11 +69,11 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     setPreviewTooltipPos(null);
   }, [data, selectedSet, containerWidth]);
 
-  const { latestHistYear, statDisplayYear } = useMemo(() => {
+  const { statDisplayYear } = useMemo(() => {
     const histYear = forecastBoundary !== undefined
       ? forecastBoundary - 1
       : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
-    return { latestHistYear: histYear, statDisplayYear: statYear ?? histYear };
+    return { statDisplayYear: statYear ?? histYear };
   }, [data, forecastBoundary, statYear]);
 
   const { latestTotal, leader } = useMemo(() => {
@@ -86,7 +86,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return `${datasetLabel}: no countries selected.`;
     const regionNames = selected.map(dn).join(", ");
-    const maxDataYear = Math.max(...data.map((d) => d.Year));
+    const maxDataYear = data.reduce((m, d) => d.Year > m ? d.Year : m, 0);
     if (!leader) return `${datasetLabel} for ${regionNames}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
     return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
   }, [datasetLabel, selected, leader, statDisplayYear, data]);
@@ -95,8 +95,8 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const historical = data.filter((d) => d.Type === "Historical" && selectedSet.has(d.Country) && d.Year <= statDisplayYear);
     const importerRows = historical.filter((d) => d.value < 0);
     const exporterRows = historical.filter((d) => d.value > 0);
-    const maxImporterYear = importerRows.length > 0 ? Math.max(...importerRows.map((d) => d.Year)) : statDisplayYear;
-    const maxExporterYear = exporterRows.length > 0 ? Math.max(...exporterRows.map((d) => d.Year)) : statDisplayYear;
+    const maxImporterYear = importerRows.length > 0 ? importerRows.reduce((m, d) => d.Year > m ? d.Year : m, 0) : statDisplayYear;
+    const maxExporterYear = exporterRows.length > 0 ? exporterRows.reduce((m, d) => d.Year > m ? d.Year : m, 0) : statDisplayYear;
     const topImporter = importerRows.filter((d) => d.Year === maxImporterYear).sort((a, b) => a.value - b.value)[0] ?? null;
     const topExporter = exporterRows.filter((d) => d.Year === maxExporterYear).sort((a, b) => b.value - a.value)[0] ?? null;
     const baseYear = Math.max(maxImporterYear, maxExporterYear);
