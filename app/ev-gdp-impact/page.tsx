@@ -13,8 +13,8 @@ import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 import { useDataFetch, useHashScroll } from "@/lib/ui-utils";
 
-const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: () => <LoadingPlaceholder /> });
-const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: () => <LoadingPlaceholder /> });
+const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
+const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
 
 type Dataset = "imports" | "net_trade" | "exports";
 
@@ -176,7 +176,7 @@ export default function EvGdpImpactPage() {
             <p className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>{activeMeta.description}</p>
           </div>
 
-          <div className={`rounded-2xl p-4 sm:p-6 border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+          <div className={`rounded-2xl p-4 sm:p-6 border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             {active.length > 0 ? (
               <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} isDark={isDark} />
             ) : activeError ? (

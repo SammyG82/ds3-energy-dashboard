@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
 import { fetchEvSales, fetchEvData, fetchOilForecast, BASE } from "@/lib/data";
 import { useTheme } from "@/lib/theme-context";
 import { useDataFetch } from "@/lib/ui-utils";
@@ -9,6 +8,7 @@ import type { OilRow, EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
+import ChartCard from "@/components/ui/ChartCard";
 
 const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: () => <LoadingPlaceholder text="Loading chart…" /> });
@@ -107,77 +107,59 @@ export default function LandingPage() {
       <section>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-12 flex flex-col gap-6 sm:gap-10">
 
-        <FadeIn>
-          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-125 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
-              <div>
-                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  EV Sales Rankings{" "}
-                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 10 Countries)</span>
-                </h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Drag to see how country rankings shift from 2010 to 2035</p>
-              </div>
-              <Link href="/ev-forecast/#ev-sales-by-country" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
-                Full Explorer →
-              </Link>
-            </div>
-            {evSales.length > 0 ? (
-              <EvShareChart data={evSales} preview isDark={isDark} />
-            ) : evSalesError ? (
-              <ErrorMessage message={evSalesError} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-          </div>
-        </FadeIn>
+        <ChartCard
+          title="EV Sales Rankings"
+          titleSuffix="(Top 10 Countries)"
+          subtitle="Drag to see how country rankings shift from 2010 to 2035"
+          linkHref="/ev-forecast/#ev-sales-by-country"
+          linkLabel="Full Explorer"
+          minHeightClass="min-h-64 sm:min-h-125"
+          isDark={isDark}
+        >
+          {evSales.length > 0 ? (
+            <EvShareChart data={evSales} preview isDark={isDark} />
+          ) : evSalesError ? (
+            <ErrorMessage message={evSalesError} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+        </ChartCard>
 
-        <FadeIn>
-          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
-              <div>
-                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  EV Sales Projections{" "}
-                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Markets)</span>
-                </h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
-              </div>
-              <Link href="/ev-forecast/#ev-sales-projections" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
-                Full Forecast →
-              </Link>
-            </div>
-            {evData.length > 0 ? (
-              <EvForecastChart data={evData} preview isDark={isDark} />
-            ) : evDataError ? (
-              <ErrorMessage message={evDataError} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-          </div>
-        </FadeIn>
+        <ChartCard
+          title="EV Sales Projections"
+          titleSuffix="(Top 5 Markets)"
+          subtitle="Compare projected EV growth paths across markets — hover to see values for any year"
+          linkHref="/ev-forecast/#ev-sales-projections"
+          linkLabel="Full Forecast"
+          minHeightClass="min-h-64 sm:min-h-100"
+          isDark={isDark}
+        >
+          {evData.length > 0 ? (
+            <EvForecastChart data={evData} preview isDark={isDark} />
+          ) : evDataError ? (
+            <ErrorMessage message={evDataError} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+        </ChartCard>
 
-        <FadeIn>
-          <div className={`rounded-2xl p-4 sm:p-6 border min-h-64 sm:min-h-100 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
-              <div>
-                <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
-                  Oil Explorer{" "}
-                  <span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>(Top 5 Importers)</span>
-                </h2>
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030</p>
-              </div>
-              <Link href="/ev-gdp-impact/#oil-import-forecasts" className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
-                Full Explorer →
-              </Link>
-            </div>
-            {oilData.length > 0 ? (
-              <OilForecastChart data={oilData} preview isDark={isDark} />
-            ) : oilDataError ? (
-              <ErrorMessage message={oilDataError} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-          </div>
-        </FadeIn>
+        <ChartCard
+          title="Oil Explorer"
+          titleSuffix="(Top 5 Importers)"
+          subtitle="Recorded oil trade volumes through 2023, with modeled forecasts and uncertainty bands through 2030"
+          linkHref="/ev-gdp-impact/#oil-import-forecasts"
+          linkLabel="Full Explorer"
+          minHeightClass="min-h-64 sm:min-h-100"
+          isDark={isDark}
+        >
+          {oilData.length > 0 ? (
+            <OilForecastChart data={oilData} preview isDark={isDark} />
+          ) : oilDataError ? (
+            <ErrorMessage message={oilDataError} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+        </ChartCard>
         </div>
       </section>
 

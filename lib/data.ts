@@ -129,74 +129,51 @@ export async function fetchEvData(): Promise<EvRow[]> {
     .filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
 }
 
-export async function fetchOilForecast(): Promise<OilRow[]> {
-  const raw = await d3.csv(`${BASE}/data/oil_forecast.csv`);
-  return raw
-    .flatMap((d) => {
-      const Type = assertOilType(d.Type);
-      if (!Type) return [];
-      const rawVal = d["Oil Imports (KBD)"];
-      if (rawVal === undefined || rawVal === "") return [];
-      const value = +rawVal;
-      if (!Number.isFinite(value)) return [];
-      return [{
-        Country: normalizeOilCountry(d.Country),
-        Year: +(d.Year ?? 0),
-        Type,
-        value,
-        ciLow: parseCI(d["CI Low (KBD)"]),
-        ciHigh: parseCI(d["CI High (KBD)"]),
-      }];
-    })
-    .filter((row) => row.Year > 1900 && row.Country !== "");
+// IEA missing-data entries arrive as 0.0 (not NaN) for net trade and exports — set
+// filterZeroHistorical=true for those datasets to avoid misleading chart drops.
+function createOilFetcher(
+  filename: string,
+  valKey: string,
+  ciLowKey: string,
+  ciHighKey: string,
+  filterZeroHistorical = false
+): () => Promise<OilRow[]> {
+  return async () => {
+    const raw = await d3.csv(`${BASE}/data/${filename}`);
+    return raw
+      .flatMap((d) => {
+        const Type = assertOilType(d.Type);
+        if (!Type) return [];
+        const rawVal = d[valKey];
+        if (rawVal === undefined || rawVal === "") return [];
+        const value = +rawVal;
+        if (!Number.isFinite(value)) return [];
+        return [{
+          Country: normalizeOilCountry(d.Country),
+          Year: +(d.Year ?? 0),
+          Type,
+          value,
+          ciLow: parseCI(d[ciLowKey]),
+          ciHigh: parseCI(d[ciHighKey]),
+        }];
+      })
+      .filter((row) =>
+        row.Year > 1900 &&
+        row.Country !== "" &&
+        !(filterZeroHistorical && row.value === 0 && row.Type === "Historical")
+      );
+  };
 }
 
-
-export async function fetchNetTrade(): Promise<OilRow[]> {
-  const raw = await d3.csv(`${BASE}/data/net_trade_forecast.csv`);
-  return raw
-    .flatMap((d) => {
-      const Type = assertOilType(d.Type);
-      if (!Type) return [];
-      const rawVal = d["Net_Trade"];
-      if (rawVal === undefined || rawVal === "") return [];
-      const value = +rawVal;
-      if (!Number.isFinite(value)) return [];
-      return [{
-        Country: normalizeOilCountry(d.Country),
-        Year: +(d.Year ?? 0),
-        Type,
-        value,
-        ciLow: parseCI(d["Net_CI_Low"]),
-        ciHigh: parseCI(d["Net_CI_High"]),
-      }];
-    })
-    // IEA missing-2024 entries arrive as 0.0, not NaN — filter to avoid misleading chart drops
-    .filter((row) => row.Country !== "" && row.Year > 1900 && !(row.value === 0 && row.Type === "Historical"));
-}
-
-export async function fetchOilExports(): Promise<OilRow[]> {
-  const raw = await d3.csv(`${BASE}/data/exports.csv`);
-  return raw
-    .flatMap((d) => {
-      const Type = assertOilType(d.Type);
-      if (!Type) return [];
-      const rawVal = d["Value"];
-      if (rawVal === undefined || rawVal === "") return [];
-      const value = +rawVal;
-      if (!Number.isFinite(value)) return [];
-      return [{
-        Country: normalizeOilCountry(d.Country),
-        Year: +(d.Year ?? 0),
-        Type,
-        value,
-        ciLow: parseCI(d["Lower_CI"]),
-        ciHigh: parseCI(d["Upper_CI"]),
-      }];
-    })
-    // Same missing-data-as-zero problem as net trade — exports.csv comes from the same notebook
-    .filter((row) => row.Year > 1900 && row.Country !== "" && !(row.value === 0 && row.Type === "Historical"));
-}
+export const fetchOilForecast = createOilFetcher(
+  "oil_forecast.csv", "Oil Imports (KBD)", "CI Low (KBD)", "CI High (KBD)"
+);
+export const fetchNetTrade = createOilFetcher(
+  "net_trade_forecast.csv", "Net_Trade", "Net_CI_Low", "Net_CI_High", true
+);
+export const fetchOilExports = createOilFetcher(
+  "exports.csv", "Value", "Lower_CI", "Upper_CI", true
+);
 
 export async function fetchGdpMeta(): Promise<GdpMeta[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/gdp_country_meta.json`);

@@ -43,7 +43,8 @@ export default function Header() {
   useEffect(() => {
     if (!menuOpen) return;
     const navEl = document.getElementById("mobile-nav");
-    const focusable = navEl ? Array.from(navEl.querySelectorAll<HTMLElement>("a[href]")) : [];
+    const navLinks = navEl ? Array.from(navEl.querySelectorAll<HTMLElement>("a[href]")) : [];
+    const focusable = hamburgerRef.current ? [...navLinks, hamburgerRef.current] : navLinks;
     focusable[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {

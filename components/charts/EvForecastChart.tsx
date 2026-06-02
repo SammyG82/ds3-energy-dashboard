@@ -102,7 +102,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !selected.length) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !regionData.length) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -212,8 +212,6 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         if (preview) {
           setPreviewTooltip(null);
           setPreviewTooltipPos(null);
-        } else {
-          onYearChangeRef.current?.(null);
         }
       });
   }, [regionData, data, preview, colorMap, forecastBoundary, containerWidth]);

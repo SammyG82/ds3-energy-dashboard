@@ -10,7 +10,7 @@ export const OIL_IMPORT_PRESETS: PresetItem[] = [
   {
     label: "Asia Pacific",
     description: "Major oil importers in the Asia-Pacific region",
-    detail: "China, India, Japan, South Korea, and Singapore account for the majority of Asia-Pacific oil import demand. This region is where EV adoption growth is most consequential for global oil markets.",
+    detail: "China, India, Japan, and South Korea are the four major net oil importers in the Asia-Pacific region. Singapore is also included as a regional hub, though its import volumes reflect refinery throughput and re-exports rather than domestic consumption — its figures are not directly comparable to the others.",
     regions: ["China", "India", "Japan", "Korea", "Singapore"],
   },
   {

@@ -12,12 +12,13 @@ export const HEADER_HEIGHT_PX = 96;
 // Next.js Link navigation — the performance navigation API can't make this distinction
 // because it reflects the original hard-load type for the entire browser session.
 let _clientNavs = 0;
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && !(history.pushState as typeof history.pushState & { __ds3Patched?: boolean }).__ds3Patched) {
   const _origPushState = history.pushState.bind(history);
-  history.pushState = function (...args: Parameters<typeof history.pushState>) {
-    _clientNavs++;
-    return _origPushState(...args);
-  };
+  const _patched = Object.assign(
+    function (...args: Parameters<typeof history.pushState>) { _clientNavs++; return _origPushState(...args); },
+    { __ds3Patched: true as const }
+  );
+  history.pushState = _patched;
 }
 
 export function tooltipStyle(

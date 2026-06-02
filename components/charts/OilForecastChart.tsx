@@ -79,7 +79,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const { latestTotal, leader } = useMemo(() => {
     const latest = data.filter((d) => d.Year === statDisplayYear && selectedSet.has(d.Country));
     const total = latest.reduce((s, d) => s + (Number.isFinite(d.value) ? d.value : 0), 0);
-    const top = [...latest].sort((a, b) => b.value - a.value)[0];
+    const top = latest.length > 0 ? latest.reduce((a, b) => b.value > a.value ? b : a) : undefined;
     return { latestTotal: total, leader: top };
   }, [data, selectedSet, statDisplayYear]);
 

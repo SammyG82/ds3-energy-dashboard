@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import StatCard from "@/components/ui/StatCard";
-import FadeIn from "@/components/ui/FadeIn";
+import ChartCard from "@/components/ui/ChartCard";
 import { fetchEvData, fetchEvSales, fmtEvSales, dn, AGGREGATES, TOP_5_MARKETS } from "@/lib/data";
 import { useTheme } from "@/lib/theme-context";
 import type { EvRow } from "@/lib/data";
@@ -38,8 +38,9 @@ export default function EvForecastPage() {
 
   const effectiveYear = useMemo(() => {
     if (hoveredYear !== null) return hoveredYear;
-    return worldRows.filter((d) => d.type === "Actual").reduce((max, d) => Math.max(max, d.year), 0) || 2024;
-  }, [hoveredYear, worldRows]);
+    const maxActual = worldRows.filter((d) => d.type === "Actual").reduce((max, d) => Math.max(max, d.year), 0);
+    return maxActual || (isFinite(forecastBoundary) ? forecastBoundary - 1 : 2024);
+  }, [hoveredYear, worldRows, forecastBoundary]);
 
   const isProjected = effectiveYear >= forecastBoundary;
 
@@ -62,84 +63,85 @@ export default function EvForecastPage() {
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-col gap-10">
 
-        <FadeIn>
-          <div id="ev-sales-by-country" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="mb-6">
-              <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Rankings</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Drag to see how rankings shift from 2010 to 2035. EU shown as a regional aggregate.</p>
-            </div>
-            {salesData.length > 0 ? (
-              <EvShareChart data={salesData} isDark={isDark} />
-            ) : salesError ? (
-              <ErrorMessage message={salesError} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-          </div>
-        </FadeIn>
+        <ChartCard
+          id="ev-sales-by-country"
+          title="EV Sales Rankings"
+          subtitle="Drag to see how rankings shift from 2010 to 2035. EU shown as a regional aggregate."
+          isDark={isDark}
+        >
+          {salesData.length > 0 ? (
+            <EvShareChart data={salesData} isDark={isDark} />
+          ) : salesError ? (
+            <ErrorMessage message={salesError} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+        </ChartCard>
 
-        <FadeIn delay={100}>
-          <div id="ev-sales-projections" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Projections</h2>
-            <p className={`text-sm mb-6 ${isDark ? "text-white/50" : "text-slate-500"}`}>Compare projected EV growth paths across markets — hover to see values for any year</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-              <StatCard label={`${isProjected ? "Projected " : ""}Global EV Sales (${effectiveYear})`} value={globalSales !== null ? fmtEvSales(globalSales) : "—"} accent="teal" isDark={isDark} />
-              <StatCard label={`${isProjected ? "Projected " : ""}YoY Growth (${effectiveYear - 1}→${effectiveYear})`} value={yoyGrowth !== null ? `${yoyGrowth >= 0 ? "+" : ""}${yoyGrowth.toFixed(1)}%` : "—"} accent="amber" isDark={isDark} />
-              <StatCard label={`${isProjected ? "Projected " : ""}Market Leader (${effectiveYear})`} value={marketLeader !== null ? dn(marketLeader) : "—"} accent="blue" isDark={isDark} />
-            </div>
-            {data.length > 0 ? (
-              <EvForecastChart data={data} onYearChange={setHoveredYear} onSelectionChange={setSelectedRegions} isDark={isDark} />
-            ) : error ? (
-              <ErrorMessage message={error} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
-              <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
-              <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
-              <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                DS3 logistic S-curve model fitted per country to IEA historical BEV sales data, projected through 2035 and constrained to 1.2–10× the observed peak. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show S-curve projections. Uzbekistan is excluded (fewer than 3 data points to fit).
-              </p>
-            </div>
+        <ChartCard
+          id="ev-sales-projections"
+          title="EV Sales Projections"
+          subtitle="Compare projected EV growth paths across markets — hover to see values for any year"
+          delay={100}
+          isDark={isDark}
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+            <StatCard label={`${isProjected ? "Projected " : ""}Global EV Sales (${effectiveYear})`} value={globalSales !== null ? fmtEvSales(globalSales) : "—"} accent="teal" isDark={isDark} />
+            <StatCard label={`${isProjected ? "Projected " : ""}YoY Growth (${effectiveYear - 1}→${effectiveYear})`} value={yoyGrowth !== null ? `${yoyGrowth >= 0 ? "+" : ""}${yoyGrowth.toFixed(1)}%` : "—"} accent="amber" isDark={isDark} />
+            <StatCard label={`${isProjected ? "Projected " : ""}Market Leader (${effectiveYear})`} value={marketLeader !== null ? dn(marketLeader) : "—"} accent="blue" isDark={isDark} />
           </div>
-        </FadeIn>
+          {data.length > 0 ? (
+            <EvForecastChart data={data} onYearChange={setHoveredYear} onSelectionChange={setSelectedRegions} isDark={isDark} />
+          ) : error ? (
+            <ErrorMessage message={error} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+          <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
+            <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
+            <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
+            <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
+              DS3 logistic S-curve model fitted per country to IEA historical BEV sales data, projected through 2035 and constrained to 1.2–10× the observed peak. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show S-curve projections. Uzbekistan is excluded (fewer than 3 data points to fit).
+            </p>
+          </div>
+        </ChartCard>
 
-        <FadeIn delay={200}>
-          <div id="ev-sales-over-time" className={`border rounded-2xl p-4 sm:p-6 scroll-mt-24 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="mb-6">
-              <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales Over Time</h2>
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>Pick a country to see its EV sales history and projected growth through 2035</p>
-            </div>
-            {salesData.length > 0 ? (
-              <EvTrendChart data={salesData} isDark={isDark} />
-            ) : salesError ? (
-              <ErrorMessage message={salesError} isDark={isDark} />
-            ) : (
-              <LoadingPlaceholder text="Loading data…" />
-            )}
-            <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
-              <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Annual Growth Rate</h4>
-                  <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                    Compound annual growth rate (CAGR) from the first year with recorded sales to the most recent historical year. Formula:{" "}
-                    <span className={`font-mono text-xs px-1.5 py-0.5 rounded ${isDark ? "bg-white/10 text-white/70" : "bg-slate-200"}`}>
-                      ((latest ÷ first)^(1 ÷ years) − 1) × 100
-                    </span>
-                    . It smooths year-to-year swings, so a market that grew slowly then spiked will show a lower rate than the spike alone suggests.
-                  </p>
-                </div>
-                <div>
-                  <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Peak Year &amp; 2030 Forecast</h4>
-                  <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
-                    Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from DS3's logistic S-curve model, fitted to each country's IEA historical data and projected through 2035.
-                  </p>
-                </div>
+        <ChartCard
+          id="ev-sales-over-time"
+          title="EV Sales Over Time"
+          subtitle="Pick a country to see its EV sales history and projected growth through 2035"
+          delay={200}
+          isDark={isDark}
+        >
+          {salesData.length > 0 ? (
+            <EvTrendChart data={salesData} isDark={isDark} />
+          ) : salesError ? (
+            <ErrorMessage message={salesError} isDark={isDark} />
+          ) : (
+            <LoadingPlaceholder text="Loading data…" />
+          )}
+          <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
+            <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Annual Growth Rate</h4>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
+                  Compound annual growth rate (CAGR) from the first year with recorded sales to the most recent historical year. Formula:{" "}
+                  <span className={`font-mono text-xs px-1.5 py-0.5 rounded ${isDark ? "bg-white/10 text-white/70" : "bg-slate-200"}`}>
+                    ((latest ÷ first)^(1 ÷ years) − 1) × 100
+                  </span>
+                  . It smooths year-to-year swings, so a market that grew slowly then spiked will show a lower rate than the spike alone suggests.
+                </p>
+              </div>
+              <div>
+                <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Peak Year &amp; 2030 Forecast</h4>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
+                  Peak Year excludes projected years — it is based on actual recorded sales only. The 2030 Forecast comes from DS3's logistic S-curve model, fitted to each country's IEA historical data and projected through 2035.
+                </p>
               </div>
             </div>
           </div>
-        </FadeIn>
+        </ChartCard>
       </div>
     </div>
   );

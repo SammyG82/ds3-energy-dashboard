@@ -2,16 +2,15 @@
 
 import { useTheme } from "@/lib/theme-context";
 import FadeIn from "@/components/ui/FadeIn";
+import PageHeader from "@/components/ui/PageHeader";
 
 export default function AboutPage() {
   const { isDark } = useTheme();
 
   return (
     <div className={`min-h-screen pb-16 transition-colors duration-300 ${isDark ? "bg-black text-white" : "bg-white text-slate-900"}`}>
+      <PageHeader title="About" subtitle="Project background, data sources, and research methodology" isDark={isDark} />
       <div className="max-w-4xl mx-auto px-4 sm:px-8 md:px-12 py-16">
-        <FadeIn>
-          <h1 className={`text-4xl sm:text-5xl md:text-6xl font-light mb-16 ${isDark ? "text-white" : "text-slate-900"}`}>About</h1>
-        </FadeIn>
 
         {/* The Project */}
         <FadeIn><section className="mb-16">
@@ -87,7 +86,7 @@ export default function AboutPage() {
                 </tbody>
               </table>
             </div>
-            <div className="pointer-events-none absolute inset-y-0 right-6 w-12 bg-linear-to-l from-slate-50 dark:from-black to-transparent sm:hidden" aria-hidden="true" />
+            <div className="pointer-events-none absolute inset-y-0 right-6 w-12 bg-linear-to-l from-white dark:from-black to-transparent sm:hidden" aria-hidden="true" />
           </div>
         </section></FadeIn>
 
@@ -110,7 +109,7 @@ export default function AboutPage() {
                 },
                 {
                   title: "EV Sales & Forecast Data",
-                  desc: "BEV sales by country and year — historical figures (2010–2024) from the IEA Global EV Outlook plus DS3 logistic S-curve projections through 2035. Available as ev_sales.csv and ev_data.json; both files are identical in content.",
+                  desc: "BEV sales by country and year, 2010–2035. ev_sales.csv contains IEA STEPS projections (used by the Rankings and Trend charts). ev_data.json contains DS3 logistic S-curve projections fitted per country (used by the Projections chart). The files use different forecasting methods and are not interchangeable.",
                   rows: "1,297 rows",
                   source: "IEA Global EV Outlook 2025 (historical) + DS3 logistic S-curve model (projections)",
                   license: "IEA Terms of Use (historical data)",

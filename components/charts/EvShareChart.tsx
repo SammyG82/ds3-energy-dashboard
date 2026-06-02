@@ -180,7 +180,9 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           setTooltipPos(null);
           setExcluded((prev) => new Set([...prev, d.region_country]));
         }
-      });
+      })
+      .on("focus", function () { d3.select(this).style("outline", "2px solid #64748b").style("outline-offset", "2px"); })
+      .on("blur", function () { d3.select(this).style("outline", null).style("outline-offset", null); });
 
     barsSel
       .transition().duration(600).ease(d3.easeCubicOut)
@@ -235,6 +237,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           }
         }
       })
+      .on("focus", function () { d3.select(this).style("outline", "2px solid #64748b").style("outline-offset", "2px"); })
+      .on("blur", function () { d3.select(this).style("outline", null).style("outline-offset", null); })
       .each(function (countryDisplay) {
         if (countryDisplay !== dn("EU27")) return;
         d3.select(this)

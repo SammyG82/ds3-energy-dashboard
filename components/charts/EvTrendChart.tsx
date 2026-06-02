@@ -152,7 +152,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
 
   useChartTheme(svgRef, isDark);
 
-  const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year < forecastBoundary), [countryData, forecastBoundary]);
+  const historicalRows = useMemo(() => countryData.filter((d) => d.type === "Actual" && d.year <= forecastBoundary), [countryData, forecastBoundary]);
 
   const { peak, latest, cagr, forecast2030 } = useMemo(() => {
     const peak = historicalRows.length > 0
@@ -160,9 +160,10 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
       : null;
     const latest = historicalRows[historicalRows.length - 1] ?? null;
     const first = historicalRows.find((d) => d.ev_sales > 0) ?? null;
-    const cagr = first && latest && latest.year > first.year
-      ? ((Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100).toFixed(1)
+    const cagrRaw = first && latest && latest.year > first.year
+      ? (Math.pow(latest.ev_sales / first.ev_sales, 1 / (latest.year - first.year)) - 1) * 100
       : null;
+    const cagr = cagrRaw !== null ? (Object.is(cagrRaw, -0) ? "0.0" : cagrRaw.toFixed(1)) : null;
     const candidates2030 = countryData.filter((d) => d.year === 2030);
     const forecast2030 = candidates2030.find((d) => d.type === "Forecast") ?? null;
     return { peak, latest, cagr, forecast2030 };
