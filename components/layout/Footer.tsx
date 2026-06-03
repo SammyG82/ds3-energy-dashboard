@@ -18,13 +18,13 @@ export default function Footer() {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub repository (opens in new tab)"
-            className={`text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 rounded ${isDark ? "text-white/40 hover:text-white focus:ring-white/50" : "text-slate-400 hover:text-slate-700 focus:ring-slate-500"}`}
+            className={`text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 rounded ${isDark ? "text-white/40 hover:text-white focus:ring-white" : "text-slate-400 hover:text-slate-700 focus:ring-slate-500"}`}
           >
             GitHub
           </a>
           <Link
             href="/about/"
-            className={`text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 rounded ${isDark ? "text-white/40 hover:text-white focus:ring-white/50" : "text-slate-400 hover:text-slate-700 focus:ring-slate-500"}`}
+            className={`text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 rounded ${isDark ? "text-white/40 hover:text-white focus:ring-white" : "text-slate-400 hover:text-slate-700 focus:ring-slate-500"}`}
           >
             About
           </Link>

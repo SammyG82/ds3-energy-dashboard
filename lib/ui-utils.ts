@@ -89,7 +89,7 @@ export function drawForecastBoundary(
 
 // fn is stored in a ref so the effect body never sees a stale closure.
 // The effect intentionally runs only on mount — callers must pass stable (module-level) functions.
-export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; error: string | null } {
+export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; error: string | null; } {
   const [data, setData] = useState<T>(initial);
   const [error, setError] = useState<string | null>(null);
   const fnRef = useRef(fn);
@@ -169,10 +169,10 @@ export function useEvForecastBoundary(data: EvRow[]): number {
   }, [data]);
 }
 
-export function useOilForecastBoundary(data: OilRow[]): number | undefined {
+export function useOilForecastBoundary(data: OilRow[]): number {
   return useMemo(() => {
     const fcYears = data.filter((d) => d.Type === "Forecast").map((d) => d.Year);
-    return fcYears.length > 0 ? Math.min(...fcYears) : undefined;
+    return fcYears.length > 0 ? Math.min(...fcYears) : Infinity;
   }, [data]);
 }
 

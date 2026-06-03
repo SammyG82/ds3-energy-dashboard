@@ -87,7 +87,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     setSelected(defaultRegions);
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
-  useEffect(() => { setPinned(null); lastEmittedYearRef.current = null; }, [selected, containerWidth, data]);
+  useEffect(() => { setPinned(null); lastEmittedYearRef.current = null; }, [selected, containerWidth, data, preview]);
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {

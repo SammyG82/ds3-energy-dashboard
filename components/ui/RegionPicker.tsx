@@ -80,15 +80,14 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
   const activePreset = useMemo(
     () => presets.find((p) => {
-        const set = new Set(selected);
         const regions = (p.regions ?? options).filter((r) => options.includes(r));
         return (
           regions.length > 0 &&
           regions.length === selected.length &&
-          regions.every((r) => set.has(r))
+          regions.every((r) => selectedSet.has(r))
         );
       }),
-    [presets, options, selected]
+    [presets, options, selected, selectedSet]
   );
 
   const base = useMemo(() => {
@@ -101,12 +100,11 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
   const filtered = useMemo(() => {
     if (query.trim()) return base;
-    const set = new Set(selected);
     return [
-      ...base.filter((r) => set.has(r)),
-      ...base.filter((r) => !set.has(r)),
+      ...base.filter((r) => selectedSet.has(r)),
+      ...base.filter((r) => !selectedSet.has(r)),
     ];
-  }, [base, selected, query]);
+  }, [base, selected, query, selectedSet]);
 
   useEffect(() => {
     setQuery("");

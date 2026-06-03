@@ -12,15 +12,9 @@ export interface PageHeaderProps {
 }
 
 const badgeColors = {
-  teal:  "bg-teal-50 text-teal-700 border-teal-200",
-  amber: "bg-amber-50 text-amber-700 border-amber-200",
-  blue:  "bg-blue-50 text-blue-700 border-blue-200",
-};
-
-const badgeColorsDark = {
-  teal:  "bg-teal-500/20 text-teal-300 border-teal-400/40",
-  amber: "bg-amber-500/20 text-amber-300 border-amber-400/40",
-  blue:  "bg-blue-500/20 text-blue-300 border-blue-400/40",
+  teal:  { light: "bg-teal-50 text-teal-700 border-teal-200",   dark: "bg-teal-500/20 text-teal-300 border-teal-400/40" },
+  amber: { light: "bg-amber-50 text-amber-700 border-amber-200", dark: "bg-amber-500/20 text-amber-300 border-amber-400/40" },
+  blue:  { light: "bg-blue-50 text-blue-700 border-blue-200",   dark: "bg-blue-500/20 text-blue-300 border-blue-400/40" },
 };
 
 export default function PageHeader({ title, titleAccent, subtitle, badges, isDark = false }: PageHeaderProps) {
@@ -30,7 +24,7 @@ export default function PageHeader({ title, titleAccent, subtitle, badges, isDar
         <div>
           <h1 className={`text-3xl sm:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
             {title}{" "}
-            {titleAccent && <span className="text-teal-500">{titleAccent}</span>}
+            {titleAccent && <span className={isDark ? "text-teal-400" : "text-teal-600"}>{titleAccent}</span>}
           </h1>
           <p className={`mt-2 max-w-2xl text-sm leading-relaxed ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
         </div>
@@ -39,7 +33,7 @@ export default function PageHeader({ title, titleAccent, subtitle, badges, isDar
             {badges.map(({ label, color = "blue" }) => (
               <span
                 key={label}
-                className={`text-xs font-mono uppercase tracking-wide px-2.5 py-1 rounded border ${isDark ? badgeColorsDark[color] : badgeColors[color]}`}
+                className={`text-xs font-mono uppercase tracking-wide px-2.5 py-1 rounded border ${badgeColors[color][isDark ? "dark" : "light"]}`}
               >
                 {label}
               </span>

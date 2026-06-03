@@ -94,7 +94,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     if (!svgRef.current || !containerRef.current || !displayRows.length || containerWidth === 0) return;
 
     const prev = prevSvgParamsRef.current;
-    const animate = !prev || prev.containerWidth !== containerWidth || prev.preview !== preview || prev.data !== data;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const animate = !reducedMotion && (!prev || prev.containerWidth !== containerWidth || prev.preview !== preview || prev.data !== data);
     prevSvgParamsRef.current = { containerWidth, preview, data };
 
     const svg = d3.select(svgRef.current);
@@ -300,7 +301,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
         <span className="text-xs font-medium uppercase tracking-wider text-slate-400">Year</span>
-        <span className="ml-auto text-sm font-mono font-bold text-teal-500 w-10 text-right">{year}</span>
+        <span className={`ml-auto text-sm font-mono font-bold w-10 text-right ${isDark ? "text-teal-400" : "text-teal-600"}`}>{year}</span>
         <ForecastBadge isForecast={isProjected} isDark={isDark} />
       </div>
       <input
@@ -336,6 +337,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           </span>
           <button
             type="button"
+            aria-label="Reset all hidden countries"
             onClick={() => setExcluded(new Set())}
             className={`text-xs font-medium px-2 py-0.5 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
           >
@@ -350,6 +352,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
             <span className="text-sm">All countries hidden.</span>
             <button
               type="button"
+              aria-label="Reset all hidden countries"
               onClick={() => setExcluded(new Set())}
               className={`text-xs font-medium px-3 py-1 rounded focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-white/10 text-white/70 hover:bg-white/20" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
             >
@@ -369,14 +372,14 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
               <span className={`font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>{tooltip.country}</span>
               <div className="flex items-center gap-1.5">
                 {tooltip.isAggregate && (
-                  <span className="text-xs px-2 py-0.5 rounded font-medium bg-blue-500/15 text-blue-500">Aggregate</span>
+                  <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-blue-500/15 text-blue-300" : "bg-blue-100 text-blue-700"}`}>Aggregate</span>
                 )}
                 {!tooltip.isAggregate && (
                   <span className={`text-xs px-2 py-0.5 rounded font-medium ${isDark ? "bg-white/10 text-white/60" : "bg-slate-100 text-slate-500"}`}>#{tooltip.rank}</span>
                 )}
               </div>
             </div>
-            <p className="text-blue-500 font-bold text-base mt-0.5">
+            <p className={`font-bold text-base mt-0.5 ${isDark ? "text-blue-400" : "text-blue-600"}`}>
               {fmtEvSales(tooltip.sales)} <span className={`text-xs font-normal ${isDark ? "text-white/40" : "text-slate-400"}`}>vehicles</span>
             </p>
             {tooltip.isAggregate ? (

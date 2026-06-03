@@ -98,7 +98,7 @@ export default function EvForecastPage() {
             <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
           <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
-            <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
+            <h3 className={`text-xs uppercase tracking-widest mb-3 ${isDark ? "text-blue-400" : "text-blue-600"}`}>Behind the Numbers</h3>
             <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Forecast Model</h4>
             <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>
               DS3 logistic S-curve model fitted per country to IEA historical BEV sales data, projected through 2035 and constrained to 1.2–10× the observed peak. Historical rows are <em>Actual</em> type; projections are <em>Forecast</em> type. Solid lines show recorded sales; dashed lines show S-curve projections. Uzbekistan is excluded (fewer than 3 data points to fit).
@@ -121,7 +121,7 @@ export default function EvForecastPage() {
             <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
           <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
-            <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
+            <h3 className={`text-xs uppercase tracking-widest mb-4 ${isDark ? "text-blue-400" : "text-blue-600"}`}>Behind the Numbers</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Annual Growth Rate</h4>

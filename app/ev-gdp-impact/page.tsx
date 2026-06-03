@@ -193,7 +193,7 @@ export default function EvGdpImpactPage() {
           </div>
 
           <div className={`p-6 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
-            <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>
+            <h3 className={`text-xs uppercase tracking-widest mb-4 ${isDark ? "text-blue-400" : "text-blue-600"}`}>Behind the Numbers</h3>
             <div className="space-y-4">
               <div>
                 <h4 className={`text-sm font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Log-ARIMA forecast</h4>

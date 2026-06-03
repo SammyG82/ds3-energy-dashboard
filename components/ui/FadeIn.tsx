@@ -50,6 +50,7 @@ export default function FadeIn({ children, className = "", delay = 0 }: Props) {
     <div
       ref={ref}
       className={className}
+      inert={!visible}
       style={{
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? undefined : "none",

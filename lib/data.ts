@@ -208,7 +208,7 @@ export interface OilPriceRow {
   wti_real: number | null;
 }
 
-const isNullableNum = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v));
+const isNullableNum = (v: unknown): v is number | null => v === null || (typeof v === "number" && Number.isFinite(v));
 
 export async function fetchOilPrices(): Promise<OilPriceRow[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/oil_prices.json`);
@@ -217,7 +217,7 @@ export async function fetchOilPrices(): Promise<OilPriceRow[]> {
     if (item === null || typeof item !== "object") throw new Error(`Invalid oil price data at row ${idx}`);
     const r = item as Record<string, unknown>;
     if (
-      !Number.isFinite(r.year as number) ||
+      !Number.isFinite(Number(r.year)) ||
       !isNullableNum(r.brent_nominal) ||
       !isNullableNum(r.wti_nominal) ||
       !isNullableNum(r.brent_real) ||

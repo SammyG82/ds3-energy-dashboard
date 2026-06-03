@@ -83,7 +83,7 @@ export default function Header() {
           {/* Logo */}
           <Link
             href="/"
-            aria-label="DS3 Energy Dashboard — Home"
+            aria-label={pathname === "/" ? "DS3 Energy Dashboard — scroll to top" : "DS3 Energy Dashboard — Home"}
             onClick={(e) => {
               if (pathname === "/") {
                 e.preventDefault();
@@ -98,6 +98,8 @@ export default function Header() {
               src={`${BASE}/images/logo.webp`}
               alt=""
               aria-hidden="true"
+              width={40}
+              height={40}
               className="w-10 h-10 object-contain"
               style={isTransparent ? { mixBlendMode: "multiply" } : undefined}
             />

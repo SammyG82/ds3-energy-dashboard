@@ -67,7 +67,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   }, [data, selectedSet, containerWidth]);
 
   const { statDisplayYear } = useMemo(() => {
-    const histYear = forecastBoundary !== undefined
+    const histYear = isFinite(forecastBoundary)
       ? forecastBoundary - 1
       : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
     return { statDisplayYear: statYear ?? histYear };
@@ -105,7 +105,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const toggle = (c: string) => setSelected((prev) => toggleSelection(prev, c));
 
   const displayYear = pinned ? pinned.year : statDisplayYear;
-  const displayIsForecast = pinned?.isForecast ?? (forecastBoundary !== undefined && statDisplayYear >= forecastBoundary);
+  const displayIsForecast = pinned?.isForecast ?? (isFinite(forecastBoundary) && statDisplayYear >= forecastBoundary);
   const displayTotal = pinned ? pinned.entries.reduce((s, e) => s + e.value, 0) : latestTotal;
   const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null);
   const netPinnedLast = pinned?.entries.at(-1) ?? null;
@@ -126,7 +126,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const hasImporters = displayNetDeficit > 0 && displayNetDeficit >= displayNetSurplus;
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0 || forecastBoundary === undefined) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !isFinite(forecastBoundary)) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();

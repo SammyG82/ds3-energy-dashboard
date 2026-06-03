@@ -9,8 +9,8 @@ export default class ErrorBoundary extends Component<Props, State> {
     super(props);
     this.state = { error: null };
   }
-  static getDerivedStateFromError(error: Error): State {
-    return { error };
+  static getDerivedStateFromError(error: unknown): State {
+    return { error: error instanceof Error ? error : new Error(String(error)) };
   }
   componentDidCatch(error: Error, info: { componentStack: string }): void {
     if (process.env.NODE_ENV !== "production") console.error(error, info);
@@ -18,7 +18,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div role="alert" className="flex flex-col items-center justify-center min-h-32 text-red-500 dark:text-red-400 text-sm px-4 text-center gap-2">
+        <div role="alert" className="flex flex-col items-center justify-center min-h-32 text-red-500 text-sm px-4 text-center gap-2">
           <span>Something went wrong loading this section.</span>
           <button
             onClick={() => this.setState({ error: null })}

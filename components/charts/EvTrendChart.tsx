@@ -222,7 +222,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
               <span className={`text-xs font-mono font-bold ${isDark ? "text-white/50" : "text-slate-500"}`}>{pinned.year}</span>
               <ForecastBadge isForecast={pinned.isForecast} isDark={isDark} />
             </div>
-            <p className="text-xl font-bold text-teal-500 mt-1">
+            <p className={`text-xl font-bold mt-1 ${isDark ? "text-teal-400" : "text-teal-600"}`}>
               {fmtEvSales(pinned.sales)} <span className={`text-sm font-normal ${isDark ? "text-white/50" : "text-slate-500"}`}>electric vehicles sold</span>
             </p>
             {pinned.yoy !== null && (

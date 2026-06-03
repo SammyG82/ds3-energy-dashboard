@@ -54,7 +54,8 @@ export default function LandingPage() {
       <section className="relative overflow-hidden min-h-screen -mt-18">
         <img
           src={`${BASE}/images/hero-bg.webp`}
-          alt="Electric vehicle on scenic coastal road with wind turbine"
+          alt=""
+          aria-hidden="true"
           width={1920}
           height={1080}
           loading="eager"
@@ -80,9 +81,9 @@ export default function LandingPage() {
       <section className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-16 text-center">
           <FadeIn>
-            <h2 className={`text-4xl sm:text-5xl font-light tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
+            <h2 className={`text-4xl sm:text-5xl font-bold tracking-tight mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
               EV Adoption &amp;{" "}
-              <span className="text-teal-600">Oil Dependency</span>
+              <span className={isDark ? "text-teal-400" : "text-teal-600"}>Oil Dependency</span>
             </h2>
             <p className={`max-w-2xl mx-auto text-base leading-relaxed mb-10 ${isDark ? "text-white/70" : "text-slate-500"}`}>
               Does rising electric vehicle adoption measurably reduce oil dependency in oil-importing
@@ -94,8 +95,10 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
               {stats.map(({ value, label, accent }) => (
                 <div key={label} className={`rounded-xl p-4 border ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
-                  <p className={`text-xl sm:text-2xl font-bold ${accent}`}>{value}</p>
-                  <p className={`text-xs mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>{label}</p>
+                  <dl className="flex flex-col-reverse gap-1">
+                    <dt className={`text-xs ${isDark ? "text-white/60" : "text-slate-500"}`}>{label}</dt>
+                    <dd className={`text-xl sm:text-2xl font-bold ${accent}`}>{value}</dd>
+                  </dl>
                 </div>
               ))}
             </div>
