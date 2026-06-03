@@ -121,7 +121,7 @@ export default function LandingPage() {
           ) : evSalesError ? (
             <ErrorMessage message={evSalesError} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
         </ChartCard>
 
@@ -139,7 +139,7 @@ export default function LandingPage() {
           ) : evDataError ? (
             <ErrorMessage message={evDataError} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
         </ChartCard>
 
@@ -157,7 +157,7 @@ export default function LandingPage() {
           ) : oilDataError ? (
             <ErrorMessage message={oilDataError} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
         </ChartCard>
         </div>
@@ -174,7 +174,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {pillars.map(({ title, body }, i) => (
               <FadeIn key={title} delay={i * 80}>
-                <div className={`p-6 rounded-2xl border h-full ${isDark ? "bg-white/5 border-white/10" : "bg-white border-gray-200"}`}>
+                <div className={`p-6 rounded-2xl border h-full ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
                   <h3 className={`text-lg mb-3 font-medium ${isDark ? "text-white" : "text-black"}`}>{title}</h3>
                   <p className={`text-sm leading-relaxed ${isDark ? "text-white/70" : "text-black/70"}`}>{body}</p>
                 </div>

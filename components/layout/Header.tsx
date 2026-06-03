@@ -71,7 +71,7 @@ export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <div
-        className={`transition-all duration-300 ${
+        className={`motion-safe:transition-all motion-safe:duration-300 ${
           isTransparent
             ? ""
             : isDark
@@ -91,7 +91,7 @@ export default function Header() {
               }
             }}
             className={`flex items-center gap-3 whitespace-nowrap flex-1 md:flex-none focus:outline-none focus:ring-2 rounded ${
-              isTransparent ? "focus:ring-white/50" : "focus:ring-slate-500"
+              isTransparent ? "focus:ring-white/50" : isDark ? "focus:ring-white/50" : "focus:ring-slate-500"
             }`}
           >
             <img
@@ -123,7 +123,7 @@ export default function Header() {
                         : "border-transparent text-white/70 hover:text-white hover:bg-white/10 focus:ring-white/50"
                       : active
                       ? isDark
-                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-teal-400/50"
+                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white/70"
                         : "bg-teal-50 border-teal-400/50 text-teal-700 focus:ring-teal-500"
                       : isDark
                       ? "border-transparent text-white/60 hover:text-white hover:border-white/20 focus:ring-white/50"
@@ -190,10 +190,10 @@ export default function Header() {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`min-h-[44px] flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
+                  className={`min-h-11 flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
                     active
                       ? isDark
-                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-teal-400/50"
+                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white/70"
                         : "bg-teal-50 border-teal-400/50 text-teal-700 focus:ring-teal-500"
                       : isDark
                       ? "border-transparent text-white/60 hover:text-white hover:bg-white/5 focus:ring-white/50"

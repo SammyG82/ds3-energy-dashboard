@@ -2,9 +2,11 @@
   "name": "ds3-energy-dashboard",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": ">=20" },
   "scripts": {
     "predev": "node -e \"require('fs').rmSync('.next/cache',{recursive:true,force:true})\"",
     "dev": "next dev",
+    "prebuild": "npm run clean",
     "build": "next build",
     "serve": "npx serve out",
     "typecheck": "tsc --noEmit",
@@ -18,12 +20,13 @@
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4",
+    "@tailwindcss/postcss": "4.2.4",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "tailwindcss": "^4",
+    "serve": "^14",
+    "tailwindcss": "4.2.4",
     "typescript": "^5"
   }
 }

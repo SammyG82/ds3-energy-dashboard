@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import FadeIn from "@/components/ui/FadeIn";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
 interface ChartCardProps {
   title: string;
@@ -39,29 +40,31 @@ export default function ChartCard({
         {linkHref ? (
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
             <div>
-              <h2 className={`text-xl font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>
+              <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                 {title}
                 {titleSuffix && (
                   <>{" "}<span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>{titleSuffix}</span></>
                 )}
               </h2>
               {subtitle && (
-                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>{subtitle}</p>
+                <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
               )}
             </div>
-            <Link href={linkHref} className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0">
-              {linkLabel} <span aria-hidden="true">→</span>
+            <Link href={linkHref} className="text-sm font-semibold text-blue-500 hover:underline py-3 sm:py-0 focus:outline-none focus:ring-2 focus:ring-slate-500 rounded">
+              {linkLabel ?? "View full chart"} <span aria-hidden="true">→</span>
             </Link>
           </div>
         ) : (
           <div className="mb-6">
             <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h2>
             {subtitle && (
-              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-500"}`}>{subtitle}</p>
+              <p className={`text-sm ${isDark ? "text-white/50" : "text-slate-600"}`}>{subtitle}</p>
             )}
           </div>
         )}
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </div>
     </FadeIn>
   );

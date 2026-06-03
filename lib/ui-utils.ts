@@ -2,9 +2,13 @@ import { useState, useEffect, useRef, useMemo, type RefObject, type MutableRefOb
 import type { CSSProperties } from "react";
 import * as d3 from "d3";
 import type { Selection } from "d3";
-import type { EvRow } from "@/lib/data";
+import type { EvRow, OilRow } from "@/lib/data";
 
 export const HEADER_HEIGHT_PX = 96;
+
+export const CHART_TEXT = { dark: "#94a3b8", light: "#64748b" } as const;
+const GRID_STROKE = { dark: "#334155", light: "#e2e8f0" } as const;
+export const FORECAST_DASH = "6 3";
 
 // Counts client-side pushState calls since module init. Resets to 0 on every hard
 // page reload (the module re-initialises). Stays > 0 through any client-side navigation.
@@ -59,23 +63,27 @@ export function drawHorizontalGridLines(
   gridSel.enter().append("line").attr("class", "grid-h").merge(gridSel)
     .attr("x1", 0).attr("x2", width)
     .attr("y1", (d) => yScale(d)).attr("y2", (d) => yScale(d))
-    .attr("stroke", isDark ? "#334155" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.7);
+    .attr("stroke", isDark ? GRID_STROKE.dark : GRID_STROKE.light).attr("stroke-dasharray", "3").attr("opacity", 0.7);
 }
 
 export function drawForecastBoundary(
   g: GSelection,
   x: (v: number) => number,
   boundary: number,
-  height: number
+  height: number,
+  isDark = false
 ): void {
+  const color = isDark ? CHART_TEXT.dark : CHART_TEXT.light;
   g.append("line")
+    .attr("class", "chart-forecast-boundary")
     .attr("x1", x(boundary)).attr("x2", x(boundary))
     .attr("y1", 0).attr("y2", height)
-    .attr("stroke", "#94a3b8").attr("stroke-dasharray", "6 3").attr("stroke-width", 1);
+    .attr("stroke", color).attr("stroke-dasharray", FORECAST_DASH).attr("stroke-width", 1);
   g.append("text")
+    .attr("class", "chart-forecast-boundary")
     .attr("x", x(boundary) + 4).attr("y", 12)
     .attr("font-size", "10px")
-    .attr("fill", "#94a3b8")
+    .attr("fill", color)
     .text("Forecast →");
 }
 
@@ -115,21 +123,24 @@ type SVGRootSelection = Selection<SVGSVGElement, unknown, null, undefined>;
 // Updates chart colours on theme change without a full redraw.
 // Assumes the chart uses class names: .grid-h, .tick-dot, .chart-axis, .chart-crosshair.
 export function applyThemeToChart(svg: SVGRootSelection, isDark: boolean): void {
-  svg.selectAll(".grid-h").attr("stroke", isDark ? "#334155" : "#e2e8f0");
+  svg.selectAll(".grid-h").attr("stroke", isDark ? GRID_STROKE.dark : GRID_STROKE.light);
   svg.selectAll(".tick-dot").attr("fill", isDark ? "#000" : "#fff");
-  svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? "#94a3b8" : "#64748b");
-  svg.selectAll(".chart-crosshair").attr("stroke", isDark ? "#94a3b8" : "#64748b");
+  svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
+  svg.selectAll(".chart-crosshair").attr("stroke", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
+  const boundaryColor = isDark ? CHART_TEXT.dark : CHART_TEXT.light;
+  svg.selectAll<SVGLineElement, unknown>("line.chart-forecast-boundary").attr("stroke", boundaryColor);
+  svg.selectAll<SVGTextElement, unknown>("text.chart-forecast-boundary").attr("fill", boundaryColor);
 }
 
 export function drawCrosshair(
   g: GSelection,
   height: number,
   isDarkRef: MutableRefObject<boolean>
-) {
+): Selection<SVGLineElement, unknown, any, unknown> { // eslint-disable-line @typescript-eslint/no-explicit-any
   return g.append("line")
     .attr("class", "chart-crosshair")
     .attr("y1", 0).attr("y2", height)
-    .attr("stroke", isDarkRef.current ? "#94a3b8" : "#64748b")
+    .attr("stroke", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light)
     .attr("stroke-width", 1).attr("stroke-dasharray", "4 2")
     .style("visibility", "hidden").style("pointer-events", "none");
 }
@@ -158,6 +169,13 @@ export function useEvForecastBoundary(data: EvRow[]): number {
   }, [data]);
 }
 
+export function useOilForecastBoundary(data: OilRow[]): number | undefined {
+  return useMemo(() => {
+    const fcYears = data.filter((d) => d.Type === "Forecast").map((d) => d.Year);
+    return fcYears.length > 0 ? Math.min(...fcYears) : undefined;
+  }, [data]);
+}
+
 export function useContainerSize(ref: RefObject<Element | null>): { width: number; height: number } {
   const [size, setSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -166,6 +184,7 @@ export function useContainerSize(ref: RefObject<Element | null>): { width: numbe
     let mounted = true;
     const obs = new ResizeObserver((entries) => {
       clearTimeout(tid);
+      if (!entries[0]) return;
       tid = setTimeout(() => {
         if (mounted) {
           const { width, height } = entries[0].contentRect;
@@ -208,11 +227,11 @@ export function useHashScroll(
         return;
       }
     }
-    if (!hash) return;
+    if (!hash) { scrolledRef.current = true; return; }
     scrolledRef.current = true;
 
     const doScroll = () => {
-      const el = document.querySelector(hash);
+      const el = document.getElementById(hash.slice(1));
       if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
     };
 

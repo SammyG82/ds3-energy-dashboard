@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 
+// `npm run build` sets NODE_ENV=production automatically; isProd controls the GitHub Pages basePath.
 const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {

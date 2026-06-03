@@ -29,7 +29,7 @@ export default function EvForecastPage() {
       if (hash === "#ev-sales-over-time") return !!document.getElementById("ev-sales-over-time")?.querySelector("svg > g");
       return !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
     },
-    data.length > 0 && salesData.length > 0
+    (data.length > 0 || !!error) && (salesData.length > 0 || !!salesError)
   );
 
 
@@ -49,7 +49,7 @@ export default function EvForecastPage() {
   const yoyGrowth = useMemo(() => (globalSales !== null && prevSales !== null && prevSales > 0) ? ((globalSales - prevSales) / prevSales) * 100 : null, [globalSales, prevSales]);
   const marketLeader = useMemo(() => {
     return data
-      .filter((d) => d.year === effectiveYear && !AGGREGATES.has(d.region_country) && (selectedRegions.length === 0 || selectedRegions.includes(d.region_country)))
+      .filter((d) => d.year === effectiveYear && !AGGREGATES.has(d.region_country) && selectedRegions.includes(d.region_country))
       .sort((a, b) => b.ev_sales - a.ev_sales)[0]?.region_country ?? null;
   }, [data, effectiveYear, selectedRegions]);
 
@@ -74,7 +74,7 @@ export default function EvForecastPage() {
           ) : salesError ? (
             <ErrorMessage message={salesError} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
         </ChartCard>
 
@@ -95,7 +95,7 @@ export default function EvForecastPage() {
           ) : error ? (
             <ErrorMessage message={error} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
           <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
             <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-3">Behind the Numbers</h3>
@@ -118,7 +118,7 @@ export default function EvForecastPage() {
           ) : salesError ? (
             <ErrorMessage message={salesError} isDark={isDark} />
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
           <div className={`mt-6 p-5 rounded-xl ${isDark ? "bg-white/10" : "bg-slate-50"}`}>
             <h3 className="text-blue-500 text-xs uppercase tracking-widest mb-4">Behind the Numbers</h3>

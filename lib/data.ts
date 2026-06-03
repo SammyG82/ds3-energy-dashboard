@@ -4,7 +4,7 @@ export const BASE = process.env.NODE_ENV === "production" ? "/ds3-energy-dashboa
 
 export const TOP_5_MARKETS = ["China", "USA", "Germany", "France", "United Kingdom"];
 
-// d3.csv returns "" for empty cells (not null/undefined), so both checks are required
+// d3.csv returns "" for empty cells; trim() catches whitespace-only values
 function parseCI(value: string | undefined): number | null {
   if (value === undefined || value === "" || value.trim() === "") return null;
   const n = +value;
@@ -148,9 +148,11 @@ function createOilFetcher(
         if (rawVal === undefined || rawVal === "") return [];
         const value = +rawVal;
         if (!Number.isFinite(value)) return [];
+        const Year = +(d.Year ?? 0);
+        if (!Number.isFinite(Year)) return [];
         return [{
           Country: normalizeOilCountry(d.Country),
-          Year: +(d.Year ?? 0),
+          Year,
           Type,
           value,
           ciLow: parseCI(d[ciLowKey]),
@@ -185,7 +187,9 @@ export async function fetchGdpMeta(): Promise<GdpMeta[]> {
     const obj = item as Record<string, unknown>;
     if (
       typeof obj.country !== "string" ||
+      !obj.country.trim() ||
       typeof obj.region !== "string" ||
+      !obj.region.trim() ||
       !Number.isFinite(obj.gdp) ||
       !Number.isFinite(obj.oilImports) ||
       !Number.isFinite(obj.costPerBarrel)
@@ -213,7 +217,7 @@ export async function fetchOilPrices(): Promise<OilPriceRow[]> {
     if (item === null || typeof item !== "object") throw new Error(`Invalid oil price data at row ${idx}`);
     const r = item as Record<string, unknown>;
     if (
-      typeof r.year !== "number" ||
+      !Number.isFinite(r.year as number) ||
       !isNullableNum(r.brent_nominal) ||
       !isNullableNum(r.wti_nominal) ||
       !isNullableNum(r.brent_real) ||

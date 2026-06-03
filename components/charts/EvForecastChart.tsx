@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
@@ -29,6 +29,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   const containerRef = useRef<HTMLDivElement>(null);
   const onYearChangeRef = useRef(onYearChange);
   useEffect(() => { onYearChangeRef.current = onYearChange; }, [onYearChange]);
+  const lastEmittedYearRef = useRef<number | null>(null);
   const onSelectionChangeRef = useRef(onSelectionChange);
   useEffect(() => { onSelectionChangeRef.current = onSelectionChange; }, [onSelectionChange]);
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
@@ -48,10 +49,9 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   );
 
   const defaultRegions = useMemo(() => {
-    if (preview) return allRegions.filter((r) => TOP_5_MARKETS.includes(r));
     const top5 = TOP_5_MARKETS.filter((r) => allRegions.includes(r));
     return top5.length > 0 ? top5 : allRegions.slice(0, 5);
-  }, [allRegions, preview]);
+  }, [allRegions]);
 
   const forecastBoundary = useEvForecastBoundary(data);
 
@@ -87,7 +87,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     setSelected(defaultRegions);
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
-  useEffect(() => { setPinned(null); }, [selected, containerWidth, data]);
+  useEffect(() => { setPinned(null); lastEmittedYearRef.current = null; }, [selected, containerWidth, data]);
   useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
 
   useEffect(() => {
@@ -118,7 +118,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
     if (isFinite(forecastBoundary)) {
-      drawForecastBoundary(g, x, forecastBoundary, height);
+      drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
     }
 
     const line = d3.line<EvRow>()
@@ -136,7 +136,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       if (forecast.length >= 2)
         g.append("path").datum(forecast)
           .attr("fill", "none").attr("stroke", color)
-          .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("d", line);
+          .attr("stroke-width", 2).attr("stroke-dasharray", FORECAST_DASH).attr("d", line);
     });
 
     const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
@@ -152,11 +152,11 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
@@ -193,7 +193,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           setPreviewTooltipPos({ x: cmx, y: cmy });
         } else {
           setPinned({ year, entries });
-          onYearChangeRef.current?.(year);
+          if (lastEmittedYearRef.current !== year) {
+            lastEmittedYearRef.current = year;
+            onYearChangeRef.current?.(year);
+          }
         }
       })
       .on("pointerleave", function () {
@@ -233,7 +236,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
         </div>
       )}
 
-      <ChartLegend isDark={isDark} forecastLabel="IEA STEPS Forecast" />
+      <ChartLegend isDark={isDark} forecastLabel="DS3 S-curve Forecast" />
 
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "pan-y" }}>
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />

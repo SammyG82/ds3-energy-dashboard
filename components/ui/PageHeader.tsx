@@ -32,7 +32,7 @@ export default function PageHeader({ title, titleAccent, subtitle, badges, isDar
             {title}{" "}
             {titleAccent && <span className="text-teal-500">{titleAccent}</span>}
           </h1>
-          <p className={`mt-2 max-w-2xl text-sm leading-relaxed ${isDark ? "text-white/60" : "text-slate-500"}`}>{subtitle}</p>
+          <p className={`mt-2 max-w-2xl text-sm leading-relaxed ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
         </div>
         {badges && badges.length > 0 && (
           <div className="flex flex-col gap-1.5 self-end">

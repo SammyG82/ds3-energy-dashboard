@@ -16,7 +16,7 @@ export const OIL_IMPORT_PRESETS: PresetItem[] = [
   {
     label: "All Countries",
     description: "All countries in the imports dataset",
-    detail: "All major oil importing nations tracked in the IEA dataset.",
-    regions: null,
+    detail: "All countries in the imports dataset — the top oil importers by 2023 volume, modelled with ARIMA forecasts through 2030.",
+    regions: null, // null signals RegionPicker to select the full dataset
   },
 ];

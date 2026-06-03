@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useId } from "react";
 import { TOP_5_MARKETS } from "@/lib/data";
 
 const EUROPE = [
@@ -28,7 +28,7 @@ const PRESETS: PresetItem[] = [
   {
     label: "EV Pioneers",
     description: "Countries with the highest EV share of new car sales",
-    detail: "Norway, Iceland, Sweden, Denmark, Finland, and the Netherlands have the world's highest EV share of new car sales. Norway leads at ~90%. These countries show what a near-fully transitioned market looks like.",
+    detail: "Norway, Iceland, Sweden, Denmark, Finland, and the Netherlands have some of the world's highest EV shares of new car sales. Norway leads at ~90%. These countries show what a near-fully transitioned market looks like.",
     regions: ["Norway", "Iceland", "Sweden", "Denmark", "Finland", "Netherlands"],
   },
   {
@@ -57,12 +57,14 @@ interface Props {
   onToggle: (region: string) => void;
   onSelectGroup: (regions: string[]) => void;
   colorMap: Record<string, string>;
+  /** Must be a stable module-level constant — inline object literals cause unnecessary recomputation. */
   displayNames?: Record<string, string>;
   presets?: PresetItem[];
   isDark?: boolean;
 }
 
 export default function RegionPicker({ options, selected, onToggle, onSelectGroup, colorMap, displayNames = {}, presets = PRESETS, isDark = false }: Props) {
+  const uid = useId();
   const dn = (r: string) => displayNames[r] ?? r;
   const [showCustom, setShowCustom] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -108,7 +110,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
   useEffect(() => {
     setQuery("");
-  }, [options, showCustom]);
+  }, [options]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -147,7 +149,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           onClick={() => setShowCustom((v) => !v)}
           aria-label="Select custom regions"
           aria-expanded={showCustom}
-          aria-controls="region-picker-custom"
+          aria-controls={`${uid}-custom`}
           className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
@@ -162,11 +164,10 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         <button
           type="button"
           onClick={() => setShowInfo((v) => !v)}
-          title="Why these presets?"
           aria-label="Why these presets?"
           aria-expanded={showInfo}
-          aria-controls="region-picker-info"
-          className={`w-11 h-11 sm:w-8 sm:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          aria-controls={`${uid}-info`}
+          className={`w-11 h-11 md:w-8 md:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : isDark
@@ -179,7 +180,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div id="region-picker-info" role="region" aria-label="Why these groups?" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+        <div id={`${uid}-info`} role="region" aria-label="Why these groups?" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
           <p className={`text-xs uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>
@@ -191,7 +192,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       )}
 
       {showCustom && (
-        <div id="region-picker-custom" className="flex flex-col gap-2">
+        <div id={`${uid}-custom`} className="flex flex-col gap-2">
           <input
             ref={searchInputRef}
             type="text"
@@ -213,13 +214,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none ${isDark ? "hover:bg-white/5" : "hover:bg-slate-50"}`}
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-white/50" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
                 >
                   <input
                     type="checkbox"
                     checked={selectedSet.has(region)}
                     onChange={() => onToggle(region)}
-                    className="w-3.5 h-3.5 shrink-0 focus:outline-none focus:ring-2 focus:ring-slate-500"
+                    className="w-3.5 h-3.5 shrink-0 focus:outline-none"
                   />
                   <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
                   <span
@@ -231,12 +232,17 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               ))
             )}
           </div>
-
-          <p aria-live="polite" aria-atomic="true" className={`text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
-            {selected.length} of {options.length} selected
-          </p>
         </div>
       )}
+
+      {/* Always in the DOM so the live region is registered before the first announcement */}
+      <p
+        aria-live="polite"
+        aria-atomic="true"
+        className={`text-xs ${!showCustom ? "sr-only" : ""} ${isDark ? "text-white/40" : "text-slate-400"}`}
+      >
+        {showCustom ? `${selected.length} of ${options.length} selected` : ""}
+      </p>
     </div>
   );
 }

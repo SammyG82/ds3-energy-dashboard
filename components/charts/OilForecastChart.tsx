@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useOilForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 import ChartLegend from "@/components/ui/ChartLegend";
@@ -36,7 +36,7 @@ const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 export default function OilForecastChart({ data, preview = false, isDark = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const clipId = `oil-ci-clip-${useId().replace(/:/g, "")}`;
+  const clipId = `oil-ci-clip-${useId().replace(/:/g, "-")}`;
   const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
   const isDarkRef = useThemeRef(isDark);
   const [pinned, setPinned] = useState<Pinned | null>(null);
@@ -48,10 +48,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     [data]
   );
 
-  const forecastBoundary = useMemo(
-    () => data.find((d) => d.Type === "Forecast")?.Year,
-    [data]
-  );
+  const forecastBoundary = useOilForecastBoundary(data);
 
   const [selected, setSelected] = useState<string[]>(
     () => preview ? allCountries.filter((c) => PREVIEW_COUNTRIES.includes(c)) : allCountries
@@ -152,7 +149,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       .domain([minYear, maxYear])
       .range([0, width]);
 
-    const CI_RATIO = 1.5;
+    const CI_RATIO = 1.5; // cap CI bands at 1.5× the absolute point estimate to prevent visual blowout
     const capCIHigh = (val: number, ci: number) => Math.min(ci, val + Math.abs(val) * CI_RATIO);
     const capCILow  = (val: number, ci: number) => Math.max(ci, val - Math.abs(val) * CI_RATIO);
 
@@ -171,7 +168,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
-    drawForecastBoundary(g, x, forecastBoundary, height);
+    drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
 
     activeCountries.forEach((country) => {
       const rows = activeData.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
@@ -202,7 +199,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
       if (forecast.length >= 2)
         g.append("path").datum(forecast).attr("fill", "none").attr("stroke", color)
-          .attr("stroke-width", 2).attr("stroke-dasharray", "6 3").attr("clip-path", `url(#${clipId})`).attr("d", line);
+          .attr("stroke-width", 2).attr("stroke-dasharray", FORECAST_DASH).attr("clip-path", `url(#${clipId})`).attr("d", line);
     });
 
     const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
@@ -218,7 +215,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => {
@@ -226,7 +223,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
         if (n === 0) return "0";
         return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${Math.round(n)}`;
       }).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
@@ -268,7 +265,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selectedSet, preview, forecastBoundary, containerWidth, allCountries]);
+  }, [data, selectedSet, preview, forecastBoundary, containerWidth]);
 
   useChartTheme(svgRef, isDark);
 

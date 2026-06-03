@@ -4,10 +4,12 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
 import StatCard from "@/components/ui/StatCard";
+
+const EV_TREND_COLOR = "#0d9488";
 
 interface Props {
   data: EvRow[];
@@ -26,7 +28,7 @@ const FORECAST_TARGET_YEAR = 2030;
 export default function EvTrendChart({ data, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const [pinned, setPinned] = useState<Pinned | null>(null);
   const isDarkRef = useThemeRef(isDark);
 
@@ -81,7 +83,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
     if (forecast.length > 0) {
-      drawForecastBoundary(g, x, forecastBoundary, height);
+      drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
     }
 
     const line = d3.line<EvRow>()
@@ -97,18 +99,18 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
 
     if (history.length >= 1) {
       g.append("path").datum(history)
-        .attr("fill", "#0d9488").attr("opacity", 0.08)
+        .attr("fill", EV_TREND_COLOR).attr("opacity", 0.08)
         .attr("d", area);
 
       g.append("path").datum(history)
-        .attr("fill", "none").attr("stroke", "#0d9488")
+        .attr("fill", "none").attr("stroke", EV_TREND_COLOR)
         .attr("stroke-width", 2).attr("d", line);
     }
 
     if (forecast.length >= 1) {
       g.append("path").datum(forecast)
-        .attr("fill", "none").attr("stroke", "#0d9488")
-        .attr("stroke-width", 2).attr("stroke-dasharray", "6 3")
+        .attr("fill", "none").attr("stroke", EV_TREND_COLOR)
+        .attr("stroke-width", 2).attr("stroke-dasharray", FORECAST_DASH)
         .attr("d", line);
     }
 
@@ -117,16 +119,16 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     tickYears.forEach((yr) => {
       const row = byYear.get(yr);
       if (!row) return;
-      drawTickDot(g, x(yr), y(row.ev_sales), "#0d9488", isDarkRef);
+      drawTickDot(g, x(yr), y(row.ev_sales), EV_TREND_COLOR, isDarkRef);
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 

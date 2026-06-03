@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
-import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, useEvForecastBoundary } from "@/lib/ui-utils";
+import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, useEvForecastBoundary, CHART_TEXT } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
@@ -21,9 +21,10 @@ const GALLONS_PER_EV = 1300;
 const GALLONS_PER_BARREL = 42;
 const FALLBACK_PRICE = 75;
 
-function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta, evData: EvRow[], oilPrice: number) {
+function compute(evRegion: string, year: number, adoption: number, meta: GdpMeta, evData: EvRow[], oilPrice: number, forecastBoundary: number) {
   const candidates = evData.filter((d) => d.region_country === evRegion && d.year === year);
-  const row = candidates.find((d) => d.type === "Forecast") ?? candidates[0];
+  const preferredType = year < forecastBoundary ? "Actual" : "Forecast";
+  const row = candidates.find((d) => d.type === preferredType) ?? candidates[0];
   const sales = (row?.ev_sales ?? 0) * adoption;
   const oilDisplaced = (sales * GALLONS_PER_EV) / (GALLONS_PER_BARREL * 1_000_000);
   const costSavings = (oilDisplaced * 1_000_000 * oilPrice) / 1_000_000_000;
@@ -36,7 +37,7 @@ type Benchmark = "brent" | "wti";
 export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPricesError, isDark = false }: Props) {
   const priceSvg = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { width: containerWidth, height: containerHeight } = useContainerSize(containerRef);
+  const { width: containerWidth } = useContainerSize(containerRef);
   const priceInitialisedRef = useRef(false);
   const isDarkRef = useThemeRef(isDark);
 
@@ -51,6 +52,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
   const [year,             setYear]             = useState(() => years[0] ?? 2024);
   const [adoption,         setAdoption]         = useState(1.0);
   const [benchmark,        setBenchmark]        = useState<Benchmark>("brent");
+  const benchmarkRef = useRef<Benchmark>(benchmark);
+  benchmarkRef.current = benchmark;
   const [customBrentPrice, setCustomBrentPrice] = useState<number>(FALLBACK_PRICE);
   const [customWtiPrice,   setCustomWtiPrice]   = useState<number>(FALLBACK_PRICE);
 
@@ -87,16 +90,16 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
     return (benchmark === "brent" ? priceRow.brent_nominal : priceRow.wti_nominal) ?? FALLBACK_PRICE;
   }, [oilPrices, year, benchmark, beyondData, customPrice]);
 
-  const priceRefYear = useMemo(() => {
+  const priceDisplayYear = useMemo(() => {
     if (!oilPrices.length) return year;
     return (oilPrices.find((r) => r.year === year) ?? oilPrices[oilPrices.length - 1]).year;
   }, [oilPrices, year]);
 
   const { sales, oilDisplaced, costSavings, gdpPercent } = useMemo(
     () => meta
-      ? compute(meta.region, year, adoption, meta, evData, currentOilPrice)
+      ? compute(meta.region, year, adoption, meta, evData, currentOilPrice, forecastBoundary)
       : { sales: 0, oilDisplaced: 0, costSavings: 0, gdpPercent: 0 },
-    [meta, year, adoption, evData, currentOilPrice]
+    [meta, year, adoption, evData, currentOilPrice, forecastBoundary]
   );
 
   const priceSvgLabel = useMemo(() => {
@@ -162,7 +165,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
     ];
 
     for (const { nomKey, realKey, label, color } of series) {
-      const active = label === benchmark;
+      const active = label === benchmarkRef.current;
 
       g.append("path")
         .datum(chartData)
@@ -194,7 +197,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
     const tickYears = chartData.map((d) => d.year).filter((yr) => yr % 5 === 0);
     const tickByYear = new Map(chartData.map((d) => [d.year, d]));
     for (const { nomKey, label, color } of series) {
-      const active = label === benchmark;
+      const active = label === benchmarkRef.current;
       tickYears.forEach((yr) => {
         const row = tickByYear.get(yr);
         if (!row || row[nomKey] === null) return;
@@ -210,10 +213,10 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
       .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 420 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`))
-      .selectAll("text").attr("fill", isDarkRef.current ? "#94a3b8" : "#64748b");
+      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
@@ -230,7 +233,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
       });
-  }, [oilPrices, benchmark, containerWidth]);
+  }, [oilPrices, containerWidth]);
 
   // Benchmark toggle: only opacity/stroke-weight change — no redraw needed
   useEffect(() => {
@@ -318,7 +321,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}EV Sales`}    value={fmtEvSales(sales)}                                                          sub={`${country} ${year}`} accent="teal" />
-        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}Oil Saved`}   value={`${oilDisplaced >= 1 ? oilDisplaced.toFixed(0) : oilDisplaced.toFixed(1)}M`} sub="barrels per year"    accent="amber" />
+        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}Oil Saved`}   value={oilDisplaced >= 1 ? `${oilDisplaced.toFixed(0)}M` : oilDisplaced >= 0.1 ? `${oilDisplaced.toFixed(1)}M` : `${(oilDisplaced * 1000).toFixed(0)}k`} sub="barrels per year"    accent="amber" />
         <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}Cost Saved`}  value={`$${costSavings.toFixed(1)}B`}                                               sub="annually"             accent="blue" />
         <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}GDP Savings`} value={`${gdpPercent.toFixed(3)}%`}                                                 sub="of GDP"               accent="teal" />
       </div>
@@ -326,7 +329,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       {/* Oil price stat + scenario slider */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <StatCard size="xl" isDark={isDark}
-          label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData || !oilPrices.length ? "" : ` (${priceRefYear} avg)`}`}
+          label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData || !oilPrices.length ? "" : ` (${priceDisplayYear} avg)`}`}
           value={`$${currentOilPrice.toFixed(2)}/bbl`}
           sub={beyondData ? "custom scenario assumption" : !oilPrices.length ? "estimate — data unavailable" : "nominal USD · EIA"}
           accent="amber" />
@@ -338,7 +341,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
         }`}>
           <div className="flex justify-between items-start mb-3">
             <div>
-              <label htmlFor="custom-oil-price" className={`text-xs font-mono uppercase tracking-widest mb-0.5 block ${beyondData ? "text-amber-500" : isDark ? "text-white/30" : "text-slate-400"}`}>Price Assumption</label>
+              <label htmlFor="custom-oil-price" className={`text-xs font-mono uppercase tracking-widest mb-0.5 block ${beyondData ? "text-amber-500" : isDark ? "text-white/30" : "text-slate-400"}`}>{benchmark === "brent" ? "Brent" : "WTI"} Price Assumption</label>
               <p className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>
                 {beyondData ? `No oil price data beyond ${latestDataYear} — set your own` : `Unlocks for years after ${latestDataYear}`}
               </p>
@@ -353,7 +356,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
           <input id="custom-oil-price" type="range" min={40} max={150} step={1}
             value={customPrice}
             disabled={!beyondData}
-            aria-label="Custom oil price assumption"
+            aria-label={`Custom ${benchmark === "brent" ? "Brent" : "WTI"} oil price assumption`}
             onChange={(e) => setCustomPrice(Math.max(40, Math.min(150, parseFloat(e.target.value))))}
             className="w-full range-amber focus:outline-none focus:ring-2 focus:ring-slate-500" />
           <div className="flex justify-between mt-1">
@@ -389,7 +392,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
         {!oilPrices.length
           ? oilPricesError
             ? <ErrorMessage message={oilPricesError} isDark={isDark} />
-            : <LoadingPlaceholder text="Loading oil prices…" />
+            : <LoadingPlaceholder text="Loading oil prices…" isDark={isDark} />
           : <svg ref={priceSvg} className="w-full" style={{ touchAction: "pan-y" }} role="img" aria-label={priceSvgLabel} />
         }
         <div className={`border rounded-lg px-3 py-2 min-h-10 flex items-center mt-2 ${isDark ? "border-white/10 bg-white/10" : "border-slate-100 bg-slate-50"}`}>

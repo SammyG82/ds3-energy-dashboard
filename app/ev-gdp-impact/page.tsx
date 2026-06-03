@@ -8,6 +8,7 @@ import { fetchEvData, fetchGdpMeta, fetchOilPrices, fetchOilForecast, fetchNetTr
 import type { EvRow, GdpMeta, OilPriceRow, OilRow } from "@/lib/data";
 import type { PresetItem } from "@/components/ui/RegionPicker";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
@@ -74,7 +75,7 @@ const DATASET_PRESETS: Record<Dataset, PresetItem[]> = {
     {
       label: "All Countries",
       description: "All 20 countries in the exports dataset",
-      detail: "All 20 major oil exporting nations tracked in the IEA dataset.",
+      detail: "All 20 major oil exporting nations in the IEA dataset — includes OPEC members, major non-OPEC producers, and regional re-export hubs.",
       regions: null,
     },
   ],
@@ -102,7 +103,7 @@ export default function EvGdpImpactPage() {
       if (hash === "#oil-import-forecasts") return !!document.getElementById("oil-import-forecasts")?.querySelector("svg > g");
       return !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
     },
-    evData.length > 0 && gdpMeta.length > 0 && (oilPrices.length > 0 || !!oilPricesError)
+    (evData.length > 0 || !!evDataError) && (gdpMeta.length > 0 || !!gdpMetaError) && (oilPrices.length > 0 || !!oilPricesError) && (imports.length > 0 || !!importsError)
   );
 
   const evReady  = evData.length > 0 && gdpMeta.length > 0;
@@ -132,14 +133,16 @@ export default function EvGdpImpactPage() {
         <FadeIn>
           <div id="ev-gdp-section" className="scroll-mt-24">
           {evReady ? (
-            <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} oilPricesError={oilPricesError} isDark={isDark} />
+            <ErrorBoundary>
+              <EvGdpImpactCharts evData={evData} gdpMeta={gdpMeta} oilPrices={oilPrices} oilPricesError={oilPricesError} isDark={isDark} />
+            </ErrorBoundary>
           ) : anyEvError ? (
             <div className={`rounded-2xl p-6 border flex flex-col gap-2 ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
               {evDataError  && <ErrorMessage message={evDataError}  isDark={isDark} />}
               {gdpMetaError && <ErrorMessage message={gdpMetaError} isDark={isDark} />}
             </div>
           ) : (
-            <LoadingPlaceholder text="Loading data…" />
+            <LoadingPlaceholder text="Loading data…" isDark={isDark} />
           )}
           </div>
         </FadeIn>
@@ -179,11 +182,13 @@ export default function EvGdpImpactPage() {
 
           <div className={`rounded-2xl p-4 sm:p-6 border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
             {active.length > 0 ? (
-              <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} isDark={isDark} />
+              <ErrorBoundary>
+                <OilForecastChart key={dataset} data={active} datasetLabel={activeMeta.chartLabel} chartPresets={DATASET_PRESETS[dataset]} statYear={sharedStatYear} isDark={isDark} />
+              </ErrorBoundary>
             ) : activeError ? (
               <ErrorMessage message={activeError} isDark={isDark} />
             ) : (
-              <LoadingPlaceholder text="Loading data…" />
+              <LoadingPlaceholder text="Loading data…" isDark={isDark} />
             )}
           </div>
 

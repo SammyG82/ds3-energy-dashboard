@@ -18,8 +18,20 @@ export default class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.error) {
       return (
-        <div role="alert" className="flex items-center justify-center min-h-32 text-red-500 dark:text-red-400 text-sm px-4 text-center">
-          Something went wrong loading this section.
+        <div role="alert" className="flex flex-col items-center justify-center min-h-32 text-red-500 dark:text-red-400 text-sm px-4 text-center gap-2">
+          <span>Something went wrong loading this section.</span>
+          <button
+            onClick={() => this.setState({ error: null })}
+            aria-label="Try again loading this section"
+            className="text-xs underline mt-1 focus:outline-none focus:ring-2 focus:ring-slate-500 rounded"
+          >
+            Try again
+          </button>
+          {process.env.NODE_ENV !== "production" && (
+            <pre className="text-xs text-left whitespace-pre-wrap opacity-70 max-w-full overflow-auto">
+              {this.state.error.message}
+            </pre>
+          )}
         </div>
       );
     }
