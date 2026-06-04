@@ -5,6 +5,9 @@ export interface StatCardProps {
   accent?: "blue" | "teal" | "amber";
   size?: "xl" | "2xl";
   isDark?: boolean;
+  /** false when card sits directly on a bg-black container (first-level card: bg-white/5).
+   *  true (default) when card is nested inside a bg-white/5 container (bg-white/10). */
+  nested?: boolean;
 }
 
 const accentMap = {
@@ -13,9 +16,9 @@ const accentMap = {
   amber: { light: "text-amber-600", dark: "text-amber-400" },
 };
 
-export default function StatCard({ label, value, sub, accent = "blue", size = "2xl", isDark = false }: StatCardProps) {
+export default function StatCard({ label, value, sub, accent = "blue", size = "2xl", isDark = false, nested = true }: StatCardProps) {
   return (
-    <div className={`rounded-xl p-4 border transition-colors ${isDark ? "bg-white/10 border-white/10 hover:border-white/20" : "bg-white border-slate-200 hover:border-slate-300"}`}>
+    <div className={`rounded-xl p-4 border transition-colors ${isDark ? `${nested ? "bg-white/10" : "bg-white/5"} border-white/10 hover:border-white/20` : "bg-white border-slate-200 hover:border-slate-300"}`}>
       <p className={`text-xs font-medium uppercase tracking-wider mb-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>{label}</p>
       <p className={`${size === "xl" ? "text-base sm:text-xl" : "text-xl sm:text-2xl"} leading-none font-bold break-words ${accentMap[accent][isDark ? "dark" : "light"]}`}>{value}</p>
       {sub && <p className={`mt-1 ${size === "xl" ? "text-xs" : "text-sm"} ${isDark ? "text-white/50" : "text-slate-600"}`}>{sub}</p>}

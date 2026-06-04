@@ -217,7 +217,7 @@ export async function fetchOilPrices(): Promise<OilPriceRow[]> {
     if (item === null || typeof item !== "object") throw new Error(`Invalid oil price data at row ${idx}`);
     const r = item as Record<string, unknown>;
     if (
-      !Number.isFinite(Number(r.year)) ||
+      typeof r.year !== "number" || !Number.isFinite(r.year) || r.year <= 1900 ||
       !isNullableNum(r.brent_nominal) ||
       !isNullableNum(r.wti_nominal) ||
       !isNullableNum(r.brent_real) ||

@@ -104,11 +104,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       ...base.filter((r) => selectedSet.has(r)),
       ...base.filter((r) => !selectedSet.has(r)),
     ];
-  }, [base, selected, query, selectedSet]);
+  }, [base, query, selectedSet]);
 
   useEffect(() => {
     setQuery("");
   }, [options]);
+
+  useEffect(() => { if (!showCustom) setQuery(""); }, [showCustom]);
 
   return (
     <div className="flex flex-col gap-3">
@@ -162,7 +164,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
         <button
           type="button"
           onClick={() => setShowInfo((v) => !v)}
-          aria-label="Why these presets?"
+          aria-label="Why these groups?"
           aria-expanded={showInfo}
           aria-controls={`${uid}-info`}
           className={`w-11 h-11 md:w-8 md:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
@@ -203,7 +205,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           />
 
           <div
-            className={`border rounded-lg overflow-y-auto ${isDark ? "border-white/10 bg-slate-800" : "border-slate-200 bg-white"}`}
+            className={`border rounded-lg overflow-y-auto ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
           >
             {filtered.length === 0 ? (
@@ -212,7 +214,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-white/50" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-white" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
                 >
                   <input
                     type="checkbox"

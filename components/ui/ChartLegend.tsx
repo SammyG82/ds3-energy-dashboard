@@ -1,3 +1,5 @@
+"use client";
+
 import { FORECAST_DASH } from "@/lib/ui-utils";
 
 interface Props {
@@ -8,7 +10,7 @@ interface Props {
 
 export default function ChartLegend({ isDark, forecastLabel = "Forecast", showCI = false }: Props) {
   return (
-    <div aria-label="Chart legend" className={`flex justify-end text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+    <div className={`flex justify-end text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
       <div className="flex items-center gap-4">
         <span className="flex items-center gap-1.5">
           <span className="block w-4 h-[1.5px] rounded-full bg-current" aria-hidden="true" />

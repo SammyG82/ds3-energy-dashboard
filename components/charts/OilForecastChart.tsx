@@ -66,11 +66,11 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     setPreviewTooltipPos(null);
   }, [data, selectedSet, containerWidth]);
 
-  const { statDisplayYear } = useMemo(() => {
+  const statDisplayYear = useMemo(() => {
     const histYear = isFinite(forecastBoundary)
       ? forecastBoundary - 1
-      : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
-    return { statDisplayYear: statYear ?? histYear };
+      : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, -Infinity);
+    return statYear ?? histYear;
   }, [data, forecastBoundary, statYear]);
 
   const { latestTotal, leader } = useMemo(() => {
@@ -88,7 +88,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
   }, [datasetLabel, selected, leader, statDisplayYear, data]);
 
-  const { netLargestImporter, netLargestExporter, netBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
+  const { netLargestImporter, netLargestExporter, netImporterBaseYear, netExporterBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
     const historical = data.filter((d) => d.Type === "Historical" && selectedSet.has(d.Country) && d.Year <= statDisplayYear);
     const importerRows = historical.filter((d) => d.value < 0);
     const exporterRows = historical.filter((d) => d.value > 0);
@@ -96,10 +96,9 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const maxExporterYear = exporterRows.length > 0 ? exporterRows.reduce((m, d) => d.Year > m ? d.Year : m, 0) : statDisplayYear;
     const topImporter = importerRows.filter((d) => d.Year === maxImporterYear).sort((a, b) => a.value - b.value)[0] ?? null;
     const topExporter = exporterRows.filter((d) => d.Year === maxExporterYear).sort((a, b) => b.value - a.value)[0] ?? null;
-    const baseYear = Math.max(maxImporterYear, maxExporterYear);
     const deficit = Math.abs(importerRows.filter((d) => d.Year === maxImporterYear).reduce((s, d) => s + d.value, 0));
     const surplus = exporterRows.filter((d) => d.Year === maxExporterYear).reduce((s, d) => s + d.value, 0);
-    return { netLargestImporter: topImporter, netLargestExporter: topExporter, netBaseYear: baseYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
+    return { netLargestImporter: topImporter, netLargestExporter: topExporter, netImporterBaseYear: maxImporterYear, netExporterBaseYear: maxExporterYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
   }, [data, selectedSet, statDisplayYear]);
 
   const toggle = (c: string) => setSelected((prev) => toggleSelection(prev, c));
@@ -122,11 +121,11 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const displayNetSurplus = pinned
     ? pinned.entries.filter((e) => e.value > 0).reduce((s, e) => s + e.value, 0)
     : staticNetSurplus;
-  const netDisplayYear = pinned ? pinned.year : netBaseYear;
   const hasImporters = displayNetDeficit > 0 && displayNetDeficit >= displayNetSurplus;
+  const netDisplayYear = pinned ? pinned.year : (hasImporters ? netImporterBaseYear : netExporterBaseYear);
 
   useEffect(() => {
-    if (!svgRef.current || !containerRef.current || containerWidth === 0 || !isFinite(forecastBoundary)) return;
+    if (!svgRef.current || !containerRef.current || containerWidth === 0) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
@@ -168,7 +167,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     drawHorizontalGridLines(g, y, width, 5, isDarkRef.current);
 
-    drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
+    if (isFinite(forecastBoundary)) drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
 
     activeCountries.forEach((country) => {
       const rows = activeData.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
@@ -265,7 +264,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selectedSet, preview, forecastBoundary, containerWidth]);
+  }, [data, selectedSet, preview, forecastBoundary, containerWidth, clipId]);
 
   useChartTheme(svgRef, isDark);
 

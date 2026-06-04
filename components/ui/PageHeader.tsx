@@ -19,7 +19,7 @@ const badgeColors = {
 
 export default function PageHeader({ title, titleAccent, subtitle, badges, isDark = false }: PageHeaderProps) {
   return (
-    <div className={`border-b transition-colors duration-300 ${isDark ? "border-white/10 bg-black" : "border-slate-200 bg-slate-50"}`}>
+    <div className={`border-b transition-colors duration-300 ${isDark ? "border-white/10 bg-black" : "border-slate-200 bg-white"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-10 flex flex-wrap items-start justify-between gap-6">
         <div>
           <h1 className={`text-3xl sm:text-4xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>

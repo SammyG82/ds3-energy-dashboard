@@ -194,7 +194,7 @@ export function useContainerSize(ref: RefObject<Element | null>): { width: numbe
     });
     obs.observe(ref.current);
     return () => { mounted = false; clearTimeout(tid); obs.disconnect(); };
-  }, [ref]);
+  }, []);
   return size;
 }
 
@@ -257,5 +257,5 @@ export function useChartTheme(svgRef: RefObject<SVGSVGElement | null>, isDark: b
   useEffect(() => {
     if (!svgRef.current) return;
     applyThemeToChart(d3.select(svgRef.current), isDark);
-  }, [svgRef, isDark]);
+  }, [isDark]);
 }

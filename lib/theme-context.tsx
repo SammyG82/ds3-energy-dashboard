@@ -20,19 +20,16 @@ function detectIsDark(): boolean {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState<boolean>(false);
+  const [isDark, setIsDark] = useState(detectIsDark);
 
   useLayoutEffect(() => {
-    const dark = detectIsDark();
-    setIsDark(dark);
-    document.documentElement.classList.toggle("dark", dark);
-  }, []);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark]);
 
   const toggle = useCallback(() => {
     setIsDark((d) => {
       const next = !d;
       try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("Theme save failed:", e); }
-      document.documentElement.classList.toggle("dark", next);
       return next;
     });
   }, []);

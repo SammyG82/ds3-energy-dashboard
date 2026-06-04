@@ -25,6 +25,7 @@ interface Tooltip {
 const DEFAULT_COLOR = "#94a3b8";
 const EU27_OPACITY = 0.15;
 const BAR_OPACITY = 0.85;
+const EU27_DARK_COLOR = "#6699ff";
 
 export default function EvShareChart({ data, preview = false, isDark = false }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
@@ -128,7 +129,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .attr("y1", 0).attr("y2", height)
       .attr("stroke", isDarkRef.current ? "#334155" : "#e2e8f0").attr("stroke-dasharray", "3").attr("opacity", 0.6);
 
-    const euColor = isDarkRef.current ? "#6699ff" : (COUNTRY_COLORS["EU27"] ?? "#003399");
+    const euColor = isDarkRef.current ? EU27_DARK_COLOR : (COUNTRY_COLORS["EU27"] ?? "#003399");
 
     const barsSel = g.selectAll<SVGRectElement, EvRow>(".bar")
       .data(displayRows)
@@ -193,8 +194,21 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           setExcluded((prev) => new Set([...prev, d.region_country]));
         }
       })
-      .on("focus", function () { d3.select(this).style("outline", `2px solid ${isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light}`).style("outline-offset", "2px"); })
-      .on("blur", function () { d3.select(this).style("outline", null).style("outline-offset", null); });
+      .on("focus", function (_, d) {
+        d3.select(this).style("outline", `2px solid ${isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light}`).style("outline-offset", "2px");
+        const rect = (this as SVGRectElement).getBoundingClientRect();
+        const containerRect = containerRef.current?.getBoundingClientRect();
+        if (containerRect) {
+          const rank = filtered.findIndex((r) => r.region_country === d.region_country) + 1;
+          setTooltip({ country: dn(d.region_country), sales: d.ev_sales, sharePct: total > 0 ? (d.ev_sales / total) * 100 : 0, rank, isAggregate: d.region_country === "EU27" });
+          setTooltipPos({ x: rect.right - containerRect.left + 8, y: rect.top - containerRect.top + rect.height / 2 });
+        }
+      })
+      .on("blur", function () {
+        d3.select(this).style("outline", null).style("outline-offset", null);
+        setTooltip(null);
+        setTooltipPos(null);
+      });
 
     barsSel
       .attr("width", animate ? 0 : (d) => x(d.ev_sales))
@@ -271,12 +285,16 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     svg.selectAll(".chart-grid-line").attr("stroke", isDark ? "#334155" : "#e2e8f0");
     svg.selectAll<SVGTextElement, unknown>(".bar-label").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
     svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
-    const euColor = isDark ? "#6699ff" : (COUNTRY_COLORS["EU27"] ?? "#003399");
+    const euColor = isDark ? EU27_DARK_COLOR : (COUNTRY_COLORS["EU27"] ?? "#003399");
     svg.selectAll<SVGRectElement, EvRow>(".bar")
       .filter((d) => d.region_country === "EU27")
       .attr("fill", euColor)
       .attr("stroke", euColor);
-  }, [isDark]);
+    svg.selectAll<SVGRectElement, EvRow>(".bar")
+      .filter((d) => d.region_country !== "EU27")
+      .attr("stroke", "none")
+      .attr("stroke-width", 0);
+  }, [isDark, containerWidth]);
 
   // Keep excluded-count label accurate for EU27
   const excludedCountries = useMemo(
@@ -347,7 +365,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       )}
 
       <div ref={containerRef} className="w-full relative" style={{ touchAction: "manipulation" }}>
-        {filtered.length === 0 ? (
+        {displayRows.length === 0 ? (
           <div className={`flex flex-col items-center justify-center gap-3 py-16 rounded-xl border ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"}`}>
             <span className="text-sm">All countries hidden.</span>
             <button

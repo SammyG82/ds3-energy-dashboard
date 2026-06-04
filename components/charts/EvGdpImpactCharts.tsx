@@ -6,6 +6,7 @@ import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
 import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, useEvForecastBoundary, CHART_TEXT } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
+import BehindTheNumbers from "@/components/ui/BehindTheNumbers";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 
@@ -44,7 +45,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const forecastBoundary = useEvForecastBoundary(evData);
   const years = useMemo(() => {
-    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : (d3.min(evData, (d) => d.year) ?? Infinity);
+    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : (d3.max(evData, (d) => d.year) ?? Infinity);
     return Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= lb).sort();
   }, [evData, forecastBoundary]);
 
@@ -320,15 +321,15 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}EV Sales`}    value={fmtEvSales(sales)}                                                          sub={`${country} ${year}`} accent="teal" />
-        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}Oil Saved`}   value={oilDisplaced >= 1 ? `${oilDisplaced.toFixed(0)}M` : oilDisplaced >= 0.1 ? `${oilDisplaced.toFixed(1)}M` : `${(oilDisplaced * 1000).toFixed(0)}k`} sub="barrels per year"    accent="amber" />
-        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}Cost Saved`}  value={`$${costSavings.toFixed(1)}B`}                                               sub="annually"             accent="blue" />
-        <StatCard size="xl" isDark={isDark} label={`${isProjected ? "Projected " : ""}GDP Savings`} value={`${gdpPercent.toFixed(3)}%`}                                                 sub="of GDP"               accent="teal" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}EV Sales`}    value={fmtEvSales(sales)}                                                          sub={`${country} ${year}`} accent="teal" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}Oil Saved`}   value={oilDisplaced >= 1 ? `${oilDisplaced.toFixed(0)}M` : oilDisplaced >= 0.1 ? `${oilDisplaced.toFixed(1)}M` : `${(oilDisplaced * 1000).toFixed(0)}k`} sub="barrels per year"    accent="amber" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}Cost Saved`}  value={`$${costSavings.toFixed(1)}B`}                                               sub="annually"             accent="blue" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}GDP Savings`} value={`${gdpPercent.toFixed(3)}%`}                                                 sub="of GDP"               accent="teal" />
       </div>
 
       {/* Oil price stat + scenario slider */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <StatCard size="xl" isDark={isDark}
+        <StatCard size="xl" isDark={isDark} nested={false}
           label={`${benchmark === "brent" ? "Brent" : "WTI"} Crude${beyondData || !oilPrices.length ? "" : ` (${priceDisplayYear} avg)`}`}
           value={`$${currentOilPrice.toFixed(2)}/bbl`}
           sub={beyondData ? "custom scenario assumption" : !oilPrices.length ? "estimate — data unavailable" : "nominal USD · EIA"}
@@ -409,8 +410,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       </div>
 
       {/* Behind the Numbers */}
-      <div className={`p-6 rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"}`}>
-        <h3 className={`text-xs uppercase tracking-widest mb-4 ${isDark ? "text-blue-400" : "text-blue-600"}`}>Behind the Numbers</h3>
+      <BehindTheNumbers isDark={isDark}>
         <div className="space-y-4">
           {[
             {
@@ -440,7 +440,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
             </div>
           ))}
         </div>
-      </div>
+      </BehindTheNumbers>
 
     </div>
   );

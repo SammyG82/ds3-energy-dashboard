@@ -61,8 +61,20 @@ export default function Header() {
         if (document.activeElement === last) { e.preventDefault(); first.focus(); }
       }
     };
+    const onPointerDown = (e: PointerEvent) => {
+      if (
+        !hamburgerRef.current?.contains(e.target as Node) &&
+        !navEl?.contains(e.target as Node)
+      ) {
+        setMenuOpen(false);
+      }
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointerDown);
+    };
   }, [menuOpen]);
 
   const isHome = pathname === "/";
@@ -91,7 +103,7 @@ export default function Header() {
               }
             }}
             className={`flex items-center gap-3 whitespace-nowrap flex-1 md:flex-none focus:outline-none focus:ring-2 rounded ${
-              isTransparent ? "focus:ring-white/50" : isDark ? "focus:ring-white/50" : "focus:ring-slate-500"
+              isTransparent ? "focus:ring-white" : isDark ? "focus:ring-white" : "focus:ring-slate-500"
             }`}
           >
             <img
@@ -121,14 +133,14 @@ export default function Header() {
                   className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors whitespace-nowrap focus:outline-none focus:ring-2 ${
                     isTransparent
                       ? active
-                        ? "bg-teal-400/25 border-teal-300/50 text-white focus:ring-white/50"
-                        : "border-transparent text-white/70 hover:text-white hover:bg-white/10 focus:ring-white/50"
+                        ? "bg-teal-400/25 border-teal-300/50 text-white focus:ring-white"
+                        : "border-transparent text-white/70 hover:text-white hover:bg-white/10 focus:ring-white"
                       : active
                       ? isDark
-                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white/70"
+                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white"
                         : "bg-teal-50 border-teal-400/50 text-teal-700 focus:ring-teal-500"
                       : isDark
-                      ? "border-transparent text-white/60 hover:text-white hover:border-white/20 focus:ring-white/50"
+                      ? "border-transparent text-white/60 hover:text-white hover:border-white/20 focus:ring-white"
                       : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-200 focus:ring-slate-500"
                   }`}
                 >
@@ -146,9 +158,9 @@ export default function Header() {
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
               className={`px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
                 isTransparent
-                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white/50"
+                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white"
                   : isDark
-                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white/50"
+                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white"
                   : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
               }`}
             >
@@ -165,9 +177,9 @@ export default function Header() {
               aria-controls="mobile-nav"
               className={`md:hidden px-3.5 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
                 isTransparent
-                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white/50"
+                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white"
                   : isDark
-                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white/50"
+                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white"
                   : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
               }`}
             >
@@ -195,10 +207,10 @@ export default function Header() {
                   className={`min-h-11 flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
                     active
                       ? isDark
-                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white/70"
+                        ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white"
                         : "bg-teal-50 border-teal-400/50 text-teal-700 focus:ring-teal-500"
                       : isDark
-                      ? "border-transparent text-white/60 hover:text-white hover:bg-white/5 focus:ring-white/50"
+                      ? "border-transparent text-white/60 hover:text-white hover:bg-white/5 focus:ring-white"
                       : "border-transparent text-slate-500 hover:text-slate-900 hover:bg-slate-50 focus:ring-slate-500"
                   }`}
                 >
