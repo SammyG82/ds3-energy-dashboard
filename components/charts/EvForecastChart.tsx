@@ -39,7 +39,8 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   const allRegions = useMemo(
-    () => Array.from(new Set(data.map((d) => d.region_country))).sort(),
+    () => Array.from(new Set(data.map((d) => d.region_country)))
+      .sort((a, b) => (EV_DISPLAY_NAMES[a] ?? a).localeCompare(EV_DISPLAY_NAMES[b] ?? b)),
     [data]
   );
 
@@ -217,13 +218,11 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           <RegionPicker
             options={allRegions}
             selected={selected}
-            onToggle={(r) =>
-              setSelected((prev) => {
-                const next = toggleSelection(prev, r);
-                onSelectionChangeRef.current?.(next);
-                return next;
-              })
-            }
+            onToggle={(r) => {
+              const next = toggleSelection(selected, r);
+              setSelected(next);
+              onSelectionChangeRef.current?.(next);
+            }}
             onSelectGroup={(regions) => {
               const next = regions.length > 0 ? regions : defaultRegions.length > 0 ? defaultRegions : allRegions.slice(0, 5);
               setSelected(next);

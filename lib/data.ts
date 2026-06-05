@@ -33,14 +33,11 @@ function normalizeEvRow(d: { region_country?: unknown; year?: unknown; ev_sales?
   if (d.ev_sales == null || d.ev_sales === "") return null;
   const evSales = +d.ev_sales;
   if (!Number.isFinite(evSales)) return null;
-  const year = +(d.year ?? 0);
-  if (!Number.isFinite(year)) return null;
-  return {
-    region_country: String(d.region_country ?? ""),
-    year,
-    ev_sales: evSales,
-    type,
-  };
+  const year = +(d.year ?? NaN);
+  if (!Number.isFinite(year) || year <= 1900) return null;
+  const region_country = String(d.region_country ?? "").trim();
+  if (!region_country) return null;
+  return { region_country, year, ev_sales: evSales, type };
 }
 
 function assertOilType(t: string | undefined): OilRow["Type"] | null {
@@ -117,16 +114,16 @@ export function fmtEvSales(v: number): string {
 
 export async function fetchEvSales(): Promise<EvRow[]> {
   const raw = await d3.csv(`${BASE}/data/ev_sales.csv`);
-  return raw.map(normalizeEvRow).filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
+  return raw.map(normalizeEvRow).filter((r): r is EvRow => r !== null);
 }
 
 export async function fetchEvData(): Promise<EvRow[]> {
   const raw = await d3.json<unknown[]>(`${BASE}/data/ev_data.json`);
   if (!Array.isArray(raw)) throw new Error("Invalid EV data");
   return raw
-    .filter((item): item is Parameters<typeof normalizeEvRow>[0] => item !== null && typeof item === "object")
+    .filter((item): item is Parameters<typeof normalizeEvRow>[0] => item !== null && typeof item === "object" && !Array.isArray(item))
     .map(normalizeEvRow)
-    .filter((r): r is EvRow => r !== null && r.region_country !== "" && r.year > 1900);
+    .filter((r): r is EvRow => r !== null);
 }
 
 // IEA missing-data entries arrive as 0.0 (not NaN) for net trade and exports — set
@@ -149,7 +146,7 @@ function createOilFetcher(
         const value = +rawVal;
         if (!Number.isFinite(value)) return [];
         const Year = +(d.Year ?? 0);
-        if (!Number.isFinite(Year)) return [];
+        if (!Number.isFinite(Year) || Year <= 1900) return [];
         return [{
           Country: normalizeOilCountry(d.Country),
           Year,
@@ -160,7 +157,6 @@ function createOilFetcher(
         }];
       })
       .filter((row) =>
-        row.Year > 1900 &&
         row.Country !== "" &&
         !(filterZeroHistorical && row.value === 0 && row.Type === "Historical")
       );
@@ -196,7 +192,13 @@ export async function fetchGdpMeta(): Promise<GdpMeta[]> {
     ) {
       throw new Error(`Invalid GDP metadata at row ${idx}`);
     }
-    return item as GdpMeta;
+    return {
+      country:       obj.country       as string,
+      region:        obj.region        as string,
+      gdp:           obj.gdp           as number,
+      oilImports:    obj.oilImports    as number,
+      costPerBarrel: obj.costPerBarrel as number,
+    };
   });
 }
 
@@ -225,6 +227,12 @@ export async function fetchOilPrices(): Promise<OilPriceRow[]> {
     ) {
       throw new Error(`Invalid oil price data at row ${idx}`);
     }
-    return item as OilPriceRow;
+    return {
+      year:          r.year          as number,
+      brent_nominal: r.brent_nominal as (number | null),
+      wti_nominal:   r.wti_nominal   as (number | null),
+      brent_real:    r.brent_real    as (number | null),
+      wti_real:      r.wti_real      as (number | null),
+    };
   });
 }

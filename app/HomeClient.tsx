@@ -9,21 +9,18 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 import ChartCard from "@/components/ui/ChartCard";
-
-function ChartLoader() {
-  const { isDark } = useTheme();
-  return <LoadingPlaceholder text="Loading chart…" isDark={isDark} />;
-}
+import { accentMap } from "@/components/ui/StatCard";
+import ChartLoader from "@/components/ui/ChartLoader";
 
 const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: ChartLoader });
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: ChartLoader });
 const OilForecastChart = dynamic(() => import("@/components/charts/OilForecastChart"), { ssr: false, loading: ChartLoader });
 
-const stats = [
-  { value: "~18%", label: "Global EV new-car share", accent: "text-blue-600" },
-  { value: "↓2.4 Mb/d", label: "Oil displaced by EVs (2023)", accent: "text-teal-600" },
-  { value: "50+", label: "Countries in dataset", accent: "text-amber-600" },
-  { value: "2010–2035", label: "Data time span", accent: "text-blue-600" },
+const stats: { value: string; label: string; accent: keyof typeof accentMap }[] = [
+  { value: "~18%",       label: "Global EV new-car share",     accent: "blue"  },
+  { value: "↓2.4 Mb/d", label: "Oil displaced by EVs (2023)", accent: "teal"  },
+  { value: "50+",        label: "Countries in dataset",        accent: "amber" },
+  { value: "2010–2035",  label: "Data time span",              accent: "blue"  },
 ];
 
 const pillars = [
@@ -50,8 +47,6 @@ export default function HomeClient() {
   const { data: evSales,  error: evSalesError }  = useDataFetch<EvRow[]>(fetchEvSales, []);
   const { data: evData,   error: evDataError }   = useDataFetch<EvRow[]>(fetchEvData, []);
   const { data: oilData,  error: oilDataError }  = useDataFetch<OilRow[]>(fetchOilForecast, []);
-
-
 
   return (
     <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
@@ -102,7 +97,7 @@ export default function HomeClient() {
                 <div key={label} className={`rounded-xl p-4 border ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
                   <dl className="flex flex-col-reverse gap-1">
                     <dt className={`text-xs ${isDark ? "text-white/60" : "text-slate-500"}`}>{label}</dt>
-                    <dd className={`text-xl sm:text-2xl font-bold ${accent}`}>{value}</dd>
+                    <dd className={`text-xl sm:text-2xl font-bold ${isDark ? accentMap[accent].dark : accentMap[accent].light}`}>{value}</dd>
                   </dl>
                 </div>
               ))}

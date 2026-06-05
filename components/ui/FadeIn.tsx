@@ -50,11 +50,11 @@ export default function FadeIn({ children, className = "", delay = 0 }: Props) {
     <div
       ref={ref}
       className={className}
-      inert={!visible}
       style={{
+        visibility: visible ? "visible" : "hidden",
         opacity: visible ? 1 : 0,
         pointerEvents: visible ? undefined : "none",
-        transition: prefersReducedMotion ? undefined : `opacity 0.6s ease ${delay}ms`,
+        transition: prefersReducedMotion ? undefined : `opacity 0.6s ease ${Math.max(0, delay)}ms`,
       }}
     >
       {children}

@@ -32,7 +32,6 @@ interface Pinned {
 
 const PREVIEW_COUNTRIES = ["China", "India", "USA", "Japan", "Korea"];
 
-
 export default function OilForecastChart({ data, preview = false, isDark = false, datasetLabel = "Oil Imports (KBD)", chartPresets, statYear }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -44,7 +43,8 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const [previewTooltipPos, setPreviewTooltipPos] = useState<{ x: number; y: number } | null>(null);
 
   const allCountries = useMemo(
-    () => Array.from(new Set(data.map((d) => d.Country))).sort(),
+    () => Array.from(new Set(data.map((d) => d.Country)))
+      .sort((a, b) => (OIL_DISPLAY[a] ?? a).localeCompare(OIL_DISPLAY[b] ?? b)),
     [data]
   );
 
@@ -169,8 +169,12 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     if (isFinite(forecastBoundary)) drawForecastBoundary(g, x, forecastBoundary, height, isDarkRef.current);
 
+    const countryRows = new Map(
+      activeCountries.map((c) => [c, activeData.filter((d) => d.Country === c).sort((a, b) => a.Year - b.Year)])
+    );
+
     activeCountries.forEach((country) => {
-      const rows = activeData.filter((d) => d.Country === country).sort((a, b) => a.Year - b.Year);
+      const rows = countryRows.get(country)!;
       const color = COUNTRY_COLORS[country] ?? "#64748b";
 
       const history = rows.filter((d) => d.Year <= forecastBoundary);
@@ -204,7 +208,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
     activeCountries.forEach((country) => {
       const color = COUNTRY_COLORS[country] ?? "#64748b";
-      const rows = activeData.filter((d) => d.Country === country);
+      const rows = countryRows.get(country)!;
       tickYears.forEach((yr) => {
         const row = rows.find((d) => d.Year === yr);
         if (!row) return;
@@ -330,7 +334,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       </div>
 
       {!preview && (
-        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200"}`}>
+        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
           {pinned ? (
             <>
               <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>

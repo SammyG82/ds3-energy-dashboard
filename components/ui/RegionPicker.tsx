@@ -70,7 +70,9 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
   const [showInfo, setShowInfo] = useState(false);
   const [query, setQuery] = useState("");
   const customBtnRef = useRef<HTMLButtonElement>(null);
+  const infoBtnRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showCustom) searchInputRef.current?.focus();
@@ -163,7 +165,9 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
         <button
           type="button"
+          ref={infoBtnRef}
           onClick={() => setShowInfo((v) => !v)}
+          onKeyDown={(e) => { if (e.key === "Escape" && showInfo) { e.preventDefault(); setShowInfo(false); infoBtnRef.current?.focus(); } }}
           aria-label="Why these groups?"
           aria-expanded={showInfo}
           aria-controls={`${uid}-info`}
@@ -200,13 +204,28 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
-            aria-label="Search regions"
+            aria-label="Search countries and regions"
             className={`w-full pl-3 pr-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
           />
 
           <div
-            className={`border rounded-lg overflow-y-auto ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}
+            ref={listRef}
+            className={`border rounded-lg overflow-y-auto pb-1.5 ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
+            onKeyDown={(e) => {
+              if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Home" && e.key !== "End") return;
+              e.preventDefault();
+              const checks = Array.from(listRef.current?.querySelectorAll<HTMLInputElement>("input[type=checkbox]") ?? []);
+              if (checks.length === 0) return;
+              const idx = checks.indexOf(document.activeElement as HTMLInputElement);
+              let next: HTMLInputElement | undefined;
+              if (e.key === "ArrowDown") next = checks[idx + 1] ?? checks[0];
+              else if (e.key === "ArrowUp") next = checks[idx - 1] ?? checks[checks.length - 1];
+              else if (e.key === "Home") next = checks[0];
+              else next = checks[checks.length - 1];
+              next?.focus();
+              next?.closest("label")?.scrollIntoView({ block: "nearest" });
+            }}
           >
             {filtered.length === 0 ? (
               <p className={`text-xs px-3 py-2 ${isDark ? "text-white/40" : "text-slate-400"}`}>No regions match.</p>
@@ -214,13 +233,13 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-white" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-slate-400" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
                 >
                   <input
                     type="checkbox"
                     checked={selectedSet.has(region)}
                     onChange={() => onToggle(region)}
-                    className="w-3.5 h-3.5 shrink-0 focus:outline-none"
+                    className="w-3.5 h-3.5 shrink-0 focus:outline-none rounded"
                   />
                   <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
                   <span

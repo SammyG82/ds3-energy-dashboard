@@ -59,6 +59,9 @@ analysis/IEA_Global_EV_Data_*.csv
 analysis/oil_info/exports.csv
 analysis/oil_info/net_trade_forecast.csv
 
+# Analysis notebook output (regenerate by running oil_imports.ipynb)
+analysis/oil_info/oil_imports_arima_forecast_fixed.csv
+
 # EDA notebook outputs (re-run notebooks to regenerate; public/data/ is source of truth)
 eda/ev_data.json
 eda/ev_sales.csv

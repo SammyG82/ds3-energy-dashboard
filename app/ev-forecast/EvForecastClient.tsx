@@ -12,11 +12,7 @@ import type { EvRow } from "@/lib/data";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import { useDataFetch, useEvForecastBoundary, useHashScroll } from "@/lib/ui-utils";
-
-function ChartLoader() {
-  const { isDark } = useTheme();
-  return <LoadingPlaceholder text="Loading chart…" isDark={isDark} />;
-}
+import ChartLoader from "@/components/ui/ChartLoader";
 
 const EvForecastChart = dynamic(() => import("@/components/charts/EvForecastChart"), { ssr: false, loading: ChartLoader });
 const EvShareChart    = dynamic(() => import("@/components/charts/EvShareChart"),    { ssr: false, loading: ChartLoader });
@@ -31,13 +27,14 @@ export default function EvForecastClient() {
 
   useHashScroll(
     (hash) => {
-      if (hash === "#ev-sales-projections") return !!document.getElementById("ev-sales-projections")?.querySelector("svg > g");
-      if (hash === "#ev-sales-over-time") return !!document.getElementById("ev-sales-over-time")?.querySelector("svg > g");
-      return !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
+      const byCountry   = !!document.getElementById("ev-sales-by-country")?.querySelector("svg > g");
+      const projections = !!document.getElementById("ev-sales-projections")?.querySelector("svg > g");
+      if (hash === "#ev-sales-over-time") return byCountry && projections && !!document.getElementById("ev-sales-over-time")?.querySelector("svg > g");
+      if (hash === "#ev-sales-projections") return byCountry && projections;
+      return byCountry;
     },
     (data.length > 0 || !!error) && (salesData.length > 0 || !!salesError)
   );
-
 
   const worldRows = useMemo(() => data.filter((d) => d.region_country === "World"), [data]);
   const forecastBoundary = useEvForecastBoundary(data);

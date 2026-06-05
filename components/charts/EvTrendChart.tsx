@@ -50,7 +50,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     [data, country]
   );
 
-  const forecastBoundary = useEvForecastBoundary(countryData);
+  const forecastBoundary = useEvForecastBoundary(data);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || !countryData.length || containerWidth === 0) return;
@@ -215,7 +215,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         <svg ref={svgRef} className="w-full" role="img" aria-label={ariaLabel} />
       </div>
 
-      <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-slate-900" : "border-slate-200 bg-white"}`}>
+      <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}>
         {pinned ? (
           <div className="px-4 py-3 flex flex-col gap-1">
             <div className="flex items-center justify-between">

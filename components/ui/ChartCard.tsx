@@ -37,34 +37,34 @@ export default function ChartCard({
           isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200 shadow-sm",
         ].filter(Boolean).join(" ")}
       >
-        {linkHref ? (
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
-            <div>
-              <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
-                {title}
-                {titleSuffix && (
-                  <>{" "}<span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>{titleSuffix}</span></>
+          {linkHref ? (
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
+              <div>
+                <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                  {title}
+                  {titleSuffix && (
+                    <>{" "}<span className={`font-normal text-base ${isDark ? "text-white/50" : "text-slate-400"}`}>{titleSuffix}</span></>
+                  )}
+                </h2>
+                {subtitle && (
+                  <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
                 )}
-              </h2>
+              </div>
+              <Link href={linkHref} aria-label={linkLabel ?? `View full ${title} chart`} className={`text-sm font-semibold hover:underline py-3 sm:py-0 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${isDark ? "text-blue-400 focus:ring-slate-500 focus:ring-offset-black" : "text-blue-600 focus:ring-slate-500 focus:ring-offset-white"}`}>
+                {linkLabel ?? `View full ${title}`} <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          ) : (
+            <div className="mb-6">
+              <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h2>
               {subtitle && (
                 <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
               )}
             </div>
-            <Link href={linkHref} aria-label={linkLabel ?? `View full ${title} chart`} className={`text-sm font-semibold hover:underline py-3 sm:py-0 focus:outline-none focus:ring-2 rounded ${isDark ? "text-blue-400 focus:ring-white" : "text-blue-600 focus:ring-slate-500"}`}>
-              {linkLabel ?? "View full chart"} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="mb-6">
-            <h2 className={`text-xl font-bold mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h2>
-            {subtitle && (
-              <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
-            )}
-          </div>
-        )}
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+          )}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
       </div>
     </FadeIn>
   );

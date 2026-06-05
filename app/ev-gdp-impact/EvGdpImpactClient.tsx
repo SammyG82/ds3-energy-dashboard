@@ -14,11 +14,7 @@ import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 import BehindTheNumbers from "@/components/ui/BehindTheNumbers";
 import { useDataFetch, useHashScroll } from "@/lib/ui-utils";
-
-function ChartLoader() {
-  const { isDark } = useTheme();
-  return <LoadingPlaceholder text="Loading chart…" isDark={isDark} />;
-}
+import ChartLoader from "@/components/ui/ChartLoader";
 
 const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: ChartLoader });
 const OilForecastChart  = dynamic(() => import("@/components/charts/OilForecastChart"),  { ssr: false, loading: ChartLoader });
@@ -106,8 +102,9 @@ export default function EvGdpImpactClient() {
 
   useHashScroll(
     (hash) => {
-      if (hash === "#oil-import-forecasts") return !!document.getElementById("oil-import-forecasts")?.querySelector("svg > g");
-      return !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
+      const gdpDrawn = !!document.getElementById("ev-gdp-section")?.querySelector("svg > g");
+      if (hash === "#oil-import-forecasts") return gdpDrawn && !!document.getElementById("oil-import-forecasts")?.querySelector("svg > g");
+      return gdpDrawn;
     },
     (evData.length > 0 || !!evDataError) && (gdpMeta.length > 0 || !!gdpMetaError) && (oilPrices.length > 0 || !!oilPricesError) && (imports.length > 0 || !!importsError)
   );
@@ -148,7 +145,9 @@ export default function EvGdpImpactClient() {
                 {gdpMetaError && <ErrorMessage message={gdpMetaError} isDark={isDark} />}
               </div>
             ) : (
-              <LoadingPlaceholder text="Loading data…" isDark={isDark} />
+              <div className="min-h-[500px]">
+                <LoadingPlaceholder text="Loading data…" isDark={isDark} />
+              </div>
             )}
           </section>
         </FadeIn>

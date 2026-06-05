@@ -15,24 +15,29 @@ function detectIsDark(): boolean {
   try {
     const stored = localStorage.getItem("ds3-theme");
     if (stored !== null) return stored === "dark";
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return false;
   } catch { return false; }
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDark, setIsDark] = useState(detectIsDark);
+  const [isDark, setIsDark] = useState(false);
+
+  // Read localStorage after mount to avoid server/client hydration mismatch.
+  // Runs synchronously before paint; content stays hidden via page-loading until
+  // PageInit fires (useEffect, always after useLayoutEffect).
+  useLayoutEffect(() => {
+    setIsDark(detectIsDark());
+  }, []);
 
   useLayoutEffect(() => {
     document.documentElement.classList.toggle("dark", isDark);
   }, [isDark]);
 
   const toggle = useCallback(() => {
-    setIsDark((d) => {
-      const next = !d;
-      try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("Theme save failed:", e); }
-      return next;
-    });
-  }, []);
+    const next = !isDark;
+    try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("Theme save failed:", e); }
+    setIsDark(next);
+  }, [isDark]);
 
   const value = useMemo(() => ({ isDark, toggle }), [isDark, toggle]);
 

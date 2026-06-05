@@ -3,6 +3,7 @@
 import { useTheme } from "@/lib/theme-context";
 import FadeIn from "@/components/ui/FadeIn";
 import PageHeader from "@/components/ui/PageHeader";
+import { BASE } from "@/lib/data";
 
 export default function AboutClient() {
   const { isDark } = useTheme();
@@ -44,12 +45,13 @@ export default function AboutClient() {
           <div className={`relative p-6 rounded-3xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}>
             <div className="overflow-x-auto">
               <table className="w-full">
+                <caption className="sr-only">Key variables used in the DS3 Energy Dashboard data files</caption>
                 <thead>
                   <tr className={`border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
-                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Variable</th>
-                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Description</th>
-                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Unit</th>
-                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>Source</th>
+                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>Variable</th>
+                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>Description</th>
+                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>Unit</th>
+                    <th scope="col" className={`text-left py-3 px-4 text-xs uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>Source</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -86,7 +88,7 @@ export default function AboutClient() {
                 </tbody>
               </table>
             </div>
-            <div className={`pointer-events-none absolute inset-y-0 right-6 w-12 bg-linear-to-l ${isDark ? "from-black" : "from-white"} to-transparent sm:hidden`} aria-hidden="true" />
+            <div className={`pointer-events-none absolute inset-y-0 right-0 w-12 bg-linear-to-l ${isDark ? "from-black" : "from-white"} to-transparent sm:hidden`} aria-hidden="true" />
           </div>
         </section></FadeIn>
 
@@ -106,6 +108,7 @@ export default function AboutClient() {
                   source: "International Energy Agency (IEA)",
                   license: "IEA Terms of Use",
                   columns: "Country, Year, Type, Oil Imports (KBD), CI Low (KBD), CI High (KBD)",
+                  files: ["oil_forecast.csv"],
                 },
                 {
                   title: "EV Sales & Forecast Data",
@@ -114,6 +117,7 @@ export default function AboutClient() {
                   source: "IEA Global EV Outlook 2025 (historical) + DS3 logistic S-curve model (projections)",
                   license: "IEA Terms of Use (historical data)",
                   columns: "region_country, year, ev_sales, type",
+                  files: ["ev_sales.csv", "ev_data.json"],
                 },
                 {
                   title: "Historical Crude Oil Prices",
@@ -122,6 +126,7 @@ export default function AboutClient() {
                   source: "EIA (RBRTE / RWTC series) · Energy Institute Statistical Review (1986 Brent) · BLS CPI-U (deflation)",
                   license: "Public domain",
                   columns: "year, brent_nominal, wti_nominal, brent_real, wti_real",
+                  files: ["oil_prices.json"],
                 },
                 {
                   title: "Net Trade Forecast",
@@ -130,6 +135,7 @@ export default function AboutClient() {
                   source: "Derived from IEA Oil Information Database — DS3 model",
                   license: "Open",
                   columns: "Country, Year, Type, Net_Trade, Net_CI_Low, Net_CI_High, Exports, Imports, Exports_Order, Imports_Order, Avg_MAPE",
+                  files: ["net_trade_forecast.csv"],
                 },
                 {
                   title: "Oil Exports Forecast",
@@ -138,6 +144,7 @@ export default function AboutClient() {
                   source: "International Energy Agency (IEA)",
                   license: "IEA Terms of Use",
                   columns: "Country, Year, Type, Value, Lower_CI, Upper_CI, ARIMA_Order, MAPE",
+                  files: ["exports.csv"],
                 },
                 {
                   title: "EV GDP Impact Metadata",
@@ -146,8 +153,9 @@ export default function AboutClient() {
                   source: "World Bank Open Data 2023 (GDP) · IEA Oil Information Database (oil imports) · IEA/EIA estimates (cost per barrel)",
                   license: "Open",
                   columns: "country, region, gdp (B USD), oilImports (Mb/d), costPerBarrel (USD)",
+                  files: ["gdp_country_meta.json"],
                 },
-              ].map(({ title, desc, rows, source, license, columns }) => (
+              ].map(({ title, desc, rows, source, license, columns, files }) => (
                 <div
                   key={title}
                   className={`p-4 rounded-2xl border backdrop-blur-sm ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50/50 border-slate-200/50"}`}
@@ -159,6 +167,19 @@ export default function AboutClient() {
                     <div><span className="font-medium">Source:</span> {source}</div>
                     <div><span className="font-medium">License:</span> {license}</div>
                     <div><span className="font-medium">Columns:</span> {columns}</div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-current/10">
+                    {files.map((f) => (
+                      <a
+                        key={f}
+                        href={`${BASE}/data/${f}`}
+                        download
+                        className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "border-white/10 text-teal-400 hover:border-white/30" : "border-slate-200 text-teal-700 hover:border-slate-400"}`}
+                      >
+                        {f}
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 1v6M2 7l3 2 3-2" /></svg>
+                      </a>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -174,7 +195,7 @@ export default function AboutClient() {
                 <div className="mb-4">
                   <h4 className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>Oil Import / Export Dataset</h4>
                 </div>
-                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
+                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/60"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Oil Information" },
@@ -184,7 +205,7 @@ export default function AboutClient() {
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-2">
-                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
+                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>
                   ))}
@@ -198,7 +219,7 @@ export default function AboutClient() {
                 <div className="mb-4">
                   <h4 className={`text-lg font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>EV Sales & Market Growth Dataset</h4>
                 </div>
-                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/40"}`}>International Energy Agency (IEA)</p>
+                <p className={`text-xs font-mono uppercase tracking-widest mb-4 ${isDark ? "text-white/50" : "text-black/60"}`}>International Energy Agency (IEA)</p>
                 <div className="space-y-3 mb-4">
                   {[
                     { label: "SOURCE", value: "IEA Global EV Outlook 2025 + DS3 S-curve (projections)" },
@@ -208,7 +229,7 @@ export default function AboutClient() {
                     { label: "GRANULARITY", value: "Country-level, annual" },
                   ].map(({ label, value }) => (
                     <div key={label} className="grid grid-cols-[80px_1fr] sm:grid-cols-[100px_1fr] gap-2">
-                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/40"}`}>{label}</span>
+                      <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/50" : "text-black/60"}`}>{label}</span>
                       <span className={`text-sm ${isDark ? "text-white/90" : "text-black/80"}`}>{value}</span>
                     </div>
                   ))}
@@ -234,42 +255,42 @@ export default function AboutClient() {
                 {
                   num: "01",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Extract",
                   body: <>Raw IEA files were loaded by Python notebooks in <span className="font-mono text-xs">analysis/oil_info/</span> and <span className="font-mono text-xs">eda/</span>. EV historical sales data comes from IEA Global EV Outlook 2025; oil trade data from the IEA Oil Information Database (<span className="font-mono text-xs">OIWORLD.csv</span>).</>,
                 },
                 {
                   num: "02",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Clean",
                   body: <>Country names were standardised across datasets — capitalisation anomalies corrected (e.g. <span className="font-mono text-xs">Usa → USA</span>), regional aggregate rows removed, and zero-value rows for years with missing data filtered out to prevent misleading drops in charts.</>,
                 },
                 {
                   num: "03",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Forecast (Oil)",
                   body: <>A Log-ARIMA model was fitted per country using grid search over <span className="font-mono text-xs">(p, d, q)</span> with AIC selection (<span className="font-mono text-xs">d ≤ 1</span>). Each model produces a point forecast and 95% confidence intervals through 2030. MAPE is stored per country in the output CSV.</>,
                 },
                 {
                   num: "04",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Forecast (EV)",
                   body: <>A logistic S-curve model is fitted per country using <span className="font-mono text-xs">scipy.optimize.curve_fit</span> on IEA historical BEV sales. The model projects adoption through 2035, constrained to 1.2–10× the historical peak. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Uzbekistan has fewer than 3 data points, so no S-curve forecast is generated for it; its historical rows are still included in the output.</>,
                 },
                 {
                   num: "05",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Export",
                   body: <>Each notebook outputs a standalone file to <span className="font-mono text-xs">public/data/</span>. No single merged analytical dataset exists — each chart reads its own file independently at runtime.</>,
                 },
                 {
                   num: "06",
                   bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/40", textDark: "text-white/50",
+                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Derive (client-side)",
                   body: <>Oil displacement, estimated savings, and GDP impact percentages are computed in the browser using the adoption-rate and year sliders on the EV GDP Impact page — they are not stored in any data file.</>,
                 },

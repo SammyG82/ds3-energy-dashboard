@@ -102,8 +102,12 @@ export default function Header() {
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }
             }}
-            className={`flex items-center gap-3 whitespace-nowrap flex-1 md:flex-none focus:outline-none focus:ring-2 rounded ${
-              isTransparent ? "focus:ring-white" : isDark ? "focus:ring-white" : "focus:ring-slate-500"
+            className={`flex items-center gap-3 whitespace-nowrap flex-1 md:flex-none focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${
+              isTransparent
+                ? "focus:ring-white focus:ring-offset-black"
+                : isDark
+                ? "focus:ring-white focus:ring-offset-black"
+                : "focus:ring-slate-500 focus:ring-offset-white"
             }`}
           >
             <img
@@ -113,6 +117,7 @@ export default function Header() {
               width={40}
               height={40}
               className="w-10 h-10 object-contain"
+              loading="eager"
               style={isTransparent ? { mixBlendMode: "multiply" } : undefined}
             />
             <span className={`inline-flex items-end gap-2 font-light leading-none ${isTransparent || isDark ? "text-white" : "text-slate-900"}`}>
@@ -164,7 +169,7 @@ export default function Header() {
                   : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
               }`}
             >
-              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDark ? <Sun className="w-5 h-5" aria-hidden="true" /> : <Moon className="w-5 h-5" aria-hidden="true" />}
             </button>
 
             {/* Hamburger — mobile only */}
@@ -183,18 +188,17 @@ export default function Header() {
                   : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
               }`}
             >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {menuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile nav */}
-        {menuOpen && (
-          <nav
+        {/* Mobile nav — always in DOM so aria-controls always resolves; visibility toggled with hidden */}
+        <nav
             id="mobile-nav"
             className={`md:hidden px-6 pb-4 flex flex-col gap-1 border-t ${
               isDark ? "border-white/10" : "border-slate-200"
-            }`}
+            } ${menuOpen ? "" : "hidden"}`}
             aria-label="Mobile navigation"
           >
             {nav.map(({ label, href }) => {
@@ -219,7 +223,6 @@ export default function Header() {
               );
             })}
           </nav>
-        )}
       </div>
     </header>
   );

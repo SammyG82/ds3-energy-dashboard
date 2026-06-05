@@ -7,7 +7,7 @@ import type { EvRow, OilRow } from "@/lib/data";
 export const HEADER_HEIGHT_PX = 96;
 
 export const CHART_TEXT = { dark: "#94a3b8", light: "#64748b" } as const;
-const GRID_STROKE = { dark: "#334155", light: "#e2e8f0" } as const;
+export const GRID_STROKE = { dark: "#334155", light: "#e2e8f0" } as const;
 export const FORECAST_DASH = "6 3";
 
 // Counts client-side pushState calls since module init. Resets to 0 on every hard
@@ -93,9 +93,9 @@ export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; er
   const [data, setData] = useState<T>(initial);
   const [error, setError] = useState<string | null>(null);
   const fnRef = useRef(fn);
-  fnRef.current = fn;
   useEffect(() => {
     let mounted = true;
+    setError(null);
     fnRef.current().then((result) => {
       if (mounted) setData(result);
     }).catch((err) => {
@@ -193,6 +193,9 @@ export function useContainerSize(ref: RefObject<Element | null>): { width: numbe
       }, 150);
     });
     obs.observe(ref.current);
+    // Capture initial size synchronously so charts don't start with width=0 on first render
+    const { width, height } = ref.current.getBoundingClientRect();
+    if (width > 0) setSize({ width: Math.floor(width), height: Math.floor(height) });
     return () => { mounted = false; clearTimeout(tid); obs.disconnect(); };
   }, []);
   return size;
@@ -235,19 +238,32 @@ export function useHashScroll(
       if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
     };
 
-    if (isChartDrawnRef.current(hash)) { doScroll(); return; }
-
+    // Delay doScroll by 200ms after isChartDrawn is first satisfied. useContainerSize
+    // captures width synchronously (getBoundingClientRect, border-box) then ResizeObserver
+    // fires 150ms later with contentRect (content-box). These differ on padded containers,
+    // triggering a redraw at T+150ms. On cached second visits charts draw fast (~50ms),
+    // so without the delay doScroll fires before the ResizeObserver settles and the
+    // resulting height change shifts the target after the scroll. 200ms > 150ms debounce.
+    let drawTid: ReturnType<typeof setTimeout> | undefined;
+    let intervalId: ReturnType<typeof setInterval> | undefined;
     let safeTid: ReturnType<typeof setTimeout> | undefined;
-    const intervalId = setInterval(() => {
-      if (isChartDrawnRef.current(hash)) {
-        clearInterval(intervalId);
-        clearTimeout(safeTid);
-        doScroll();
-      }
-    }, 50);
-    safeTid = setTimeout(() => { clearInterval(intervalId); doScroll(); }, 2000);
 
-    return () => { clearInterval(intervalId); clearTimeout(safeTid); };
+    const scheduleScroll = () => { drawTid = setTimeout(doScroll, 200); };
+
+    if (isChartDrawnRef.current(hash)) {
+      scheduleScroll();
+    } else {
+      intervalId = setInterval(() => {
+        if (isChartDrawnRef.current(hash)) {
+          clearInterval(intervalId);
+          clearTimeout(safeTid);
+          scheduleScroll();
+        }
+      }, 50);
+      safeTid = setTimeout(() => { clearInterval(intervalId); clearTimeout(drawTid); doScroll(); }, 2000);
+    }
+
+    return () => { clearInterval(intervalId); clearTimeout(safeTid); clearTimeout(drawTid); };
   }, [ready, headerHeightPx]);
 }
 
