@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef, useId } from "react";
 import { TOP_5_MARKETS } from "@/lib/data";
+import type { PresetItem } from "@/lib/data";
 
 const EUROPE = [
   "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic",
@@ -11,12 +12,7 @@ const EUROPE = [
   "Slovenia", "Spain", "Sweden", "Switzerland", "Turkiye", "United Kingdom",
 ];
 
-export interface PresetItem {
-  label: string;
-  description: string;
-  detail: string;
-  regions: string[] | null;
-}
+export type { PresetItem } from "@/lib/data";
 
 const PRESETS: PresetItem[] = [
   {
@@ -184,7 +180,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
       </div>
 
       {showInfo && (
-        <div id={`${uid}-info`} role="region" aria-label="Why these groups?" className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+        <div id={`${uid}-info`} role="region" aria-label="Why these groups?" onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); setShowInfo(false); infoBtnRef.current?.focus(); } }} className={`border rounded-xl p-4 flex flex-col gap-3 ${isDark ? "bg-white/10 border-white/10" : "bg-slate-50 border-slate-200"}`}>
           <p className={`text-xs uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Why these groups?</p>
           {presets.map(({ label, detail }) => (
             <div key={label}>
@@ -213,6 +209,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             className={`border rounded-lg overflow-y-auto pb-1.5 ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}
             style={{ maxHeight: "clamp(150px, 40vh, 250px)" }}
             onKeyDown={(e) => {
+              if (e.key === "Escape") { e.preventDefault(); setShowCustom(false); customBtnRef.current?.focus(); return; }
               if (e.key !== "ArrowDown" && e.key !== "ArrowUp" && e.key !== "Home" && e.key !== "End") return;
               e.preventDefault();
               const checks = Array.from(listRef.current?.querySelectorAll<HTMLInputElement>("input[type=checkbox]") ?? []);
@@ -228,7 +225,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             }}
           >
             {filtered.length === 0 ? (
-              <p className={`text-xs px-3 py-2 ${isDark ? "text-white/40" : "text-slate-400"}`}>No regions match.</p>
+              <p role="status" className={`text-xs px-3 py-2 ${isDark ? "text-white/40" : "text-slate-400"}`}>No regions match.</p>
             ) : (
               filtered.map((region) => (
                 <label

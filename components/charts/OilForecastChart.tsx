@@ -69,7 +69,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
   const statDisplayYear = useMemo(() => {
     const histYear = isFinite(forecastBoundary)
       ? forecastBoundary - 1
-      : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, -Infinity);
+      : data.reduce((max, d) => d.Type === "Historical" && d.Year > max ? d.Year : max, 0);
     return statYear ?? histYear;
   }, [data, forecastBoundary, statYear]);
 
@@ -174,7 +174,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     );
 
     activeCountries.forEach((country) => {
-      const rows = countryRows.get(country)!;
+      const rows = countryRows.get(country) ?? [];
       const color = COUNTRY_COLORS[country] ?? "#64748b";
 
       const history = rows.filter((d) => d.Year <= forecastBoundary);
@@ -208,7 +208,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
     activeCountries.forEach((country) => {
       const color = COUNTRY_COLORS[country] ?? "#64748b";
-      const rows = countryRows.get(country)!;
+      const rows = countryRows.get(country) ?? [];
       tickYears.forEach((yr) => {
         const row = rows.find((d) => d.Year === yr);
         if (!row) return;
@@ -268,7 +268,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           setPreviewTooltipPos(null);
         }
       });
-  }, [data, selectedSet, preview, forecastBoundary, containerWidth, clipId]);
+  }, [data, allCountries, selectedSet, preview, forecastBoundary, containerWidth, clipId]);
 
   useChartTheme(svgRef, isDark);
 

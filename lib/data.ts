@@ -46,7 +46,7 @@ function assertOilType(t: string | undefined): OilRow["Type"] | null {
 }
 
 function normalizeOilCountry(c: string | undefined): string {
-  return c ?? "";
+  return (c ?? "").trim();
 }
 
 export interface GdpMeta {
@@ -55,6 +55,13 @@ export interface GdpMeta {
   gdp: number;
   oilImports: number;
   costPerBarrel: number;
+}
+
+export interface PresetItem {
+  label: string;
+  description: string;
+  detail: string;
+  regions: string[] | null;
 }
 
 export const EV_DISPLAY_NAMES: Record<string, string> = {

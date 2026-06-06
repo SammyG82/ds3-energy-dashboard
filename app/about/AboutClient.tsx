@@ -63,7 +63,7 @@ export default function AboutClient() {
                     { name: "ev_growth_rate", desc: "Year-over-year percentage change in EV sales volume", unit: "% change", tags: ["DERIVED"] },
                     { name: "oil_import", desc: "Total crude oil and petroleum product imports", unit: "kb/d", tags: ["OIL"] },
                     { name: "oil_export", desc: "Total crude oil and petroleum product exports", unit: "kb/d", tags: ["OIL"] },
-                    { name: "net_oil_import", desc: "Oil exports minus oil imports; negative = net importer", unit: "kb/d", tags: ["DERIVED"] },
+                    { name: "Net_Trade", desc: "Oil exports minus oil imports; negative = net importer", unit: "kb/d", tags: ["DERIVED"] },
                     { name: "oil_import_delta", desc: "Year-over-year change in oil import volume", unit: "kb/d (Δ)", tags: ["DERIVED"] },
                     { name: "estimated_savings", desc: "Estimated financial value of oil import reduction attributed to EV adoption, at a reference oil price.", unit: "USD billions", tags: ["DERIVED"] },
                   ].map((row, i, arr) => (
@@ -174,6 +174,7 @@ export default function AboutClient() {
                         key={f}
                         href={`${BASE}/data/${f}`}
                         download
+                        aria-label={`Download ${f}`}
                         className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "border-white/10 text-teal-400 hover:border-white/30" : "border-slate-200 text-teal-700 hover:border-slate-400"}`}
                       >
                         {f}

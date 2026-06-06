@@ -1,4 +1,4 @@
-import type { PresetItem } from "@/components/ui/RegionPicker";
+import type { PresetItem } from "@/lib/data";
 
 export const OIL_IMPORT_PRESETS: PresetItem[] = [
   {

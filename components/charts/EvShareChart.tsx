@@ -36,6 +36,8 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const isDarkRef = useThemeRef(isDark);
   const prevSvgParamsRef = useRef<{ containerWidth: number; preview: boolean; data: EvRow[]; excluded: Set<string> } | null>(null);
+  const focusIndexAfterRedrawRef = useRef<number | null>(null);
+  const suppressNextFocusTooltipRef = useRef(false);
 
   const topN = preview ? 10 : 20;
 
@@ -190,6 +192,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
         const e = event as KeyboardEvent;
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
+          focusIndexAfterRedrawRef.current = displayRows.findIndex((r) => r.region_country === d.region_country);
           setTooltip(null);
           setTooltipPos(null);
           setExcluded((prev) => new Set([...prev, d.region_country]));
@@ -197,6 +200,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       })
       .on("focus", function (_, d) {
         d3.select(this).style("outline", `2px solid ${isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light}`).style("outline-offset", "2px");
+        if (suppressNextFocusTooltipRef.current) { suppressNextFocusTooltipRef.current = false; return; }
         const rect = (this as SVGRectElement).getBoundingClientRect();
         const containerRect = containerRef.current?.getBoundingClientRect();
         if (containerRect) {
@@ -260,6 +264,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           e.preventDefault();
           const row = displayRows.find((d) => dn(d.region_country) === countryDisplay);
           if (row) {
+            focusIndexAfterRedrawRef.current = displayRows.findIndex((d) => d.region_country === row.region_country);
             setTooltip(null);
             setTooltipPos(null);
             setExcluded((prev) => new Set([...prev, row.region_country]));
@@ -278,6 +283,15 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
           .attr("aria-hidden", "true")
           .text("*");
       });
+
+    if (focusIndexAfterRedrawRef.current !== null) {
+      const idx = Math.min(focusIndexAfterRedrawRef.current, displayRows.length - 1);
+      focusIndexAfterRedrawRef.current = null;
+      if (idx >= 0 && svgRef.current) {
+        const bar = svgRef.current.querySelectorAll<SVGRectElement>(".bar")[idx] as SVGRectElement | undefined;
+        if (bar) { suppressNextFocusTooltipRef.current = true; bar.focus(); }
+      }
+    }
   }, [displayRows, preview, containerWidth, total, excluded]);
 
   // Update only colours when theme changes — no redraw, no animation restart

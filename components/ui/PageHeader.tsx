@@ -29,9 +29,10 @@ export default function PageHeader({ title, titleAccent, subtitle, badges, isDar
           <p className={`mt-2 max-w-2xl text-sm leading-relaxed ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
         </div>
         {badges && badges.length > 0 && (
-          <div className="flex flex-col gap-1.5 self-end">
+          <div role="list" aria-label="Page labels" className="flex flex-col gap-1.5 self-end">
             {badges.map(({ label, color = "blue" }, i) => (
               <span
+                role="listitem"
                 key={`${label}-${i}`}
                 className={`text-xs font-mono uppercase tracking-wide px-2.5 py-1 rounded border ${badgeColors[color][isDark ? "dark" : "light"]}`}
               >

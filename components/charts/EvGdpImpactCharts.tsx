@@ -45,12 +45,18 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const forecastBoundary = useEvForecastBoundary(evData);
   const years = useMemo(() => {
-    const lb = isFinite(forecastBoundary) ? forecastBoundary - 1 : (d3.max(evData, (d) => d.year) ?? Infinity);
-    return Array.from(new Set(evData.map((d) => d.year))).filter((y) => y >= lb).sort();
-  }, [evData, forecastBoundary]);
+    return Array.from(new Set(evData.map((d) => d.year))).sort();
+  }, [evData]);
 
-  const [country,          setCountry]          = useState(() => countries[0] ?? "");
-  const [year,             setYear]             = useState(() => years[0] ?? 0);
+  // Default to the last historical year so the slider opens on real data, not 2010.
+  const defaultYear = useMemo(() => {
+    if (!years.length) return 0;
+    const lastHist = isFinite(forecastBoundary) ? forecastBoundary - 1 : null;
+    return lastHist !== null && years.includes(lastHist) ? lastHist : years[years.length - 1];
+  }, [years, forecastBoundary]);
+
+  const [country, setCountry] = useState(() => countries[0] ?? "");
+  const [year,    setYear]    = useState(() => defaultYear);
   const [adoption,         setAdoption]         = useState(1.0);
   const [benchmark,        setBenchmark]        = useState<Benchmark>("brent");
   const benchmarkRef = useRef<Benchmark>(benchmark);
@@ -59,7 +65,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
   const [customWtiPrice,   setCustomWtiPrice]   = useState<number>(FALLBACK_PRICE);
 
   useEffect(() => { if (countries.length) setCountry(countries[0]); }, [countries]);
-  useEffect(() => { if (years.length)     setYear(years[0]);         }, [years]);
+  useEffect(() => { if (years.length)     setYear(defaultYear);      }, [defaultYear]);
 
   const [pricePinnedYear, setPricePinnedYear] = useState<number | null>(null);
 
@@ -106,10 +112,13 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
   const priceSvgLabel = useMemo(() => {
     const lastRow = oilPrices.length ? oilPrices[oilPrices.length - 1] : null;
-    const lastNominal = lastRow ? (benchmark === "brent" ? lastRow.brent_nominal : lastRow.wti_nominal) : null;
-    const name = benchmark === "brent" ? "Brent" : "WTI";
-    return `Historical ${name} crude oil prices: nominal and inflation-adjusted${lastNominal !== null ? ` (${name} nominal $${lastNominal.toFixed(0)}/bbl in ${latestDataYear})` : ""}.`;
-  }, [benchmark, latestDataYear, oilPrices]);
+    const lastBrent = lastRow?.brent_nominal;
+    const lastWti = lastRow?.wti_nominal;
+    const priceStr = lastBrent != null && lastWti != null
+      ? ` (Brent $${lastBrent.toFixed(0)}/bbl, WTI $${lastWti.toFixed(0)}/bbl in ${latestDataYear})`
+      : "";
+    return `Historical Brent and WTI crude oil prices: nominal and inflation-adjusted${priceStr}.`;
+  }, [latestDataYear, oilPrices]);
 
   const pinnedPriceRow = useMemo(
     () => pricePinnedYear !== null ? oilPrices.find((r) => r.year === pricePinnedYear) ?? null : null,
@@ -134,7 +143,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
     svg.attr("width", totalW).attr("height", totalH);
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
-    const [minYear, maxYear] = d3.extent(chartData, (d) => d.year) as [number, number];
+    const [minYear = 1986, maxYear = 2026] = d3.extent(chartData, (d) => d.year);
     const x = d3.scaleLinear()
       .domain([minYear, maxYear + 0.5])
       .range([0, width]);
@@ -301,8 +310,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Price Benchmark</span>
-          <div className="flex gap-2">
+          <span id="price-benchmark-label" className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Price Benchmark</span>
+          <div role="group" aria-labelledby="price-benchmark-label" className="flex gap-2">
             {(["brent", "wti"] as Benchmark[]).map((b) => (
               <button key={b} type="button" onClick={() => setBenchmark(b)}
                 aria-pressed={benchmark === b}
@@ -324,8 +333,8 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}EV Sales`}    value={fmtEvSales(sales)}                                                          sub={`${country} ${year}`} accent="teal" />
         <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}Oil Saved`}   value={oilDisplaced === 0 ? "0" : oilDisplaced >= 1 ? `${oilDisplaced.toFixed(0)}M` : oilDisplaced >= 0.1 ? `${oilDisplaced.toFixed(1)}M` : `${(oilDisplaced * 1000).toFixed(0)}k`} sub="barrels per year"    accent="amber" />
-        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}Cost Saved`}  value={`$${costSavings.toFixed(1)}B`}                                               sub="annually"             accent="blue" />
-        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}GDP Savings`} value={`${gdpPercent.toFixed(3)}%`}                                                 sub="of GDP"               accent="teal" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}Cost Saved`}  value={!oilPrices.length && !beyondData ? "—" : `$${costSavings.toFixed(1)}B`}  sub="annually"             accent="blue" />
+        <StatCard size="xl" isDark={isDark} nested={false} label={`${isProjected ? "Projected " : ""}GDP Savings`} value={!oilPrices.length && !beyondData ? "—" : `${gdpPercent.toFixed(3)}%`}   sub="of GDP"               accent="teal" />
       </div>
 
       {/* Oil price stat + scenario slider */}

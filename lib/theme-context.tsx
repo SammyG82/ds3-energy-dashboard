@@ -34,10 +34,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [isDark]);
 
   const toggle = useCallback(() => {
-    const next = !isDark;
-    try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("Theme save failed:", e); }
-    setIsDark(next);
-  }, [isDark]);
+    setIsDark((prev) => {
+      const next = !prev;
+      try { localStorage.setItem("ds3-theme", next ? "dark" : "light"); } catch (e) { if (process.env.NODE_ENV !== "production") console.warn("Theme save failed:", e); }
+      return next;
+    });
+  }, []);
 
   const value = useMemo(() => ({ isDark, toggle }), [isDark, toggle]);
 
