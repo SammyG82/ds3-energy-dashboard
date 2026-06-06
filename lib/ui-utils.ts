@@ -10,19 +10,32 @@ export const CHART_TEXT = { dark: "#94a3b8", light: "#64748b" } as const;
 export const GRID_STROKE = { dark: "#334155", light: "#e2e8f0" } as const;
 export const FORECAST_DASH = "6 3";
 
-// Counts client-side pushState calls since module init. Resets to 0 on every hard
-// page reload (the module re-initialises). Stays > 0 through any client-side navigation.
-// useHashScroll reads this at component mount time to distinguish a hard load from a
+// Counts client-side pushState/replaceState calls since module init. Resets to 0 on every
+// hard page reload (the module re-initialises). Stays > 0 through any client-side navigation.
+// useHashScroll reads this inside the scroll effect to distinguish a hard load from a
 // Next.js Link navigation — the performance navigation API can't make this distinction
 // because it reflects the original hard-load type for the entire browser session.
+// pushState dispatches "ds3-nav" to re-trigger the scroll effect.
+// replaceState only increments _clientNavs (for reload detection) — NOT "ds3-nav", because
+// Next.js calls replaceState multiple times for state management during navigation, and each
+// dispatch would re-run the scroll effect and cancel the verify timer before it fires.
 let _clientNavs = 0;
-if (typeof window !== "undefined" && !(history.pushState as typeof history.pushState & { __ds3Patched?: boolean }).__ds3Patched) {
-  const _origPushState = history.pushState.bind(history);
-  const _patched = Object.assign(
-    function (...args: Parameters<typeof history.pushState>) { _clientNavs++; return _origPushState(...args); },
-    { __ds3Patched: true as const }
-  );
-  history.pushState = _patched;
+if (typeof window !== "undefined") {
+  type PatchableNavFn = typeof history.pushState & { __ds3Patched?: boolean };
+  if (!(history.pushState as PatchableNavFn).__ds3Patched) {
+    const _orig = history.pushState.bind(history);
+    history.pushState = Object.assign(
+      function (...args: Parameters<typeof history.pushState>) { _clientNavs++; window.dispatchEvent(new CustomEvent("ds3-nav")); return _orig(...args); },
+      { __ds3Patched: true as const }
+    );
+  }
+  if (!(history.replaceState as PatchableNavFn).__ds3Patched) {
+    const _orig = history.replaceState.bind(history);
+    history.replaceState = Object.assign(
+      function (...args: Parameters<typeof history.replaceState>) { _clientNavs++; return _orig(...args); },
+      { __ds3Patched: true as const }
+    );
+  }
 }
 
 export function tooltipStyle(
@@ -210,32 +223,55 @@ export function useHashScroll(
   ready: boolean,
   headerHeightPx = HEADER_HEIGHT_PX
 ): void {
-  const scrolledRef = useRef(false);
+  const scrolledForNavRef = useRef(-1);
   const isChartDrawnRef = useRef(isChartDrawn);
   isChartDrawnRef.current = isChartDrawn;
-  // Captured at mount time: any pushState before this component mounted means we
-  // arrived via a Next.js Link, not a hard page load. Hard reload resets _clientNavs
-  // to 0 (module re-initialises), so this is false only on genuine hard loads.
-  const arrivedViaClientNav = useRef(_clientNavs > 0);
+
+  // Bridges the module-level _clientNavs counter into React state so the scroll effect
+  // re-runs on each navigation. "ds3-nav" is dispatched by the pushState/replaceState patch
+  // above. "popstate" covers browser back/forward navigation. Without navCount, if the
+  // component is reused by the Next.js router cache with ready=true already, the scroll
+  // effect never re-runs on subsequent navigations.
+  const [navCount, setNavCount] = useState(0);
+  useEffect(() => {
+    const onNav = () => setTimeout(() => setNavCount((c) => c + 1), 0);
+    window.addEventListener("ds3-nav", onNav);
+    return () => { window.removeEventListener("ds3-nav", onNav); };
+  }, []);
 
   useEffect(() => {
-    if (scrolledRef.current || !ready) return;
+    if (scrolledForNavRef.current === navCount || !ready) return;
     const hash = window.location.hash;
-    if (!arrivedViaClientNav.current) {
+    // _clientNavs is read here (inside the effect) rather than at render time because
+    // Next.js App Router calls pushState during the commit phase — after render but
+    // before effects. On the first visit, navCount=0 (the "ds3-nav" event fired before
+    // the listener was registered), so _clientNavs is the reliable reload-check signal.
+    if (!(_clientNavs > 0)) {
       // Hard page load — on reload, return to top rather than jumping to the hash anchor.
       const navEntry = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
       if (navEntry?.type === "reload") {
-        scrolledRef.current = true;
+        scrolledForNavRef.current = navCount;
         window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
     }
-    if (!hash) { scrolledRef.current = true; return; }
-    scrolledRef.current = true;
+    if (!hash) { scrolledForNavRef.current = navCount; return; }
+    scrolledForNavRef.current = navCount;
 
+    let verifyTid: ReturnType<typeof setTimeout> | undefined;
     const doScroll = () => {
       const el = document.getElementById(hash.slice(1));
-      if (el) window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
+      if (!el) return;
+      const scrollToTarget = () => {
+        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
+      };
+      scrollToTarget();
+      // Re-verify 300ms later: on cached-route second visits, Next.js router scroll
+      // restoration fires ~50ms after our initial scroll and overrides it. If the card
+      // is more than 50px off from the expected position, re-scroll to correct.
+      verifyTid = setTimeout(() => {
+        if (Math.abs(el.getBoundingClientRect().top - headerHeightPx) > 50) scrollToTarget();
+      }, 300);
     };
 
     // Delay doScroll by 200ms after isChartDrawn is first satisfied. useContainerSize
@@ -251,7 +287,10 @@ export function useHashScroll(
     const scheduleScroll = () => { drawTid = setTimeout(doScroll, 200); };
 
     if (isChartDrawnRef.current(hash)) {
-      scheduleScroll();
+      // Cached visit: charts already drawn, so Next.js's router scroll restoration
+      // (~T=250ms) would override an immediate scroll. Wait 300ms first so doScroll
+      // fires at T≈500ms — safely after the restoration settles.
+      drawTid = setTimeout(scheduleScroll, 300);
     } else {
       intervalId = setInterval(() => {
         if (isChartDrawnRef.current(hash)) {
@@ -263,8 +302,8 @@ export function useHashScroll(
       safeTid = setTimeout(() => { clearInterval(intervalId); clearTimeout(drawTid); doScroll(); }, 2000);
     }
 
-    return () => { clearInterval(intervalId); clearTimeout(safeTid); clearTimeout(drawTid); };
-  }, [ready, headerHeightPx]);
+    return () => { clearInterval(intervalId); clearTimeout(safeTid); clearTimeout(drawTid); clearTimeout(verifyTid); };
+  }, [ready, navCount, headerHeightPx]);
 }
 
 // Applies theme colours to a chart SVG whenever `isDark` changes.

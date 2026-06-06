@@ -50,7 +50,7 @@ export default function ChartCard({
                   <p className={`text-sm ${isDark ? "text-white/60" : "text-slate-600"}`}>{subtitle}</p>
                 )}
               </div>
-              <Link href={linkHref} aria-label={linkLabel ?? `View full ${title} chart`} className={`text-sm font-semibold hover:underline py-3 sm:py-0 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${isDark ? "text-blue-400 focus:ring-slate-500 focus:ring-offset-black" : "text-blue-600 focus:ring-slate-500 focus:ring-offset-white"}`}>
+              <Link href={linkHref} scroll={false} aria-label={linkLabel ?? `View full ${title} chart`} className={`text-sm font-semibold hover:underline py-3 sm:py-0 focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${isDark ? "text-blue-400 focus:ring-slate-500 focus:ring-offset-black" : "text-blue-600 focus:ring-slate-500 focus:ring-offset-white"}`}>
                 {linkLabel ?? `View full ${title}`} <span aria-hidden="true">→</span>
               </Link>
             </div>
