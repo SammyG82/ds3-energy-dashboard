@@ -25,14 +25,18 @@ if (typeof window !== "undefined") {
   if (!(history.pushState as PatchableNavFn).__ds3Patched) {
     const _orig = history.pushState.bind(history);
     history.pushState = Object.assign(
-      function (...args: Parameters<typeof history.pushState>) { _clientNavs++; window.dispatchEvent(new CustomEvent("ds3-nav")); return _orig(...args); },
+      function (...args: Parameters<typeof history.pushState>) {
+        _clientNavs++; window.dispatchEvent(new CustomEvent("ds3-nav")); return _orig(...args);
+      },
       { __ds3Patched: true as const }
     );
   }
   if (!(history.replaceState as PatchableNavFn).__ds3Patched) {
     const _orig = history.replaceState.bind(history);
     history.replaceState = Object.assign(
-      function (...args: Parameters<typeof history.replaceState>) { _clientNavs++; return _orig(...args); },
+      function (...args: Parameters<typeof history.replaceState>) {
+        _clientNavs++; return _orig(...args);
+      },
       { __ds3Patched: true as const }
     );
   }
@@ -241,7 +245,12 @@ export function useHashScroll(
 
   useEffect(() => {
     if (scrolledForNavRef.current === navCount || !ready) return;
-    const hash = window.location.hash;
+    // Normalize: Next.js sometimes produces compound hashes on same-page navigation,
+    // e.g. #ev-sales-by-country#ev-sales-projections (oldHash#newHash) or
+    // #ev-sales-by-country#ev-sales-by-country (same link twice). Always take the last
+    // fragment — it is the intended destination regardless of which case we're in.
+    const rawHash = window.location.hash;
+    const hash = rawHash ? '#' + rawHash.slice(1).split('#').pop()! : '';
     // _clientNavs is read here (inside the effect) rather than at render time because
     // Next.js App Router calls pushState during the commit phase — after render but
     // before effects. On the first visit, navCount=0 (the "ds3-nav" event fired before
@@ -259,19 +268,28 @@ export function useHashScroll(
     scrolledForNavRef.current = navCount;
 
     let verifyTid: ReturnType<typeof setTimeout> | undefined;
+    let onScrollListener: (() => void) | undefined;
     const doScroll = () => {
       const el = document.getElementById(hash.slice(1));
       if (!el) return;
-      const scrollToTarget = () => {
-        window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top - headerHeightPx, behavior: "instant" });
-      };
+      const targetScrollY = window.scrollY + el.getBoundingClientRect().top - headerHeightPx;
+      const targetPathname = window.location.pathname;
+      let corrected = false;
+      const scrollToTarget = () => { window.scrollTo({ top: targetScrollY, behavior: "instant" }); };
       scrollToTarget();
-      // Re-verify 300ms later: on cached-route second visits, Next.js router scroll
-      // restoration fires ~50ms after our initial scroll and overrides it. If the card
-      // is more than 50px off from the expected position, re-scroll to correct.
+      onScrollListener = () => {
+        const drift = window.scrollY - targetScrollY;
+        if (corrected) return;
+        // Skip if navigated away — correcting scroll on a different page causes Next.js
+        // to push a malformed URL (compound hash) for the return navigation.
+        if (window.location.pathname !== targetPathname) return;
+        if (Math.abs(drift) > 20) { corrected = true; scrollToTarget(); }
+      };
+      window.addEventListener("scroll", onScrollListener, { passive: true });
       verifyTid = setTimeout(() => {
-        if (Math.abs(el.getBoundingClientRect().top - headerHeightPx) > 50) scrollToTarget();
-      }, 300);
+        window.removeEventListener("scroll", onScrollListener!);
+        onScrollListener = undefined;
+      }, 1500);
     };
 
     // Delay doScroll by 200ms after isChartDrawn is first satisfied. useContainerSize
@@ -302,7 +320,10 @@ export function useHashScroll(
       safeTid = setTimeout(() => { clearInterval(intervalId); clearTimeout(drawTid); doScroll(); }, 2000);
     }
 
-    return () => { clearInterval(intervalId); clearTimeout(safeTid); clearTimeout(drawTid); clearTimeout(verifyTid); };
+    return () => {
+      clearInterval(intervalId); clearTimeout(safeTid); clearTimeout(drawTid); clearTimeout(verifyTid);
+      if (onScrollListener) { window.removeEventListener("scroll", onScrollListener); onScrollListener = undefined; }
+    };
   }, [ready, navCount, headerHeightPx]);
 }
 
