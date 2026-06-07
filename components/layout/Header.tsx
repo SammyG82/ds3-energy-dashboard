@@ -7,6 +7,16 @@ import { Sun, Moon, Menu, X } from "lucide-react";
 import { useTheme } from "@/lib/theme-context";
 import { BASE } from "@/lib/data";
 
+function headerButtonClasses(isTransparent: boolean, isDark: boolean): string {
+  return `py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+    isTransparent
+      ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white focus:ring-offset-black"
+      : isDark
+      ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white focus:ring-offset-black"
+      : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500 focus:ring-offset-white"
+  }`;
+}
+
 const nav = [
   { label: "Dashboard",   href: "/" },
   { label: "EV Forecast", href: "/ev-forecast/" },
@@ -161,13 +171,7 @@ export default function Header() {
               type="button"
               onClick={toggle}
               aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
-              className={`px-4 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
-                isTransparent
-                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white"
-                  : isDark
-                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white"
-                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
-              }`}
+              className={`px-4 ${headerButtonClasses(isTransparent, isDark)}`}
             >
               {isDark ? <Sun className="w-5 h-5" aria-hidden="true" /> : <Moon className="w-5 h-5" aria-hidden="true" />}
             </button>
@@ -180,13 +184,7 @@ export default function Header() {
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className={`md:hidden px-3.5 py-3 rounded-full border transition-colors focus:outline-none focus:ring-2 ${
-                isTransparent
-                  ? "bg-white/10 border-white/30 text-white hover:bg-white/20 focus:ring-white"
-                  : isDark
-                  ? "bg-white/10 border-white/20 text-white hover:bg-white/20 focus:ring-white"
-                  : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200 focus:ring-slate-500"
-              }`}
+              className={`md:hidden px-3.5 ${headerButtonClasses(isTransparent, isDark)}`}
             >
               {menuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>

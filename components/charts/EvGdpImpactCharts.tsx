@@ -69,6 +69,12 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
   const [pricePinnedYear, setPricePinnedYear] = useState<number | null>(null);
 
+  // 5-year intervals; oil price chart spans ~1986–2026 (40 years)
+  const tickYears = useMemo(
+    () => oilPrices.map((d) => d.year).filter((yr) => yr % 5 === 0),
+    [oilPrices]
+  );
+
   const meta = useMemo(() => gdpMeta.find((m) => m.country === country), [gdpMeta, country]);
 
   useEffect(() => { setPricePinnedYear(null); }, [meta, adoption, year, benchmark, containerWidth, oilPrices]);
@@ -134,7 +140,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
     const chartData = oilPrices;
 
-    const totalW = containerWidth - 32;
+    const totalW = containerWidth - 32; // containerRef is on the outer card (p-4 = 16px each side)
     const margin = { top: 16, right: 40, bottom: 28, left: containerWidth < 380 ? 38 : 52 };
     const totalH = containerWidth < 480 ? 170 : 220;
     const width  = totalW - margin.left - margin.right;
@@ -205,7 +211,6 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
         .attr("d", makeLine(nomKey));
     }
 
-    const tickYears = chartData.map((d) => d.year).filter((yr) => yr % 5 === 0);
     const tickByYear = new Map(chartData.map((d) => [d.year, d]));
     for (const { nomKey, label, color } of series) {
       const active = label === benchmarkRef.current;

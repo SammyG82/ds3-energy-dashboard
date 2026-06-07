@@ -98,10 +98,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
 
   const filtered = useMemo(() => {
     if (query.trim()) return base;
-    return [
-      ...base.filter((r) => selectedSet.has(r)),
-      ...base.filter((r) => !selectedSet.has(r)),
-    ];
+    return [...base].sort((a, b) => (selectedSet.has(b) ? 1 : 0) - (selectedSet.has(a) ? 1 : 0));
   }, [base, query, selectedSet]);
 
   useEffect(() => {
@@ -230,7 +227,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
               filtered.map((region) => (
                 <label
                   key={region}
-                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 ${isDark ? "hover:bg-white/5 focus-within:ring-slate-400" : "hover:bg-slate-50 focus-within:ring-slate-500"}`}
+                  className={`flex items-center gap-2.5 px-3 py-1.5 min-h-11 cursor-pointer select-none rounded focus-within:ring-2 focus-within:ring-offset-1 ${isDark ? "hover:bg-white/5 focus-within:ring-slate-400 focus-within:ring-offset-black" : "hover:bg-slate-50 focus-within:ring-slate-500 focus-within:ring-offset-white"}`}
                 >
                   <input
                     type="checkbox"

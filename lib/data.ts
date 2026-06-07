@@ -53,8 +53,6 @@ export interface GdpMeta {
   country: string;
   region: string;
   gdp: number;
-  oilImports: number;
-  costPerBarrel: number;
 }
 
 export interface PresetItem {
@@ -81,6 +79,7 @@ export const AGGREGATES = new Set(["World", "Rest of the world", "Central and So
 export const COUNTRY_COLORS: Record<string, string> = {
   // EV + shared countries — EV palette is canonical
   China: "#e85d04", USA: "#2563eb", Germany: "#7c3aed", India: "#059669",
+  // "United Kingdom" and "UK" are intentionally duplicated — IEA data uses "United Kingdom", display uses "UK"
   Japan: "#0891b2", "United Kingdom": "#db2777", UK: "#db2777", France: "#ca8a04",
   Norway: "#16a34a", Netherlands: "#dc2626", Korea: "#9333ea", Australia: "#0284c7",
   Sweden: "#15803d", Canada: "#b45309", Spain: "#be185d", Brazil: "#0d9488",
@@ -142,7 +141,7 @@ function createOilFetcher(
   ciHighKey: string,
   filterZeroHistorical = false
 ): () => Promise<OilRow[]> {
-  return async () => {
+  return async function fetchOilData() {
     const raw = await d3.csv(`${BASE}/data/${filename}`);
     return raw
       .flatMap((d) => {
@@ -188,23 +187,13 @@ export async function fetchGdpMeta(): Promise<GdpMeta[]> {
       throw new Error(`Invalid GDP metadata at row ${idx}`);
     }
     const obj = item as Record<string, unknown>;
-    if (
-      typeof obj.country !== "string" ||
-      !obj.country.trim() ||
-      typeof obj.region !== "string" ||
-      !obj.region.trim() ||
-      !Number.isFinite(obj.gdp) ||
-      !Number.isFinite(obj.oilImports) ||
-      !Number.isFinite(obj.costPerBarrel)
-    ) {
-      throw new Error(`Invalid GDP metadata at row ${idx}`);
-    }
+    if (typeof obj.country !== "string" || !obj.country.trim()) throw new Error(`Invalid GDP metadata at row ${idx}: missing country`);
+    if (typeof obj.region !== "string" || !obj.region.trim()) throw new Error(`Invalid GDP metadata at row ${idx}: missing region`);
+    if (!Number.isFinite(obj.gdp)) throw new Error(`Invalid GDP metadata at row ${idx}: invalid gdp`);
     return {
-      country:       obj.country       as string,
-      region:        obj.region        as string,
-      gdp:           obj.gdp           as number,
-      oilImports:    obj.oilImports    as number,
-      costPerBarrel: obj.costPerBarrel as number,
+      country: obj.country as string,
+      region:  obj.region  as string,
+      gdp:     obj.gdp     as number,
     };
   });
 }

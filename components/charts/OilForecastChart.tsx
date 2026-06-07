@@ -13,7 +13,7 @@ import PreviewTooltip from "@/components/ui/PreviewTooltip";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 
 const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
-const dn = (c: string) => OIL_DISPLAY[c] ?? c;
+const dnOil = (c: string) => OIL_DISPLAY[c] ?? c;
 
 interface Props {
   data: OilRow[];
@@ -82,10 +82,10 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
   const ariaLabel = useMemo(() => {
     if (!selected.length || !data.length) return `${datasetLabel}: no countries selected.`;
-    const regionNames = selected.map(dn).join(", ");
+    const regionNames = selected.map(dnOil).join(", ");
     const maxDataYear = data.reduce((m, d) => d.Year > m ? d.Year : m, 0);
     if (!leader) return `${datasetLabel} for ${regionNames}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
-    return `${datasetLabel} for ${regionNames}: ${dn(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
+    return `${datasetLabel} for ${regionNames}: ${dnOil(leader.Country)} leads at ${leader.value.toLocaleString()} KBD in ${statDisplayYear}. Forecast with 95% confidence intervals through ${maxDataYear}.`;
   }, [datasetLabel, selected, leader, statDisplayYear, data]);
 
   const { netLargestImporter, netLargestExporter, netImporterBaseYear, netExporterBaseYear, staticNetDeficit, staticNetSurplus } = useMemo(() => {
@@ -94,6 +94,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     const exporterRows = historical.filter((d) => d.value > 0);
     const maxImporterYear = importerRows.length > 0 ? importerRows.reduce((m, d) => d.Year > m ? d.Year : m, 0) : statDisplayYear;
     const maxExporterYear = exporterRows.length > 0 ? exporterRows.reduce((m, d) => d.Year > m ? d.Year : m, 0) : statDisplayYear;
+    // Importers have negative values; ascending sort puts the most-negative (largest net importer) first
     const topImporter = importerRows.filter((d) => d.Year === maxImporterYear).sort((a, b) => a.value - b.value)[0] ?? null;
     const topExporter = exporterRows.filter((d) => d.Year === maxExporterYear).sort((a, b) => b.value - a.value)[0] ?? null;
     const deficit = Math.abs(importerRows.filter((d) => d.Year === maxImporterYear).reduce((s, d) => s + d.value, 0));
@@ -101,14 +102,20 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     return { netLargestImporter: topImporter, netLargestExporter: topExporter, netImporterBaseYear: maxImporterYear, netExporterBaseYear: maxExporterYear, staticNetDeficit: deficit, staticNetSurplus: surplus };
   }, [data, selectedSet, statDisplayYear]);
 
+  // 10-year intervals: oil chart spans ~1971–2030 (60 years); 5-year would be too dense
+  const tickYears = useMemo(
+    () => Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0),
+    [data]
+  );
+
   const toggle = (c: string) => setSelected((prev) => toggleSelection(prev, c));
 
   const displayYear = pinned ? pinned.year : statDisplayYear;
   const displayIsForecast = pinned?.isForecast ?? (isFinite(forecastBoundary) && statDisplayYear >= forecastBoundary);
   const displayTotal = pinned ? pinned.entries.reduce((s, e) => s + e.value, 0) : latestTotal;
-  const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null);
+  const displayLeader = pinned ? (pinned.entries[0]?.country ?? null) : (leader?.Country ?? null); // entries are sorted descending by pointermove
   const netPinnedLast = pinned?.entries.at(-1) ?? null;
-  const netPinnedFirst = pinned?.entries[0] ?? null;
+  const netPinnedFirst = pinned?.entries.at(0) ?? null;
   const displayNetImporter = pinned
     ? (netPinnedLast && netPinnedLast.value < 0 ? netPinnedLast.country : null)
     : (netLargestImporter?.Country ?? null);
@@ -177,8 +184,12 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       const rows = countryRows.get(country) ?? [];
       const color = COUNTRY_COLORS[country] ?? "#64748b";
 
-      const history = rows.filter((d) => d.Year <= forecastBoundary);
-      const forecast = rows.filter((d) => d.Year >= forecastBoundary);
+      const history: OilRow[] = [];
+      const forecast: OilRow[] = [];
+      for (const d of rows) {
+        if (d.Year <= forecastBoundary) history.push(d);
+        if (d.Year >= forecastBoundary) forecast.push(d);
+      }
 
       const forecastWithCI = forecast.filter((d) => d.ciLow !== null && d.ciHigh !== null);
       if (forecastWithCI.length > 1) {
@@ -205,7 +216,6 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           .attr("stroke-width", 2).attr("stroke-dasharray", FORECAST_DASH).attr("clip-path", `url(#${clipId})`).attr("d", line);
     });
 
-    const tickYears = Array.from(new Set(data.map((d) => d.Year))).filter((yr) => yr % 10 === 0);
     activeCountries.forEach((country) => {
       const color = COUNTRY_COLORS[country] ?? "#64748b";
       const rows = countryRows.get(country) ?? [];
@@ -287,13 +297,13 @@ export default function OilForecastChart({ data, preview = false, isDark = false
                   accent="blue" isDark={isDark} />
                 <StatCard size="xl"
                   label={`${displayIsForecast ? "Projected " : ""}${hasImporters ? "Largest Net Importer" : "Largest Net Exporter"}`}
-                  value={hasImporters ? (displayNetImporter ? dn(displayNetImporter) : "—") : (displayNetExporterName ? dn(displayNetExporterName) : "—")}
+                  value={hasImporters ? (displayNetImporter ? dnOil(displayNetImporter) : "—") : (displayNetExporterName ? dnOil(displayNetExporterName) : "—")}
                   accent="teal" isDark={isDark} />
               </>
             ) : (
               <>
                 <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${displayYear} Total`} value={`${Math.round(displayTotal).toLocaleString()} KBD`} accent="blue" isDark={isDark} />
-                <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${datasetLabel === "Oil Exports (KBD)" ? "Largest Exporter" : "Largest Importer"}`} value={displayLeader ? dn(displayLeader) : "—"} accent="teal" isDark={isDark} />
+                <StatCard size="xl" label={`${displayIsForecast ? "Projected " : ""}${datasetLabel === "Oil Exports (KBD)" ? "Largest Exporter" : "Largest Importer"}`} value={displayLeader ? dnOil(displayLeader) : "—"} accent="teal" isDark={isDark} />
               </>
             )}
           </div>
@@ -321,7 +331,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
             isForecast={previewTooltip.isForecast}
             entries={previewTooltip.entries.map(({ country, value, color }) => ({
               key: country,
-              label: dn(country),
+              label: dnOil(country),
               value: Math.round(value).toLocaleString(),
               unit: "KBD",
               color,
@@ -348,7 +358,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
                 {pinned.entries.map(({ country, value, color }) => (
                   <div key={country} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
                     <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className={`text-sm flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dn(country)}</span>
+                    <span className={`text-sm flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dnOil(country)}</span>
                     <span className={`text-sm font-mono font-semibold whitespace-nowrap ${isDark ? "text-white" : "text-slate-900"}`}>
                       {Math.round(value).toLocaleString()}<span className={`text-xs font-normal ml-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
                     </span>

@@ -8,6 +8,7 @@ export const HEADER_HEIGHT_PX = 96;
 
 export const CHART_TEXT = { dark: "#94a3b8", light: "#64748b" } as const;
 export const GRID_STROKE = { dark: "#334155", light: "#e2e8f0" } as const;
+export const TICK_DOT_FILL = { dark: "#000", light: "#fff" } as const;
 export const FORECAST_DASH = "6 3";
 
 // Counts client-side pushState/replaceState calls since module init. Resets to 0 on every
@@ -50,10 +51,11 @@ export function tooltipStyle(
   clampN: number,
   tipWidth = 220
 ): CSSProperties {
+  // Right-of-cursor when near left edge; left-of-cursor (anchored from right) when near right edge
   return {
-    left: x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - tipWidth)) : undefined,
+    left:  x < containerWidth * 0.6 ? Math.min(x + 14, Math.max(0, containerWidth - tipWidth)) : undefined,
     right: x >= containerWidth * 0.6 ? Math.min(Math.max(0, containerWidth - x + 14), Math.max(0, containerWidth - tipWidth)) : undefined,
-    top: Math.max(4, Math.min(y - 10, containerHeight - clampN)),
+    top:   Math.max(4, Math.min(y - 10, containerHeight - clampN)),
   };
 }
 
@@ -106,7 +108,11 @@ export function drawForecastBoundary(
 
 // fn is stored in a ref so the effect body never sees a stale closure.
 // The effect intentionally runs only on mount — callers must pass stable (module-level) functions.
+// Passing an inline arrow function will not trigger re-fetches and produces a dev warning.
 export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; error: string | null; } {
+  if (process.env.NODE_ENV !== "production" && !fn.name) {
+    console.warn("useDataFetch: fn should be a named, stable (module-level) function — inline arrows use a stale closure captured at mount");
+  }
   const [data, setData] = useState<T>(initial);
   const [error, setError] = useState<string | null>(null);
   const fnRef = useRef(fn);
@@ -118,7 +124,7 @@ export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; er
     }).catch((err) => {
       if (mounted) {
         if (process.env.NODE_ENV === "development") console.error(err);
-        setError(err instanceof Error ? err.message || "Failed to load data." : String(err) || "Failed to load data.");
+        setError(err instanceof Error ? (err.message || String(err)) : String(err));
       }
     });
     return () => { mounted = false; };
@@ -141,7 +147,7 @@ type SVGRootSelection = Selection<SVGSVGElement, unknown, null, undefined>;
 // Assumes the chart uses class names: .grid-h, .tick-dot, .chart-axis, .chart-crosshair.
 export function applyThemeToChart(svg: SVGRootSelection, isDark: boolean): void {
   svg.selectAll(".grid-h").attr("stroke", isDark ? GRID_STROKE.dark : GRID_STROKE.light);
-  svg.selectAll(".tick-dot").attr("fill", isDark ? "#000" : "#fff");
+  svg.selectAll(".tick-dot").attr("fill", isDark ? TICK_DOT_FILL.dark : TICK_DOT_FILL.light);
   svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
   svg.selectAll(".chart-crosshair").attr("stroke", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
   const boundaryColor = isDark ? CHART_TEXT.dark : CHART_TEXT.light;
@@ -173,24 +179,23 @@ export function drawTickDot(
   const dot = g.append("circle")
     .attr("class", "tick-dot")
     .attr("cx", cx).attr("cy", cy).attr("r", 3)
-    .attr("fill", isDarkRef.current ? "#000" : "#fff")
+    .attr("fill", isDarkRef.current ? TICK_DOT_FILL.dark : TICK_DOT_FILL.light)
     .attr("stroke", color).attr("stroke-width", 2)
     .style("pointer-events", "none");
   if (opacity !== undefined) dot.attr("opacity", opacity);
 }
 
+// Returns Infinity for an empty array — callers guard with isFinite() before use
+function minForecastYear(years: number[]): number {
+  return years.reduce((m, y) => Math.min(m, y), Infinity);
+}
+
 export function useEvForecastBoundary(data: EvRow[]): number {
-  return useMemo(() => {
-    const fcYears = data.filter((d) => d.type === "Forecast").map((d) => d.year);
-    return fcYears.length > 0 ? Math.min(...fcYears) : Infinity;
-  }, [data]);
+  return useMemo(() => minForecastYear(data.filter((d) => d.type === "Forecast").map((d) => d.year)), [data]);
 }
 
 export function useOilForecastBoundary(data: OilRow[]): number {
-  return useMemo(() => {
-    const fcYears = data.filter((d) => d.Type === "Forecast").map((d) => d.Year);
-    return fcYears.length > 0 ? Math.min(...fcYears) : Infinity;
-  }, [data]);
+  return useMemo(() => minForecastYear(data.filter((d) => d.Type === "Forecast").map((d) => d.Year)), [data]);
 }
 
 export function useContainerSize(ref: RefObject<Element | null>): { width: number; height: number } {
@@ -250,7 +255,7 @@ export function useHashScroll(
     // #ev-sales-by-country#ev-sales-by-country (same link twice). Always take the last
     // fragment — it is the intended destination regardless of which case we're in.
     const rawHash = window.location.hash;
-    const hash = rawHash ? '#' + rawHash.slice(1).split('#').pop()! : '';
+    const hash = rawHash ? '#' + (rawHash.slice(1).split('#').pop() ?? '') : '';
     // _clientNavs is read here (inside the effect) rather than at render time because
     // Next.js App Router calls pushState during the commit phase — after render but
     // before effects. On the first visit, navCount=0 (the "ds3-nav" event fired before

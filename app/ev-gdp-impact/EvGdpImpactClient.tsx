@@ -106,15 +106,15 @@ export default function EvGdpImpactClient() {
       if (hash === "#oil-import-forecasts") return gdpDrawn && !!document.getElementById("oil-import-forecasts")?.querySelector("svg > g");
       return gdpDrawn;
     },
-    (evData.length > 0 || !!evDataError) && (gdpMeta.length > 0 || !!gdpMetaError) && (oilPrices.length > 0 || !!oilPricesError) && (imports.length > 0 || !!importsError)
+    (evData.length > 0 || !!evDataError) && (gdpMeta.length > 0 || !!gdpMetaError) && (oilPrices.length > 0 || !!oilPricesError) && (imports.length > 0 || !!importsError) && (netTrade.length > 0 || !!netTradeError) && (exportsData.length > 0 || !!exportsError)
   );
 
   const evReady    = evData.length > 0 && gdpMeta.length > 0;
   const anyEvError = evDataError || gdpMetaError;
 
-  const active      = dataset === "imports" ? imports : dataset === "net_trade" ? netTrade : exportsData;
+  const active      = { imports, net_trade: netTrade, exports: exportsData }[dataset];
   const activeMeta  = DATASETS.find((d) => d.id === dataset) ?? DATASETS[0];
-  const activeError = dataset === "imports" ? importsError : dataset === "net_trade" ? netTradeError : exportsError;
+  const activeError = { imports: importsError, net_trade: netTradeError, exports: exportsError }[dataset];
 
   const sharedStatYear = useMemo(() => {
     const fYears = imports.filter((d) => d.Type === "Forecast").map((d) => d.Year);
@@ -145,7 +145,7 @@ export default function EvGdpImpactClient() {
                 {gdpMetaError && <ErrorMessage message={gdpMetaError} isDark={isDark} />}
               </div>
             ) : (
-              <div className="min-h-[500px]">
+              <div className={`rounded-2xl p-6 border min-h-[300px] sm:min-h-[500px] ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
                 <LoadingPlaceholder text="Loading data…" isDark={isDark} />
               </div>
             )}

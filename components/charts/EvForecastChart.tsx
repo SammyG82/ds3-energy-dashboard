@@ -56,6 +56,12 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
   const forecastBoundary = useEvForecastBoundary(data);
 
+  // 5-year intervals; EV chart spans ~2010–2035 (25 years)
+  const tickYears = useMemo(
+    () => Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0),
+    [data]
+  );
+
   const [selected, setSelected] = useState<string[]>(() => defaultRegions);
 
   const ariaLabel = useMemo(() => {
@@ -88,8 +94,12 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     setSelected(defaultRegions);
     onSelectionChangeRef.current?.(defaultRegions);
   }, [defaultRegions]);
-  useEffect(() => { setPinned(null); lastEmittedYearRef.current = null; }, [selected, containerWidth, data]);
-  useEffect(() => { setPreviewTooltip(null); setPreviewTooltipPos(null); }, [data, selected, containerWidth]);
+  useEffect(() => {
+    setPinned(null);
+    lastEmittedYearRef.current = null;
+    setPreviewTooltip(null);
+    setPreviewTooltipPos(null);
+  }, [selected, containerWidth, data]);
 
   useEffect(() => {
     if (!svgRef.current || !containerRef.current || containerWidth === 0 || !regionData.length) return;
@@ -129,8 +139,12 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
     regionData.forEach(({ region, values }) => {
       const color = colorMap[region];
-      const actual = values.filter((d) => d.year <= forecastBoundary);
-      const forecast = values.filter((d) => d.year >= forecastBoundary);
+      const actual: EvRow[] = [];
+      const forecast: EvRow[] = [];
+      for (const d of values) {
+        if (d.year <= forecastBoundary) actual.push(d);
+        if (d.year >= forecastBoundary) forecast.push(d);
+      }
       if (actual.length >= 2)
         g.append("path").datum(actual)
           .attr("fill", "none").attr("stroke", color).attr("stroke-width", 2).attr("d", line);
@@ -140,7 +154,6 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           .attr("stroke-width", 2).attr("stroke-dasharray", FORECAST_DASH).attr("d", line);
     });
 
-    const tickYears = Array.from(new Set(data.map((d) => d.year))).filter((yr) => yr % 5 === 0);
     regionData.forEach(({ region, values }) => {
       const color = colorMap[region];
       const byYr = new Map(values.map((d) => [d.year, d]));
@@ -161,6 +174,19 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
+    const yearEntryMap = new Map<number, { region: string; value: number; color: string }[]>();
+    for (const { region, values } of regionData) {
+      const color = colorMap[region];
+      for (const row of values) {
+        const bucket = yearEntryMap.get(row.year);
+        if (bucket) bucket.push({ region, value: row.ev_sales, color });
+        else yearEntryMap.set(row.year, [{ region, value: row.ev_sales, color }]);
+      }
+    }
+    for (const bucket of yearEntryMap.values()) {
+      bucket.sort((a, b) => b.value - a.value);
+    }
+
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "none").attr("pointer-events", "all")
@@ -173,13 +199,7 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
 
         crosshair.style("visibility", "visible").attr("x1", px).attr("x2", px);
 
-        const entries = regionData
-          .flatMap(({ region, values }) => {
-            const row = values.find((d) => d.year === year);
-            if (!row) return [];
-            return [{ region, value: row.ev_sales, color: colorMap[region] }];
-          })
-          .sort((a, b) => b.value - a.value);
+        const entries = yearEntryMap.get(year) ?? [];
 
         if (!entries.length) {
           crosshair.style("visibility", "hidden");

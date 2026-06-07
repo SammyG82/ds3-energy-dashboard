@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={`${inter.className} min-h-full flex flex-col bg-white dark:bg-black text-slate-900 dark:text-white overscroll-none overflow-x-hidden`}>
         <a
           href="#main-content"
-          className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-300 dark:border-white/20 px-4 py-2 text-sm font-semibold rounded-lg border z-100"
+          className="sr-only focus-visible:not-sr-only focus-visible:absolute focus-visible:top-4 focus-visible:left-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-slate-500 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-900 bg-white dark:bg-slate-900 text-slate-900 dark:text-white border-slate-300 dark:border-white/20 px-4 py-2 text-sm font-semibold rounded-lg border z-[100]"
         >
           Skip to content
         </a>
