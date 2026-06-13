@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
-import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, useEvForecastBoundary, CHART_TEXT } from "@/lib/ui-utils";
+import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
 import BehindTheNumbers from "@/components/ui/BehindTheNumbers";
 import ErrorMessage from "@/components/ui/ErrorMessage";
@@ -45,7 +45,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
   const countries = useMemo(() => gdpMeta.map((m) => m.country), [gdpMeta]);
   const forecastBoundary = useEvForecastBoundary(evData);
   const years = useMemo(() => {
-    return Array.from(new Set(evData.map((d) => d.year))).sort();
+    return Array.from(new Set(evData.map((d) => d.year))).sort((a, b) => a - b);
   }, [evData]);
 
   // Default to the last historical year so the slider opens on real data, not 2010.
@@ -217,22 +217,14 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
       tickYears.forEach((yr) => {
         const row = tickByYear.get(yr);
         if (!row || row[nomKey] === null) return;
-        g.append("circle")
-          .attr("class", `tick-dot oil-tick-${label}`)
-          .attr("cx", x(yr)).attr("cy", y(row[nomKey] as number)).attr("r", 3)
-          .attr("fill", isDarkRef.current ? "#000" : "#fff")
-          .attr("stroke", color).attr("stroke-width", 2)
-          .attr("opacity", active ? 1 : 0.3)
-          .style("pointer-events", "none");
+        drawTickDot(g, x(yr), y(row[nomKey] as number), color, isDarkRef, `oil-tick-${label}`, active ? 1 : 0.3);
       });
     }
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 420 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 420 ? 4 : 6));
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisLeft(y).ticks(4).tickFormat((d) => `$${+d}`));
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 

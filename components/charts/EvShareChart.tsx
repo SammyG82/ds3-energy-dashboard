@@ -248,8 +248,7 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
       .call((ax) => ax.select(".domain").remove())
       .selectAll<SVGTextElement, string>("text")
       .attr("dx", -6)
-      .attr("font-size", axisFontSize)
-      .attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light)
+      .style("font-size", axisFontSize)
       .attr("cursor", "pointer")
       .attr("tabindex", "0")
       .attr("role", "button")
@@ -304,7 +303,6 @@ export default function EvShareChart({ data, preview = false, isDark = false }: 
     const svg = d3.select(svgRef.current);
     svg.selectAll(".chart-grid-line").attr("stroke", isDark ? GRID_STROKE.dark : GRID_STROKE.light);
     svg.selectAll<SVGTextElement, unknown>(".bar-label").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
-    svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
     const euColor = isDark ? EU27_DARK_COLOR : (COUNTRY_COLORS["EU27"] ?? "#003399");
     svg.selectAll<SVGRectElement, EvRow>(".bar")
       .filter((d) => d.region_country === "EU27")

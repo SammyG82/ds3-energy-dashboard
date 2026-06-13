@@ -175,7 +175,7 @@ export default function AboutClient() {
                         href={`${BASE}/data/${f}`}
                         download
                         aria-label={`Download ${f}`}
-                        className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "border-white/10 text-teal-400 hover:border-white/30" : "border-slate-200 text-teal-700 hover:border-slate-400"}`}
+                        className={`inline-flex items-center gap-1 text-xs font-mono px-2 py-1 rounded border transition-colors focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${isDark ? "border-white/10 text-teal-400 hover:border-white/30" : "border-slate-200 text-teal-700 hover:border-slate-400"}`}
                       >
                         {f}
                         <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 1v6M2 7l3 2 3-2" /></svg>
@@ -255,50 +255,38 @@ export default function AboutClient() {
               {[
                 {
                   num: "01",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Extract",
                   body: <>Raw IEA files were loaded by Python notebooks in <span className="font-mono text-xs">analysis/oil_info/</span> and <span className="font-mono text-xs">eda/</span>. EV historical sales data comes from IEA Global EV Outlook 2025; oil trade data from the IEA Oil Information Database (<span className="font-mono text-xs">OIWORLD.csv</span>).</>,
                 },
                 {
                   num: "02",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Clean",
                   body: <>Country names were standardised across datasets — capitalisation anomalies corrected (e.g. <span className="font-mono text-xs">Usa → USA</span>), regional aggregate rows removed, and zero-value rows for years with missing data filtered out to prevent misleading drops in charts.</>,
                 },
                 {
                   num: "03",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Forecast (Oil)",
                   body: <>A Log-ARIMA model was fitted per country using grid search over <span className="font-mono text-xs">(p, d, q)</span> with AIC selection (<span className="font-mono text-xs">d ≤ 1</span>). Each model produces a point forecast and 95% confidence intervals through 2030. MAPE is stored per country in the output CSV.</>,
                 },
                 {
                   num: "04",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Forecast (EV)",
                   body: <>A logistic S-curve model is fitted per country using <span className="font-mono text-xs">scipy.optimize.curve_fit</span> on IEA historical BEV sales. The model projects adoption through 2035, constrained to 1.2–10× the historical peak. Historical rows are tagged <span className="font-mono text-xs">Actual</span>; projected rows <span className="font-mono text-xs">Forecast</span>. Uzbekistan has fewer than 3 data points, so no S-curve forecast is generated for it; its historical rows are still included in the output.</>,
                 },
                 {
                   num: "05",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Export",
                   body: <>Each notebook outputs a standalone file to <span className="font-mono text-xs">public/data/</span>. No single merged analytical dataset exists — each chart reads its own file independently at runtime.</>,
                 },
                 {
                   num: "06",
-                  bgLight: "bg-black/5",   bgDark: "bg-white/10",
-                  textLight: "text-black/60", textDark: "text-white/50",
                   title: "Derive (client-side)",
                   body: <>Oil displacement, estimated savings, and GDP impact percentages are computed in the browser using the adoption-rate and year sliders on the EV GDP Impact page — they are not stored in any data file.</>,
                 },
-              ].map(({ num, bgLight, bgDark, textLight, textDark, title, body }) => (
+              ].map(({ num, title, body }) => (
                 <div key={num} className="flex gap-3 items-start">
-                  <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center -mt-2 ${isDark ? bgDark : bgLight}`}>
-                    <span className={`text-xs font-semibold ${isDark ? textDark : textLight}`}>{num}</span>
+                  <div className={`shrink-0 w-10 h-10 rounded-lg flex items-center justify-center -mt-2 ${isDark ? "bg-white/10" : "bg-black/5"}`}>
+                    <span className={`text-xs font-semibold ${isDark ? "text-white/50" : "text-black/60"}`}>{num}</span>
                   </div>
                   <div className="flex-1">
                     <h3 className={`font-semibold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>{title}</h3>

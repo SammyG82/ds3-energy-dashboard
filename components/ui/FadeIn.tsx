@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 
 interface Props {
@@ -11,22 +11,24 @@ interface Props {
 
 export default function FadeIn({ children, className = "", delay = 0 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  const [visible, setVisible] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Synchronously set reduced-motion state before paint to avoid a flash of
+  // invisible content for users who have prefers-reduced-motion enabled.
+  useLayoutEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) {
+      setPrefersReducedMotion(true);
+      setVisible(true);
+    }
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (mq.matches) {
-      setPrefersReducedMotion(true);
-      setVisible(true);
-      return;
-    }
+    if (mq.matches) return; // useLayoutEffect already set state synchronously before paint
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {

@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, FORECAST_DASH } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
@@ -165,15 +165,14 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6));
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
+    let lastPinnedYear: number | null = null;
     const yearEntryMap = new Map<number, { region: string; value: number; color: string }[]>();
     for (const { region, values } of regionData) {
       const color = colorMap[region];
@@ -213,7 +212,10 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
           setPreviewTooltip({ year, entries });
           setPreviewTooltipPos({ x: cmx, y: cmy });
         } else {
-          setPinned({ year, entries });
+          if (year !== lastPinnedYear) {
+            lastPinnedYear = year;
+            setPinned({ year, entries });
+          }
           if (lastEmittedYearRef.current !== year) {
             lastEmittedYearRef.current = year;
             onYearChangeRef.current?.(year);

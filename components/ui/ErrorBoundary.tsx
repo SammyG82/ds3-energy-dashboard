@@ -24,7 +24,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             <button
               onClick={() => this.setState((s) => ({ error: null, resetKey: s.resetKey + 1, retries: s.retries + 1 }))}
               aria-label="Try again loading this section"
-              className="text-xs underline mt-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 focus:ring-offset-white dark:focus:ring-offset-black rounded"
+              className="text-xs underline mt-1 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500 dark:focus:ring-white focus:ring-offset-white dark:focus:ring-offset-black rounded"
             >
               Try again
             </button>

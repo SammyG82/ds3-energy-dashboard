@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, type RefObject, type MutableRefObject } from "react";
+import { useState, useEffect, useRef, useMemo, type RefObject } from "react";
 import type { CSSProperties } from "react";
 import * as d3 from "d3";
 import type { Selection } from "d3";
@@ -106,8 +106,8 @@ export function drawForecastBoundary(
     .text("Forecast →");
 }
 
-// fn is stored in a ref so the effect body never sees a stale closure.
-// The effect intentionally runs only on mount — callers must pass stable (module-level) functions.
+// fn is held in a ref to capture it at mount time — the effect runs only once so
+// the ref value never changes. Callers must pass stable (module-level) functions.
 // Passing an inline arrow function will not trigger re-fetches and produces a dev warning.
 export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; error: string | null; } {
   if (process.env.NODE_ENV !== "production" && !fn.name) {
@@ -135,7 +135,7 @@ export function useDataFetch<T>(fn: () => Promise<T>, initial: T): { data: T; er
 // Syncs isDark into a ref so D3 draw effects can read the current theme value without
 // taking isDark as a dependency (which would trigger expensive full redraws on toggle).
 // The separate [isDark] theme-update effect handles colour changes cheaply.
-export function useThemeRef(isDark: boolean): MutableRefObject<boolean> {
+export function useThemeRef(isDark: boolean): RefObject<boolean> {
   const ref = useRef(isDark);
   useEffect(() => { ref.current = isDark; }, [isDark]);
   return ref;
@@ -148,7 +148,7 @@ type SVGRootSelection = Selection<SVGSVGElement, unknown, null, undefined>;
 export function applyThemeToChart(svg: SVGRootSelection, isDark: boolean): void {
   svg.selectAll(".grid-h").attr("stroke", isDark ? GRID_STROKE.dark : GRID_STROKE.light);
   svg.selectAll(".tick-dot").attr("fill", isDark ? TICK_DOT_FILL.dark : TICK_DOT_FILL.light);
-  svg.selectAll<SVGTextElement, unknown>(".chart-axis text").attr("fill", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
+  // .chart-axis text fill is handled by globals.css — attr writes are inert against CSS rules
   svg.selectAll(".chart-crosshair").attr("stroke", isDark ? CHART_TEXT.dark : CHART_TEXT.light);
   const boundaryColor = isDark ? CHART_TEXT.dark : CHART_TEXT.light;
   svg.selectAll<SVGLineElement, unknown>("line.chart-forecast-boundary").attr("stroke", boundaryColor);
@@ -158,7 +158,7 @@ export function applyThemeToChart(svg: SVGRootSelection, isDark: boolean): void 
 export function drawCrosshair(
   g: GSelection,
   height: number,
-  isDarkRef: MutableRefObject<boolean>
+  isDarkRef: RefObject<boolean>
 ): Selection<SVGLineElement, unknown, any, unknown> { // eslint-disable-line @typescript-eslint/no-explicit-any
   return g.append("line")
     .attr("class", "chart-crosshair")
@@ -173,11 +173,12 @@ export function drawTickDot(
   cx: number,
   cy: number,
   color: string,
-  isDarkRef: MutableRefObject<boolean>,
+  isDarkRef: RefObject<boolean>,
+  extraClass?: string,
   opacity?: number
 ): void {
   const dot = g.append("circle")
-    .attr("class", "tick-dot")
+    .attr("class", extraClass ? `tick-dot ${extraClass}` : "tick-dot")
     .attr("cx", cx).attr("cy", cy).attr("r", 3)
     .attr("fill", isDarkRef.current ? TICK_DOT_FILL.dark : TICK_DOT_FILL.light)
     .attr("stroke", color).attr("stroke-width", 2)

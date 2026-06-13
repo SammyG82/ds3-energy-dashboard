@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/ui/PageHeader";
 import { useTheme } from "@/lib/theme-context";
@@ -13,7 +13,7 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
 import FadeIn from "@/components/ui/FadeIn";
 import BehindTheNumbers from "@/components/ui/BehindTheNumbers";
-import { useDataFetch, useHashScroll } from "@/lib/ui-utils";
+import { useDataFetch, useHashScroll, useOilForecastBoundary } from "@/lib/ui-utils";
 import ChartLoader from "@/components/ui/ChartLoader";
 
 const EvGdpImpactCharts = dynamic(() => import("@/components/charts/EvGdpImpactCharts"), { ssr: false, loading: ChartLoader });
@@ -116,11 +116,8 @@ export default function EvGdpImpactClient() {
   const activeMeta  = DATASETS.find((d) => d.id === dataset) ?? DATASETS[0];
   const activeError = { imports: importsError, net_trade: netTradeError, exports: exportsError }[dataset];
 
-  const sharedStatYear = useMemo(() => {
-    const fYears = imports.filter((d) => d.Type === "Forecast").map((d) => d.Year);
-    const boundary = fYears.length ? Math.min(...fYears) : undefined;
-    return boundary !== undefined ? boundary - 1 : 2023;
-  }, [imports]);
+  const oilForecastBoundary = useOilForecastBoundary(imports);
+  const sharedStatYear = isFinite(oilForecastBoundary) ? oilForecastBoundary - 1 : 2023;
 
   return (
     <div className={`transition-colors duration-300 ${isDark ? "bg-black" : "bg-white"}`}>
@@ -170,7 +167,7 @@ export default function EvGdpImpactClient() {
                     key={d.id}
                     onClick={() => setDataset(d.id)}
                     aria-pressed={dataset === d.id}
-                    className={`text-sm font-semibold px-4 py-3 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+                    className={`text-sm font-semibold px-4 py-3 rounded-xl border transition-colors focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${
                       dataset === d.id
                         ? isDark ? "bg-white text-black border-white" : "bg-slate-900 text-white border-slate-900"
                         : isDark

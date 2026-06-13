@@ -125,7 +125,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
                 onSelectGroup(regions);
                 setShowCustom(false);
               }}
-              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+              className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${
                 isActive
                   ? "bg-teal-600 text-white border-teal-600"
                   : isDark
@@ -145,7 +145,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           aria-label="Select custom regions"
           aria-expanded={showCustom}
           aria-controls={`${uid}-custom`}
-          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          className={`px-3 py-1.5 text-sm font-medium rounded-full border transition-colors focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${
             showCustom
               ? "bg-slate-700 text-white border-slate-700"
               : isDark
@@ -164,7 +164,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
           aria-label="Why these groups?"
           aria-expanded={showInfo}
           aria-controls={`${uid}-info`}
-          className={`w-11 h-11 md:w-8 md:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-500 ${
+          className={`w-11 h-11 md:w-8 md:h-8 rounded-full border text-xs font-bold flex items-center justify-center shrink-0 transition-colors focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${
             showInfo
               ? "bg-teal-600 text-white border-teal-600"
               : isDark
@@ -198,7 +198,7 @@ export default function RegionPicker({ options, selected, onToggle, onSelectGrou
             onKeyDown={(e) => { if (e.key === "Escape") { e.preventDefault(); setShowCustom(false); customBtnRef.current?.focus(); } }}
             placeholder="Search regions…"
             aria-label="Search countries and regions"
-            className={`w-full pl-3 pr-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
+            className={`w-full pl-3 pr-3 py-2.5 text-sm border rounded-lg focus:outline-none focus:ring-2 ${isDark ? "focus:ring-white" : "focus:ring-slate-500"} ${isDark ? "bg-slate-800 border-white/10 text-white placeholder-slate-500" : "bg-white border-slate-200 text-slate-700 placeholder-slate-400"}`}
           />
 
           <div

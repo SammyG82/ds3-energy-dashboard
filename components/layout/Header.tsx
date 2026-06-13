@@ -54,8 +54,10 @@ export default function Header() {
     if (!menuOpen) return;
     const navEl = document.getElementById("mobile-nav");
     const navLinks = navEl ? Array.from(navEl.querySelectorAll<HTMLElement>("a[href]")) : [];
-    const focusable = hamburgerRef.current ? [...navLinks, hamburgerRef.current] : navLinks;
-    focusable[0]?.focus();
+    // Hamburger precedes mobile-nav in the DOM, so it must be first in the focusable
+    // array so that Shift+Tab from the first nav link wraps back to the hamburger.
+    const focusable = hamburgerRef.current ? [hamburgerRef.current, ...navLinks] : navLinks;
+    navLinks[0]?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setMenuOpen(false);
@@ -145,7 +147,7 @@ export default function Header() {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors whitespace-nowrap focus:outline-none focus:ring-2 ${
+                  className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-offset-2 ${isTransparent || isDark ? "focus:ring-offset-black" : "focus:ring-offset-white"} ${
                     isTransparent
                       ? active
                         ? "bg-teal-400/25 border-teal-300/50 text-white focus:ring-white"
@@ -206,7 +208,7 @@ export default function Header() {
                   key={href}
                   href={href}
                   aria-current={active ? "page" : undefined}
-                  className={`min-h-11 flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 ${
+                  className={`min-h-11 flex items-center text-sm font-medium px-4 py-3 rounded-lg border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${isDark ? "focus:ring-offset-black" : "focus:ring-offset-white"} ${
                     active
                       ? isDark
                         ? "bg-teal-500/20 border-teal-400/40 text-teal-300 focus:ring-white"

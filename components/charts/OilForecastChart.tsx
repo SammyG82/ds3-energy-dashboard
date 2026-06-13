@@ -5,7 +5,7 @@ import * as d3 from "d3";
 import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
-import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useOilForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
+import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useOilForecastBoundary, FORECAST_DASH } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 import ChartLegend from "@/components/ui/ChartLegend";
@@ -227,21 +227,20 @@ export default function OilForecastChart({ data, preview = false, isDark = false
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6));
 
     g.append("g").attr("class", "chart-axis")
       .call(d3.axisLeft(y).tickFormat((v) => {
         const n = +v;
         if (n === 0) return "0";
         return n >= 1000 || n <= -1000 ? `${(n / 1000).toFixed(0)}k` : `${Math.round(n)}`;
-      }).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      }).ticks(5));
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
     const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
 
+    let lastPinnedYear: number | null = null;
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
@@ -268,7 +267,10 @@ export default function OilForecastChart({ data, preview = false, isDark = false
           setPreviewTooltip({ year, isForecast, entries });
           setPreviewTooltipPos({ x: cmx, y: cmy });
         } else {
-          setPinned({ year, isForecast, entries });
+          if (year !== lastPinnedYear) {
+            lastPinnedYear = year;
+            setPinned({ year, isForecast, entries });
+          }
         }
       })
       .on("pointerleave", function () {
@@ -344,7 +346,7 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       </div>
 
       {!preview && (
-        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/5 border-white/10" : "bg-white border-slate-200"}`}>
+        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200"}`}>
           {pinned ? (
             <>
               <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>

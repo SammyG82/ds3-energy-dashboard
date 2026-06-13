@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import * as d3 from "d3";
 import type { EvRow } from "@/lib/data";
 import { fmtEvSales, dn, AGGREGATES } from "@/lib/data";
-import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, CHART_TEXT, FORECAST_DASH } from "@/lib/ui-utils";
+import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, FORECAST_DASH } from "@/lib/ui-utils";
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
 import StatCard from "@/components/ui/StatCard";
@@ -123,15 +123,14 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     });
 
     g.append("g").attr("class", "chart-axis").attr("transform", `translate(0,${height})`)
-      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisBottom(x).tickFormat(d3.format("d")).ticks(containerWidth < 380 ? 4 : 6));
 
     g.append("g").attr("class", "chart-axis")
-      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5))
-      .selectAll("text").attr("fill", isDarkRef.current ? CHART_TEXT.dark : CHART_TEXT.light);
+      .call(d3.axisLeft(y).tickFormat((v) => fmtEvSales(+v)).ticks(5));
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
 
+    let lastPinnedYear: number | null = null;
     g.append("rect")
       .attr("width", width).attr("height", height)
       .attr("fill", "transparent").style("pointer-events", "all")
@@ -147,7 +146,10 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
         const yoy = prevRow && prevRow.ev_sales > 0
           ? ((sales - prevRow.ev_sales) / prevRow.ev_sales) * 100
           : null;
-        setPinned({ year, sales, yoy, isForecast: year >= forecastBoundary });
+        if (year !== lastPinnedYear) {
+          lastPinnedYear = year;
+          setPinned({ year, sales, yoy, isForecast: year >= forecastBoundary });
+        }
       })
       .on("pointerleave", function () {
         crosshair.style("visibility", "hidden");
