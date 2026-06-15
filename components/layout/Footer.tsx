@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useTheme } from "@/lib/theme-context";
+import { REPO_URL } from "@/lib/site";
 
 function footerLinkClasses(isDark: boolean): string {
   return `text-xs font-medium uppercase tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 rounded ${
@@ -20,7 +21,7 @@ export default function Footer() {
         </p>
         <nav className="flex gap-5" aria-label="Footer links">
           <a
-            href="https://github.com/SammyG82/ds3-energy-dashboard"
+            href={REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="GitHub repository (opens in new tab)"

@@ -6,9 +6,9 @@ import type { EvRow } from "@/lib/data";
 import { EV_DISPLAY_NAMES, fmtEvSales, COUNTRY_COLORS, dn, TOP_5_MARKETS } from "@/lib/data";
 import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useEvForecastBoundary, FORECAST_DASH } from "@/lib/ui-utils";
 import RegionPicker from "@/components/ui/RegionPicker";
-import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
 import PreviewTooltip from "@/components/ui/PreviewTooltip";
+import PinnedPanel from "@/components/ui/PinnedPanel";
 
 interface Props {
   data: EvRow[];
@@ -278,29 +278,20 @@ export default function EvForecastChart({ data, preview = false, isDark = false,
       </div>
 
       {!preview && (
-        <div className={`border rounded-xl overflow-hidden ${isDark ? "border-white/10 bg-white/10" : "border-slate-200 bg-white"}`}>
-          {pinned ? (
-            <>
-              <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>
-                <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
-                <ForecastBadge isForecast={pinned.year >= forecastBoundary} isDark={isDark} />
-              </div>
-              <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
-                {pinned.entries.map(({ region, value, color }) => (
-                  <div key={region} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
-                    <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className={`text-sm flex-1 ${isDark ? "text-slate-300" : "text-slate-700"}`}>{dn(region)}</span>
-                    <span className={`text-sm font-mono font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{fmtEvSales(value)}</span>
-                  </div>
-                ))}
-              </div>
-            </>
-          ) : (
-            <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
-              Tap or hover the chart to explore values by year
-            </p>
-          )}
-        </div>
+        <PinnedPanel
+          isDark={isDark}
+          emptyText="Tap or hover the chart to explore values by year"
+          data={pinned ? {
+            year: pinned.year,
+            isForecast: pinned.year >= forecastBoundary,
+            entries: pinned.entries.map(({ region, value, color }) => ({
+              key: region,
+              label: dn(region),
+              value: fmtEvSales(value),
+              color,
+            })),
+          } : null}
+        />
       )}
 
     </div>

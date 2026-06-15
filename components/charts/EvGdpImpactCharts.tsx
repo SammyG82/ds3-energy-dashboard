@@ -6,6 +6,7 @@ import type { EvRow, GdpMeta, OilPriceRow } from "@/lib/data";
 import { fmtEvSales } from "@/lib/data";
 import { useContainerSize, useThemeRef, useChartTheme, drawCrosshair, drawHorizontalGridLines, drawTickDot, useEvForecastBoundary } from "@/lib/ui-utils";
 import StatCard from "@/components/ui/StatCard";
+import Select from "@/components/ui/Select";
 import BehindTheNumbers from "@/components/ui/BehindTheNumbers";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import LoadingPlaceholder from "@/components/ui/LoadingPlaceholder";
@@ -284,13 +285,7 @@ export default function EvGdpImpactCharts({ evData, gdpMeta, oilPrices, oilPrice
 
         <div className="flex flex-col gap-2">
           <label htmlFor="gdp-country-select" className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Country</label>
-          <div className="relative">
-            <select id="gdp-country-select" value={country} onChange={(e) => setCountry(e.target.value)}
-              className={`appearance-none text-sm font-semibold rounded-lg pl-3 pr-8 py-2 border focus:outline-none focus:ring-2 focus:ring-slate-500 w-full ${isDark ? "bg-white/10 border-white/10 text-white" : "bg-white border-slate-200 text-slate-700"}`}>
-              {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <svg className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${isDark ? "text-white/40" : "text-slate-500"}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 6 8 10 12 6" /></svg>
-          </div>
+          <Select id="gdp-country-select" value={country} onChange={setCountry} options={countries} fullWidth isDark={isDark} />
         </div>
 
         <div>

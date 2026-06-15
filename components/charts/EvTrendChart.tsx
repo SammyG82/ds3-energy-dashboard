@@ -8,6 +8,7 @@ import { useContainerSize, drawHorizontalGridLines, drawForecastBoundary, useThe
 import ForecastBadge from "@/components/ui/ForecastBadge";
 import ChartLegend from "@/components/ui/ChartLegend";
 import StatCard from "@/components/ui/StatCard";
+import Select from "@/components/ui/Select";
 
 const EV_TREND_COLOR = "#0d9488";
 
@@ -189,19 +190,7 @@ export default function EvTrendChart({ data, isDark = false }: Props) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-3 flex-wrap">
         <label htmlFor="trend-country-select" className={`text-xs font-mono uppercase tracking-widest ${isDark ? "text-white/40" : "text-slate-400"}`}>Country</label>
-        <div className="relative">
-          <select
-            id="trend-country-select"
-            value={country}
-            onChange={(e) => setCountry(e.target.value)}
-            className={`appearance-none text-sm font-semibold border rounded-lg pl-3 pr-8 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-slate-500 ${isDark ? "text-slate-200 bg-slate-800 border-slate-700" : "text-slate-700 bg-white border-slate-200"}`}
-          >
-            {countries.map((c) => (
-              <option key={c} value={c}>{dn(c)}</option>
-            ))}
-          </select>
-          <svg className={`pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${isDark ? "text-slate-400" : "text-slate-500"}`} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 6 8 10 12 6" /></svg>
-        </div>
+        <Select id="trend-country-select" value={country} onChange={setCountry} options={countries} displayName={dn} isDark={isDark} />
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

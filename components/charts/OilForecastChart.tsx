@@ -6,10 +6,10 @@ import type { OilRow } from "@/lib/data";
 import { COUNTRY_COLORS } from "@/lib/data";
 import RegionPicker, { PresetItem } from "@/components/ui/RegionPicker";
 import { tooltipStyle, useContainerSize, toggleSelection, drawHorizontalGridLines, drawForecastBoundary, useThemeRef, useChartTheme, drawCrosshair, drawTickDot, useOilForecastBoundary, FORECAST_DASH } from "@/lib/ui-utils";
-import ForecastBadge from "@/components/ui/ForecastBadge";
 import StatCard from "@/components/ui/StatCard";
 import ChartLegend from "@/components/ui/ChartLegend";
 import PreviewTooltip from "@/components/ui/PreviewTooltip";
+import PinnedPanel from "@/components/ui/PinnedPanel";
 import { OIL_IMPORT_PRESETS } from "@/lib/oil-presets";
 
 const OIL_DISPLAY: Record<string, string> = { Korea: "South Korea" };
@@ -180,6 +180,9 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       activeCountries.map((c) => [c, activeData.filter((d) => d.Country === c).sort((a, b) => a.Year - b.Year)])
     );
 
+    // Keyed lookup reused by both the tick-dot loop and the pointermove handler below.
+    const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
+
     activeCountries.forEach((country) => {
       const rows = countryRows.get(country) ?? [];
       const color = COUNTRY_COLORS[country] ?? "#64748b";
@@ -218,9 +221,8 @@ export default function OilForecastChart({ data, preview = false, isDark = false
 
     activeCountries.forEach((country) => {
       const color = COUNTRY_COLORS[country] ?? "#64748b";
-      const rows = countryRows.get(country) ?? [];
       tickYears.forEach((yr) => {
-        const row = rows.find((d) => d.Year === yr);
+        const row = dataIndex.get(`${country}|${yr}`);
         if (!row) return;
         drawTickDot(g, x(yr), y(row.value), color, isDarkRef);
       });
@@ -237,8 +239,6 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       }).ticks(5));
 
     const crosshair = drawCrosshair(g, height, isDarkRef);
-
-    const dataIndex = new Map(activeData.map((d) => [`${d.Country}|${d.Year}`, d]));
 
     let lastPinnedYear: number | null = null;
     g.append("rect")
@@ -346,37 +346,23 @@ export default function OilForecastChart({ data, preview = false, isDark = false
       </div>
 
       {!preview && (
-        <div className={`rounded-xl overflow-hidden border ${isDark ? "bg-white/10 border-white/10" : "bg-white border-slate-200"}`}>
-          {pinned ? (
-            <>
-              <div className={`px-4 py-2 border-b flex items-center justify-between ${isDark ? "border-white/10" : "border-slate-100"}`}>
-                <span className={`text-xs font-mono font-bold ${isDark ? "text-white/60" : "text-slate-500"}`}>{pinned.year}</span>
-                <div className="flex items-center gap-2">
-                  <ForecastBadge isForecast={pinned.isForecast} isDark={isDark} />
-                  <span className={`text-xs hidden sm:inline ${isDark ? "text-white/40" : "text-slate-400"}`}>Thousands of barrels per day</span>
-                </div>
-              </div>
-              <div className="overflow-y-auto" style={{ maxHeight: "clamp(120px, 25vh, 220px)" }}>
-                {pinned.entries.map(({ country, value, color }) => (
-                  <div key={country} className={`flex items-center gap-3 px-4 py-2 border-b last:border-0 ${isDark ? "border-white/5" : "border-slate-50"}`}>
-                    <span aria-hidden="true" className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                    <span className={`text-sm flex-1 ${isDark ? "text-white/70" : "text-slate-700"}`}>{dnOil(country)}</span>
-                    <span className={`text-sm font-mono font-semibold whitespace-nowrap ${isDark ? "text-white" : "text-slate-900"}`}>
-                      {Math.round(value).toLocaleString()}<span className={`text-xs font-normal ml-1 ${isDark ? "text-white/40" : "text-slate-400"}`}>KBD</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <p className={`text-xs px-4 py-2 border-t ${isDark ? "text-white/40 border-white/10" : "text-slate-400 border-slate-100"}`}>
-                KBD = thousands of barrels per day
-              </p>
-            </>
-          ) : (
-            <p className={`text-xs px-4 py-4 text-center ${isDark ? "text-white/40" : "text-slate-400"}`}>
-              Tap or hover the chart to explore oil volumes by year
-            </p>
-          )}
-        </div>
+        <PinnedPanel
+          isDark={isDark}
+          emptyText="Tap or hover the chart to explore oil volumes by year"
+          headerNote="Thousands of barrels per day"
+          footer="KBD = thousands of barrels per day"
+          data={pinned ? {
+            year: pinned.year,
+            isForecast: pinned.isForecast,
+            entries: pinned.entries.map(({ country, value, color }) => ({
+              key: country,
+              label: dnOil(country),
+              value: Math.round(value).toLocaleString(),
+              unit: "KBD",
+              color,
+            })),
+          } : null}
+        />
       )}
 
     </div>
